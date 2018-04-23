@@ -62,6 +62,12 @@ public class Issue {
 			else if (label.getName().contains("enhancement")) {
 				this.type = Type.ENHANCEMENT;
 			}
+			else if (label.getName().contains("documentation")) {
+				this.type = Type.DOCUMENTATION;
+			}
+			else if (label.getName().contains("dependency-upgrade")) {
+				this.type = Type.DEPENDENCY_UPGRADES;
+			}
 		}
 	}
 
@@ -123,9 +129,13 @@ public class Issue {
 
 	public enum Type {
 
+		ENHANCEMENT("New Features", ":star:"),
+
 		BUG("Bug fixes", ":beetle:"),
 
-		ENHANCEMENT("New Features", ":star:");
+		DOCUMENTATION("Documentation", ":notebook_with_decorative_cover:"),
+
+		DEPENDENCY_UPGRADES("Dependency upgrades", ":hammer:");
 
 		private String description;
 

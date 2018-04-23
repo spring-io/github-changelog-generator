@@ -4,6 +4,9 @@ import java.util.List;
 import java.util.function.Supplier;
 
 /**
+ * Standard implementation of {@link Page}.
+ *
+ * @param <T> the type of the contents of the page
  * @author Madhura Bhave
  */
 public class StandardPage<T> implements Page<T> {

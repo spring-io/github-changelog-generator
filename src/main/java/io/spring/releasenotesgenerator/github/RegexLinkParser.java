@@ -5,13 +5,13 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 /**
+ * A {@code LinkParser} that uses a regular expression to parse the header.
+ *
  * @author Madhura Bhave
  */
-@Component
 public class RegexLinkParser implements LinkParser {
 
 	private static final Pattern LINK_PATTERN = Pattern.compile("<(.+)>; rel=\"(.+)\"");

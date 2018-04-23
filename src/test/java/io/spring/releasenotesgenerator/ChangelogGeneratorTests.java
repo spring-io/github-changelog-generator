@@ -6,9 +6,10 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.spring.releasenotesgenerator.github.GithubProperties;
 import io.spring.releasenotesgenerator.github.GithubService;
 import io.spring.releasenotesgenerator.github.Issue;
-import io.spring.releasenotesgenerator.github.RepositoryProperties;
+import io.spring.releasenotesgenerator.github.User;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -36,7 +37,7 @@ public class ChangelogGeneratorTests {
 
 	@Before
 	public void setup() {
-		RepositoryProperties properties = new RepositoryProperties();
+		GithubProperties properties = new GithubProperties();
 		properties.setName("name");
 		properties.setOrganization("org");
 		service = mock(GithubService.class);
@@ -58,8 +59,9 @@ public class ChangelogGeneratorTests {
 
 	@Test
 	public void generateWhenNoEnhancements() throws Exception {
+		User contributor1 = getUser("contributor1", "contributor1-github-url");
 		List<Issue> issues = new ArrayList<>();
-		issues.add(MockIssues.getBug("Bug 1", "1", "bug-1-url"));
+		issues.add(MockIssues.getPullRequest("Bug 1", "1", Issue.Type.BUG,"bug-1-url", contributor1));
 		issues.add(MockIssues.getBug("Bug 3", "3", "bug-3-url"));
 		given(this.service.getIssuesForMilestone(23, "org", "name")).willReturn(issues);
 		File file = new File(this.temporaryFolder.getRoot().getPath() + "foo");
@@ -69,23 +71,38 @@ public class ChangelogGeneratorTests {
 
 	@Test
 	public void generateWhenNoBugFixes() throws Exception {
+		User contributor1 = getUser("contributor1", "contributor1-github-url");
+		User contributor2 = getUser("contributor2", "contributor2-github-url");
 		List<Issue> issues = new ArrayList<>();
 		issues.add(MockIssues.getEnhancement("Enhancement 1", "2", "enhancement-1-url"));
 		issues.add(MockIssues.getEnhancement("Enhancement 2", "4", "enhancement-2-url"));
+		issues.add(MockIssues.getPullRequest("Enhancement 3", "5", Issue.Type.ENHANCEMENT,"enhancement-5-url", contributor1));
+		issues.add(MockIssues.getPullRequest("Enhancement 4", "6", Issue.Type.ENHANCEMENT,"enhancement-6-url", contributor2));
 		given(this.service.getIssuesForMilestone(23, "org", "name")).willReturn(issues);
 		File file = new File(this.temporaryFolder.getRoot().getPath() + "foo");
 		this.generator.generate(23, file.getPath());
 		assertOutputisCorrect(file, "output-with-no-bugs");
 	}
 
-	@Test
-	public void generateWhenFileExists() throws Exception {
-
+	private User getUser(String contributor12, String s) {
+		User contributor1 = new User();
+		contributor1.setName(contributor12);
+		contributor1.setUrl(s);
+		return contributor1;
 	}
 
 	@Test
 	public void generateWhenDuplicateContributor() throws Exception {
-
+		User contributor1 = getUser("contributor1", "contributor1-github-url");
+		List<Issue> issues = new ArrayList<>();
+		issues.add(MockIssues.getEnhancement("Enhancement 1", "2", "enhancement-1-url"));
+		issues.add(MockIssues.getEnhancement("Enhancement 2", "4", "enhancement-2-url"));
+		issues.add(MockIssues.getPullRequest("Enhancement 3", "5", Issue.Type.ENHANCEMENT,"enhancement-5-url", contributor1));
+		issues.add(MockIssues.getPullRequest("Enhancement 4", "6", Issue.Type.ENHANCEMENT,"enhancement-6-url", contributor1));
+		given(this.service.getIssuesForMilestone(23, "org", "name")).willReturn(issues);
+		File file = new File(this.temporaryFolder.getRoot().getPath() + "foo");
+		this.generator.generate(23, file.getPath());
+		assertOutputisCorrect(file, "output-with-duplicate-contributors");
 	}
 
 	private void assertOutputisCorrect(File file, String path) throws IOException {

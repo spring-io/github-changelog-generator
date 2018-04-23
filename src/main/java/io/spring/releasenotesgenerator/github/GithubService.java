@@ -6,7 +6,6 @@ import java.util.List;
 
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 
@@ -15,7 +14,6 @@ import org.springframework.web.client.RestTemplate;
  *
  * @author Madhura Bhave
  */
-@Component
 public class GithubService {
 
 	private final RestTemplate restTemplate;
@@ -24,9 +22,9 @@ public class GithubService {
 
 	private static final String ROOT_URI = "https://api.github.com/";
 
-	public GithubService(RestTemplateBuilder restTemplateBuilder,
+	public GithubService(String username, String password, RestTemplateBuilder restTemplateBuilder,
 			LinkParser linkParser) {
-		this.restTemplate = restTemplateBuilder.build();
+		this.restTemplate = restTemplateBuilder.basicAuthorization(username, password).build();
 		this.linkParser = linkParser;
 	}
 
