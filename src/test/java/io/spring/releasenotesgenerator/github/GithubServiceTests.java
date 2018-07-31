@@ -1,3 +1,19 @@
+/*
+ * Copyright 2012-2018 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package io.spring.releasenotesgenerator.github;
 
 import java.util.List;
@@ -27,8 +43,11 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
  * @author Madhura Bhave
  */
 @RunWith(SpringRunner.class)
-@RestClientTest({GithubService.class, RegexLinkParser.class})
+@RestClientTest({ GithubService.class, RegexLinkParser.class })
 public class GithubServiceTests {
+
+	@Rule
+	public ExpectedException thrown = ExpectedException.none();
 
 	@Autowired
 	private MockRestServiceServer server;
@@ -36,12 +55,10 @@ public class GithubServiceTests {
 	@Autowired
 	private GithubService service;
 
-	@Rule
-	public ExpectedException thrown = ExpectedException.none();
-
 	@Test
 	public void getIssuesWhenNoIssues() {
-		this.server.expect(requestTo("https://api.github.com/repos/org/repo/issues?milestone=23&state=closed"))
+		this.server.expect(requestTo(
+				"https://api.github.com/repos/org/repo/issues?milestone=23&state=closed"))
 				.andExpect(method(HttpMethod.GET))
 				.andRespond(withSuccess("[]", MediaType.APPLICATION_JSON));
 		List<Issue> issues = this.service.getIssuesForMilestone(23, "org", "repo");
@@ -50,9 +67,11 @@ public class GithubServiceTests {
 
 	@Test
 	public void getIssuesWhenSinglePageOfIssuesPresent() {
-		this.server.expect(requestTo("https://api.github.com/repos/org/repo/issues?milestone=23&state=closed"))
+		this.server.expect(requestTo(
+				"https://api.github.com/repos/org/repo/issues?milestone=23&state=closed"))
 				.andExpect(method(HttpMethod.GET))
-				.andRespond(withSuccess(getClassPathResource("closed-issues-for-milestone-page-1.json"),
+				.andRespond(withSuccess(
+						getClassPathResource("closed-issues-for-milestone-page-1.json"),
 						MediaType.APPLICATION_JSON));
 		List<Issue> issues = this.service.getIssuesForMilestone(23, "org", "repo");
 		assertThat(issues.size()).isEqualTo(30);
@@ -62,12 +81,15 @@ public class GithubServiceTests {
 	public void getIssuesWhenMultiplePagesOfIssuesPresent() {
 		HttpHeaders headers = new HttpHeaders();
 		headers.set("Link", "<page-two>; rel=\"next\"");
-		this.server.expect(requestTo("https://api.github.com/repos/org/repo/issues?milestone=23&state=closed"))
+		this.server.expect(requestTo(
+				"https://api.github.com/repos/org/repo/issues?milestone=23&state=closed"))
 				.andExpect(method(HttpMethod.GET))
-				.andRespond(withSuccess(getClassPathResource("closed-issues-for-milestone-page-1.json"),
+				.andRespond(withSuccess(
+						getClassPathResource("closed-issues-for-milestone-page-1.json"),
 						MediaType.APPLICATION_JSON).headers(headers));
 		this.server.expect(requestTo("/page-two")).andExpect(method(HttpMethod.GET))
-				.andRespond(withSuccess(getClassPathResource("closed-issues-for-milestone-page-2.json"),
+				.andRespond(withSuccess(
+						getClassPathResource("closed-issues-for-milestone-page-2.json"),
 						MediaType.APPLICATION_JSON));
 		List<Issue> issues = this.service.getIssuesForMilestone(23, "org", "repo");
 		assertThat(issues.size()).isEqualTo(60);
