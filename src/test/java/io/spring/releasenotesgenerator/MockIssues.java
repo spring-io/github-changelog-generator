@@ -23,7 +23,11 @@ import io.spring.releasenotesgenerator.github.User;
 /**
  * @author Madhura Bhave
  */
-public class MockIssues {
+public final class MockIssues {
+
+	private MockIssues() {
+
+	}
 
 	public static Issue getBug(String title, String number, String url) {
 		return getIssue(title, number, url, Issue.Type.BUG, false, null);
@@ -33,12 +37,13 @@ public class MockIssues {
 		return getIssue(title, number, url, Issue.Type.ENHANCEMENT, false, null);
 	}
 
-	public static Issue getPullRequest(String title, String number, Issue.Type type, String url, User user) {
+	public static Issue getPullRequest(String title, String number, Issue.Type type,
+			String url, User user) {
 		return getIssue(title, number, url, type, true, user);
 	}
 
-	private static Issue getIssue(String title, String number, String url, Issue.Type enhancement,
-			boolean isPullRequest, User user) {
+	private static Issue getIssue(String title, String number, String url,
+			Issue.Type enhancement, boolean isPullRequest, User user) {
 		Issue issue = new Issue();
 		issue.setTitle(title);
 		issue.setNumber(number);

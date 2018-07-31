@@ -1,3 +1,19 @@
+/*
+ * Copyright 2012-2018 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package io.spring.releasenotesgenerator;
 
 import java.io.ByteArrayInputStream;
@@ -21,19 +37,19 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 /**
- * Generates a file which includes bug fixes, enhancements and contributors for a
- * given milestone.
+ * Generates a file which includes bug fixes, enhancements and contributors for a given
+ * milestone.
  *
  * @author Madhura Bhave
  */
 @Component
 public class ChangelogGenerator {
 
+	private static final String THANK_YOU = ":heart: We’d like to thank all the contributors who worked on our current release!";
+
 	private final GithubService service;
 
 	private final GithubProperties githubProperties;
-
-	private static final String THANK_YOU = ":heart: We’d like to thank all the contributors who worked on our current release!";
 
 	public ChangelogGenerator(GithubService service, GithubProperties githubProperties) {
 		this.service = service;
@@ -41,15 +57,15 @@ public class ChangelogGenerator {
 	}
 
 	/**
-	 * Generates a file at the given path which includes bug fixes, enhancements and contributors for the
-	 * given milestone.
+	 * Generates a file at the given path which includes bug fixes, enhancements and
+	 * contributors for the given milestone.
 	 * @param milestone the milestone to generate the release notes for
 	 * @param path the path to the file
-	 * @throws IOException
+	 * @throws IOException if writing to file failed
 	 */
 	public void generate(int milestone, String path) throws IOException {
-		List<Issue> issues = this.service.getIssuesForMilestone(milestone, this.githubProperties.getOrganization(),
-				this.githubProperties.getName());
+		List<Issue> issues = this.service.getIssuesForMilestone(milestone,
+				this.githubProperties.getOrganization(), this.githubProperties.getName());
 		String output = generateContent(issues);
 		writeContentToFile(path, output);
 	}
@@ -61,11 +77,11 @@ public class ChangelogGenerator {
 	}
 
 	private String generateContent(List<Issue> issues) {
-		String users = getContributors(issues).stream()
-				.map(this::formatContributors).collect(Collectors.joining("\n"));
-		LinkedHashSet<String> outputs = sortIssues(issues)
-				.entrySet().stream()
-				.map(e -> getOutput(e.getKey(), e.getValue())).collect(Collectors.toCollection(LinkedHashSet::new));
+		String users = getContributors(issues).stream().map(this::formatContributors)
+				.collect(Collectors.joining("\n"));
+		LinkedHashSet<String> outputs = sortIssues(issues).entrySet().stream()
+				.map((entry) -> getOutput(entry.getKey(), entry.getValue()))
+				.collect(Collectors.toCollection(LinkedHashSet::new));
 		String issuesOutput = outputs.stream().collect(Collectors.joining("\n"));
 		return issuesOutput + "\n" + getContributorSummary(users);
 	}
@@ -78,13 +94,12 @@ public class ChangelogGenerator {
 	}
 
 	private Set<User> getContributors(List<Issue> issues) {
-		return issues.stream().filter(i -> i.getPullRequest() != null)
+		return issues.stream().filter((issue) -> issue.getPullRequest() != null)
 				.map(Issue::getUser).distinct().collect(Collectors.toSet());
 	}
 
 	public Map<Issue.Type, List<Issue>> sortIssues(List<Issue> issues) {
-		return issues.stream()
-				.filter(i -> i.getType() != null)
+		return issues.stream().filter((issue) -> issue.getType() != null)
 				.sorted(Comparator.comparing(Issue::getType))
 				.collect(Collectors.groupingBy(Issue::getType));
 	}

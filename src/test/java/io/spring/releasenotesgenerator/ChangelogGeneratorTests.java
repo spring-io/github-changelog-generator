@@ -1,3 +1,19 @@
+/*
+ * Copyright 2012-2018 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package io.spring.releasenotesgenerator;
 
 import java.io.File;
@@ -40,8 +56,8 @@ public class ChangelogGeneratorTests {
 		GithubProperties properties = new GithubProperties();
 		properties.setName("name");
 		properties.setOrganization("org");
-		service = mock(GithubService.class);
-		this.generator = new ChangelogGenerator(service, properties);
+		this.service = mock(GithubService.class);
+		this.generator = new ChangelogGenerator(this.service, properties);
 	}
 
 	@Test
@@ -61,7 +77,8 @@ public class ChangelogGeneratorTests {
 	public void generateWhenNoEnhancements() throws Exception {
 		User contributor1 = getUser("contributor1", "contributor1-github-url");
 		List<Issue> issues = new ArrayList<>();
-		issues.add(MockIssues.getPullRequest("Bug 1", "1", Issue.Type.BUG,"bug-1-url", contributor1));
+		issues.add(MockIssues.getPullRequest("Bug 1", "1", Issue.Type.BUG, "bug-1-url",
+				contributor1));
 		issues.add(MockIssues.getBug("Bug 3", "3", "bug-3-url"));
 		given(this.service.getIssuesForMilestone(23, "org", "name")).willReturn(issues);
 		File file = new File(this.temporaryFolder.getRoot().getPath() + "foo");
@@ -76,8 +93,10 @@ public class ChangelogGeneratorTests {
 		List<Issue> issues = new ArrayList<>();
 		issues.add(MockIssues.getEnhancement("Enhancement 1", "2", "enhancement-1-url"));
 		issues.add(MockIssues.getEnhancement("Enhancement 2", "4", "enhancement-2-url"));
-		issues.add(MockIssues.getPullRequest("Enhancement 3", "5", Issue.Type.ENHANCEMENT,"enhancement-5-url", contributor1));
-		issues.add(MockIssues.getPullRequest("Enhancement 4", "6", Issue.Type.ENHANCEMENT,"enhancement-6-url", contributor2));
+		issues.add(MockIssues.getPullRequest("Enhancement 3", "5", Issue.Type.ENHANCEMENT,
+				"enhancement-5-url", contributor1));
+		issues.add(MockIssues.getPullRequest("Enhancement 4", "6", Issue.Type.ENHANCEMENT,
+				"enhancement-6-url", contributor2));
 		given(this.service.getIssuesForMilestone(23, "org", "name")).willReturn(issues);
 		File file = new File(this.temporaryFolder.getRoot().getPath() + "foo");
 		this.generator.generate(23, file.getPath());
@@ -97,8 +116,10 @@ public class ChangelogGeneratorTests {
 		List<Issue> issues = new ArrayList<>();
 		issues.add(MockIssues.getEnhancement("Enhancement 1", "2", "enhancement-1-url"));
 		issues.add(MockIssues.getEnhancement("Enhancement 2", "4", "enhancement-2-url"));
-		issues.add(MockIssues.getPullRequest("Enhancement 3", "5", Issue.Type.ENHANCEMENT,"enhancement-5-url", contributor1));
-		issues.add(MockIssues.getPullRequest("Enhancement 4", "6", Issue.Type.ENHANCEMENT,"enhancement-6-url", contributor1));
+		issues.add(MockIssues.getPullRequest("Enhancement 3", "5", Issue.Type.ENHANCEMENT,
+				"enhancement-5-url", contributor1));
+		issues.add(MockIssues.getPullRequest("Enhancement 4", "6", Issue.Type.ENHANCEMENT,
+				"enhancement-6-url", contributor1));
 		given(this.service.getIssuesForMilestone(23, "org", "name")).willReturn(issues);
 		File file = new File(this.temporaryFolder.getRoot().getPath() + "foo");
 		this.generator.generate(23, file.getPath());
@@ -108,7 +129,8 @@ public class ChangelogGeneratorTests {
 	private void assertOutputisCorrect(File file, String path) throws IOException {
 		byte[] bytes = Files.readAllBytes(file.toPath());
 		String output = new String(bytes);
-		byte[] expectedBytes = Files.readAllBytes(getClassPathResource(path).getFile().toPath());
+		byte[] expectedBytes = Files
+				.readAllBytes(getClassPathResource(path).getFile().toPath());
 		String expectedOutput = new String(expectedBytes);
 		assertThat(output).isEqualTo(expectedOutput);
 	}
