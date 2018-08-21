@@ -100,11 +100,10 @@ public class ChangelogGenerator {
 	}
 
 	private Map<Issue.Type, List<Issue>> sortIssues(List<Issue> issues) {
-		return issues.stream()
-				.filter(i -> i.getType() != null)
+		return issues.stream().filter((i) -> i.getType() != null)
 				.sorted(Comparator.comparing(Issue::getType))
-				.collect(Collectors.groupingBy(Issue::getType,
-						LinkedHashMap::new, Collectors.toList()));
+				.collect(Collectors.groupingBy(Issue::getType, LinkedHashMap::new,
+						Collectors.toList()));
 	}
 
 	private String formatContributors(User c) {
