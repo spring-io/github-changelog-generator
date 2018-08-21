@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -98,10 +99,12 @@ public class ChangelogGenerator {
 				.map(Issue::getUser).distinct().collect(Collectors.toSet());
 	}
 
-	public Map<Issue.Type, List<Issue>> sortIssues(List<Issue> issues) {
-		return issues.stream().filter((issue) -> issue.getType() != null)
+	private Map<Issue.Type, List<Issue>> sortIssues(List<Issue> issues) {
+		return issues.stream()
+				.filter(i -> i.getType() != null)
 				.sorted(Comparator.comparing(Issue::getType))
-				.collect(Collectors.groupingBy(Issue::getType));
+				.collect(Collectors.groupingBy(Issue::getType,
+						LinkedHashMap::new, Collectors.toList()));
 	}
 
 	private String formatContributors(User c) {
