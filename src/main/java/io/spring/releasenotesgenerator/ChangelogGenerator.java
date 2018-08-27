@@ -96,7 +96,7 @@ public class ChangelogGenerator {
 
 	private Set<User> getContributors(List<Issue> issues) {
 		return issues.stream().filter((issue) -> issue.getPullRequest() != null)
-				.map(Issue::getUser).distinct().collect(Collectors.toSet());
+				.map(Issue::getUser).collect(Collectors.toSet());
 	}
 
 	private Map<Issue.Type, List<Issue>> sortIssues(List<Issue> issues) {
