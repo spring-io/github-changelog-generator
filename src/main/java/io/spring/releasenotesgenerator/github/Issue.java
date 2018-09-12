@@ -72,16 +72,17 @@ public class Issue {
 	public void setLabels(List<Label> labels) {
 		this.labels = labels;
 		for (Label label : labels) {
-			if (label.getName().contains("bug")) {
+			String name = label.getName();
+			if (name.contains("bug") || name.contains("regression")) {
 				this.type = Type.BUG;
 			}
-			else if (label.getName().contains("enhancement")) {
+			else if (name.contains("enhancement")) {
 				this.type = Type.ENHANCEMENT;
 			}
-			else if (label.getName().contains("documentation")) {
+			else if (name.contains("documentation")) {
 				this.type = Type.DOCUMENTATION;
 			}
-			else if (label.getName().contains("dependency-upgrade")) {
+			else if (name.contains("dependency-upgrade")) {
 				this.type = Type.DEPENDENCY_UPGRADES;
 			}
 		}
