@@ -46,7 +46,7 @@ import org.springframework.util.StringUtils;
 @Component
 public class ChangelogGenerator {
 
-	private static final String THANK_YOU = "## :heart:Contributors\n\nWe’d like to thank all the contributors who worked on our current release!";
+	private static final String THANK_YOU = "## :heart: Contributors\n\nWe’d like to thank all the contributors who worked on our current release!";
 
 	private final GithubService service;
 
@@ -111,7 +111,7 @@ public class ChangelogGenerator {
 	}
 
 	private String getOutput(Issue.Type key, List<Issue> issues) {
-		String output = "## " + key.getEmoji() + key.getDescription() + "\n\n";
+		String output = "## " + key.getEmoji() + " " + key.getDescription() + "\n\n";
 		for (Issue issue : issues) {
 			output = output + getFormattedIssue(issue);
 		}
