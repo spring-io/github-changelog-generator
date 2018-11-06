@@ -46,15 +46,16 @@ import org.springframework.util.StringUtils;
 @Component
 public class ChangelogGenerator {
 
-	private static final String THANK_YOU = "## :heart: Contributors\n\nWe’d like to thank all the contributors who worked on our current release!";
+	private static final String THANK_YOU = "## :heart: Contributors\n\n"
+			+ "We’d like to thank all the contributors who worked on our current release!";
 
 	private final GithubService service;
 
-	private final GithubProperties githubProperties;
+	private final GithubProperties properties;
 
-	public ChangelogGenerator(GithubService service, GithubProperties githubProperties) {
+	public ChangelogGenerator(GithubService service, GithubProperties properties) {
 		this.service = service;
-		this.githubProperties = githubProperties;
+		this.properties = properties;
 	}
 
 	/**
@@ -66,7 +67,7 @@ public class ChangelogGenerator {
 	 */
 	public void generate(int milestone, String path) throws IOException {
 		List<Issue> issues = this.service.getIssuesForMilestone(milestone,
-				this.githubProperties.getOrganization(), this.githubProperties.getName());
+				this.properties.getOrganization(), this.properties.getName());
 		String output = generateContent(issues);
 		writeContentToFile(path, output);
 	}

@@ -27,9 +27,9 @@ import java.util.function.Supplier;
  */
 public class StandardPage<T> implements Page<T> {
 
-	private List<T> content;
+	private final List<T> content;
 
-	private Supplier<Page<T>> nextSupplier;
+	private final Supplier<Page<T>> nextSupplier;
 
 	/**
 	 * Creates a new {@code StandardPage} that has the given {@code content}. The given

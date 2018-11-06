@@ -35,15 +35,15 @@ import org.springframework.context.annotation.Bean;
 @EnableConfigurationProperties(GithubProperties.class)
 public class Application {
 
-	public static void main(String[] args) {
-		SpringApplication.run(Application.class, args);
-	}
-
 	@Bean
 	public GithubService githubService(RestTemplateBuilder builder,
 			GithubProperties properties) {
 		return new GithubService(properties.getUsername(), properties.getPassword(),
 				builder, new RegexLinkParser());
+	}
+
+	public static void main(String[] args) {
+		SpringApplication.run(Application.class, args);
 	}
 
 }

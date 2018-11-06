@@ -21,12 +21,13 @@ import io.spring.releasenotesgenerator.github.PullRequest;
 import io.spring.releasenotesgenerator.github.User;
 
 /**
+ * Mock {@link Issue} factory.
+ *
  * @author Madhura Bhave
  */
 public final class MockIssues {
 
 	private MockIssues() {
-
 	}
 
 	public static Issue getBug(String title, String number, String url) {
