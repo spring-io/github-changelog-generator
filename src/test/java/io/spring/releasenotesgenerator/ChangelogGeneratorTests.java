@@ -69,7 +69,7 @@ public class ChangelogGeneratorTests {
 		issues.add(MockIssues.getBug("Bug 3", "3", "bug-3-url"));
 		given(this.service.getIssuesForMilestone(23, "org", "name")).willReturn(issues);
 		File file = new File(this.temporaryFolder.getRoot().getPath() + "foo");
-		this.generator.generate(23, file.getPath());
+		this.generator.generate(file.getPath(), 23);
 		assertOutputisCorrect(file, "output-with-no-prs");
 	}
 
@@ -82,7 +82,7 @@ public class ChangelogGeneratorTests {
 		issues.add(MockIssues.getBug("Bug 3", "3", "bug-3-url"));
 		given(this.service.getIssuesForMilestone(23, "org", "name")).willReturn(issues);
 		File file = new File(this.temporaryFolder.getRoot().getPath() + "foo");
-		this.generator.generate(23, file.getPath());
+		this.generator.generate(file.getPath(), 23);
 		assertOutputisCorrect(file, "output-with-no-enhancements");
 	}
 
@@ -99,7 +99,7 @@ public class ChangelogGeneratorTests {
 				"enhancement-6-url", contributor2));
 		given(this.service.getIssuesForMilestone(23, "org", "name")).willReturn(issues);
 		File file = new File(this.temporaryFolder.getRoot().getPath() + "foo");
-		this.generator.generate(23, file.getPath());
+		this.generator.generate(file.getPath(), 23);
 		assertOutputisCorrect(file, "output-with-no-bugs");
 	}
 
@@ -122,7 +122,7 @@ public class ChangelogGeneratorTests {
 				"enhancement-6-url", contributor1));
 		given(this.service.getIssuesForMilestone(23, "org", "name")).willReturn(issues);
 		File file = new File(this.temporaryFolder.getRoot().getPath() + "foo");
-		this.generator.generate(23, file.getPath());
+		this.generator.generate(file.getPath(), 23);
 		assertOutputisCorrect(file, "output-with-duplicate-contributors");
 	}
 

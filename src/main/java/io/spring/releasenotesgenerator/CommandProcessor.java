@@ -43,7 +43,7 @@ public class CommandProcessor implements ApplicationRunner {
 		List<String> nonOptionArgs = args.getNonOptionArgs();
 		String milestone = nonOptionArgs.get(0);
 		String path = nonOptionArgs.get(1);
-		this.generator.generate(Integer.parseInt(milestone), path);
+		this.generator.generate(path, Integer.parseInt(milestone));
 	}
 
 }

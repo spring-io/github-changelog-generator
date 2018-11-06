@@ -48,14 +48,15 @@ public class GithubService {
 		this.linkParser = linkParser;
 	}
 
-	public List<Issue> getIssuesForMilestone(int milestone, String org, String repo) {
-		String url = ROOT_URI + "repos/" + org + "/" + repo + "/issues?milestone="
-				+ milestone + "&state=closed";
+	public List<Issue> getIssuesForMilestone(int milestone, String organization,
+			String repository) {
+		String url = ROOT_URI + "repos/" + organization + "/" + repository
+				+ "/issues?milestone=" + milestone + "&state=closed";
 		List<Issue> issues = new ArrayList<>();
 		Page<Issue> page = getPage(url, Issue[].class);
 		while (page != null) {
 			issues.addAll(page.getContent());
-			page = page.next();
+			page = page.getNextPage();
 		}
 		return issues;
 	}
@@ -65,7 +66,7 @@ public class GithubService {
 			return null;
 		}
 		ResponseEntity<T[]> response = this.restTemplate.getForEntity(url, type);
-		return new StandardPage<>(Arrays.asList(response.getBody()),
+		return new Page<>(Arrays.asList(response.getBody()),
 				() -> getPage(getNextUrl(response), type));
 	}
 

@@ -17,25 +17,38 @@
 package io.spring.releasenotesgenerator.github;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 /**
- * A page of results.
+ * A {@link Page} of content.
  *
  * @param <T> the type of the contents of the page
  * @author Madhura Bhave
  */
-public interface Page<T> {
+class Page<T> {
+
+	private final List<T> content;
+
+	private final Supplier<Page<T>> nextPageSupplier;
 
 	/**
-	 * Return the next page, if any.
-	 * @return the next page or {@code null}
+	 * Creates a new {@code StandardPage} that has the given {@code content}. The given
+	 * {@code nextSupplier} will be used to obtain the next page {@link #getNextPage()
+	 * when requested}.
+	 * @param content the content
+	 * @param nextPageSupplier the supplier of the next page
 	 */
-	Page<T> next();
+	Page(List<T> content, Supplier<Page<T>> nextPageSupplier) {
+		this.content = content;
+		this.nextPageSupplier = nextPageSupplier;
+	}
 
-	/**
-	 * Return the content of the page.
-	 * @return the content
-	 */
-	List<T> getContent();
+	public List<T> getContent() {
+		return this.content;
+	}
+
+	public Page<T> getNextPage() {
+		return this.nextPageSupplier.get();
+	}
 
 }

@@ -19,7 +19,7 @@ package io.spring.releasenotesgenerator.github;
 import java.util.Map;
 
 /**
- * A {@code LinkParser} that uses a regular expression to parse the header.
+ * A {@code LinkParser} that uses a regular expression to parse the link header.
  *
  * @author Madhura Bhave
  */
