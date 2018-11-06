@@ -40,8 +40,11 @@ public class GithubService {
 
 	public GithubService(String username, String password,
 			RestTemplateBuilder restTemplateBuilder, LinkParser linkParser) {
-		this.restTemplate = restTemplateBuilder.basicAuthorization(username, password)
-				.build();
+		if (StringUtils.hasLength(username)) {
+			restTemplateBuilder = restTemplateBuilder.basicAuthentication(username,
+					password);
+		}
+		this.restTemplate = restTemplateBuilder.build();
 		this.linkParser = linkParser;
 	}
 
