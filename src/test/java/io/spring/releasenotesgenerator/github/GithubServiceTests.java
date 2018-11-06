@@ -18,6 +18,7 @@ package io.spring.releasenotesgenerator.github;
 
 import java.util.List;
 
+import io.spring.releasenotesgenerator.ServiceConfiguration;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -25,6 +26,7 @@ import org.junit.runner.RunWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.client.RestClientTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -43,6 +45,7 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
  * @author Madhura Bhave
  */
 @RunWith(SpringRunner.class)
+@Import(ServiceConfiguration.class)
 @RestClientTest({ GithubService.class, RegexLinkParser.class })
 public class GithubServiceTests {
 
