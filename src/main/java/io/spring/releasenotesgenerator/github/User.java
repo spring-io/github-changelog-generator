@@ -27,26 +27,22 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 public class User {
 
-	@JsonProperty("login")
-	private String name;
+	private final String name;
 
-	@JsonProperty("html_url")
-	private String url;
+	private final String url;
+
+	public User(@JsonProperty("login") String name,
+			@JsonProperty("html_url") String url) {
+		this.name = name;
+		this.url = url;
+	}
 
 	public String getName() {
 		return this.name;
 	}
 
-	public void setName(String name) {
-		this.name = name;
-	}
-
 	public String getUrl() {
 		return this.url;
-	}
-
-	public void setUrl(String url) {
-		this.url = url;
 	}
 
 	@Override

@@ -17,6 +17,7 @@
 package io.spring.releasenotesgenerator;
 
 import java.util.Collections;
+import java.util.List;
 
 import io.spring.releasenotesgenerator.github.Issue;
 import io.spring.releasenotesgenerator.github.Label;
@@ -48,19 +49,10 @@ public final class MockIssues {
 
 	private static Issue getIssue(String title, String number, String url, String label,
 			boolean isPullRequest, User user) {
-		Issue issue = new Issue();
-		issue.setTitle(title);
-		issue.setNumber(number);
-		issue.setUrl(url);
-		Label labelInstance = new Label();
-		labelInstance.setName(label);
-		issue.setLabels(Collections.singletonList(labelInstance));
-		if (isPullRequest) {
-			PullRequest pr = new PullRequest();
-			issue.setUser(user);
-			issue.setPullRequest(pr);
-		}
-		return issue;
+		Label labelInstance = new Label(label);
+		List<Label> labels = Collections.singletonList(labelInstance);
+		return new Issue(number, title, isPullRequest ? user : null, labels, url,
+				isPullRequest ? new PullRequest("http://example.com") : null);
 	}
 
 }

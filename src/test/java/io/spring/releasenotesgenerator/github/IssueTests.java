@@ -42,7 +42,7 @@ public class IssueTests {
 	@Test
 	public void regressionIssueDeserialization() throws Exception {
 		Issue issue = this.json.read("issue.json").getObject();
-		assertThat(issue.getId()).isEqualTo(310734371);
+		assertThat(issue.getNumber()).isEqualTo("12730");
 		assertThat(Type.fromLabels(issue.getLabels())).isEqualTo(Type.BUG);
 	}
 

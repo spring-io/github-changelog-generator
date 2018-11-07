@@ -27,96 +27,54 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 public class Issue {
 
-	private int id;
+	private final String number;
 
-	private String number;
+	private final String title;
 
-	private String title;
+	private final User user;
 
-	private User user;
+	private final List<Label> labels;
 
-	private List<Label> labels;
+	private final String url;
 
-	private String state;
+	private final PullRequest pullRequest;
 
-	private Milestone milestone;
-
-	@JsonProperty("html_url")
-	private String url;
-
-	@JsonProperty("pull_request")
-	private PullRequest pullRequest;
-
-	public int getId() {
-		return this.id;
-	}
-
-	public void setId(int id) {
-		this.id = id;
+	public Issue(@JsonProperty("number") String number,
+			@JsonProperty("title") String title, @JsonProperty("user") User user,
+			@JsonProperty("labels") List<Label> labels,
+			@JsonProperty("html_url") String url,
+			@JsonProperty("pull_request") PullRequest pullRequest) {
+		super();
+		this.number = number;
+		this.title = title;
+		this.user = user;
+		this.labels = labels;
+		this.url = url;
+		this.pullRequest = pullRequest;
 	}
 
 	public String getTitle() {
 		return this.title;
 	}
 
-	public void setTitle(String title) {
-		this.title = title;
-	}
-
 	public List<Label> getLabels() {
 		return this.labels;
-	}
-
-	public void setLabels(List<Label> labels) {
-		this.labels = labels;
 	}
 
 	public User getUser() {
 		return this.user;
 	}
 
-	public void setUser(User user) {
-		this.user = user;
-	}
-
-	public String getState() {
-		return this.state;
-	}
-
-	public void setState(String state) {
-		this.state = state;
-	}
-
 	public String getUrl() {
 		return this.url;
-	}
-
-	public void setUrl(String url) {
-		this.url = url;
 	}
 
 	public String getNumber() {
 		return this.number;
 	}
 
-	public void setNumber(String number) {
-		this.number = number;
-	}
-
 	public PullRequest getPullRequest() {
 		return this.pullRequest;
-	}
-
-	public void setPullRequest(PullRequest pullRequest) {
-		this.pullRequest = pullRequest;
-	}
-
-	public Milestone getMilestone() {
-		return this.milestone;
-	}
-
-	public void setMilestone(Milestone milestone) {
-		this.milestone = milestone;
 	}
 
 }

@@ -25,15 +25,14 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 public class PullRequest {
 
-	@JsonProperty("url")
-	private String url;
+	private final String url;
+
+	public PullRequest(@JsonProperty("url") String url) {
+		this.url = url;
+	}
 
 	public String getUrl() {
 		return this.url;
-	}
-
-	public void setUrl(String url) {
-		this.url = url;
 	}
 
 }

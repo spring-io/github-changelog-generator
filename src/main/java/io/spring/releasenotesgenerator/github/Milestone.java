@@ -29,25 +29,22 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Milestone {
 
-	private String title;
+	private final String title;
 
-	@JsonProperty("closed_at")
-	private Date dateClosed;
+	private final Date dateClosed;
+
+	public Milestone(@JsonProperty("title") String title,
+			@JsonProperty("closed_at") Date dateClosed) {
+		this.title = title;
+		this.dateClosed = dateClosed;
+	}
 
 	public String getTitle() {
 		return this.title;
 	}
 
-	public void setTitle(String title) {
-		this.title = title;
-	}
-
 	public Date getDateClosed() {
 		return this.dateClosed;
-	}
-
-	public void setDateClosed(Date dateClosed) {
-		this.dateClosed = dateClosed;
 	}
 
 }

@@ -16,6 +16,8 @@
 
 package io.spring.releasenotesgenerator.github;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
  * Represents GitHub label.
  *
@@ -23,14 +25,14 @@ package io.spring.releasenotesgenerator.github;
  */
 public class Label {
 
-	private String name;
+	private final String name;
+
+	public Label(@JsonProperty("name") String name) {
+		this.name = name;
+	}
 
 	public String getName() {
 		return this.name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
 	}
 
 }

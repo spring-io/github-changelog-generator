@@ -103,11 +103,8 @@ public class ChangelogGeneratorTests {
 		assertOutputisCorrect(file, "output-with-no-bugs");
 	}
 
-	private User getUser(String contributor12, String s) {
-		User contributor1 = new User();
-		contributor1.setName(contributor12);
-		contributor1.setUrl(s);
-		return contributor1;
+	private User getUser(String contributor12, String url) {
+		return new User(contributor12, url);
 	}
 
 	@Test
