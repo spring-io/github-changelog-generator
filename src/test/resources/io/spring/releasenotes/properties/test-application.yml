@@ -1,0 +1,6 @@
+releasenotes:
+  github:
+    username: testuser
+    password: testpass
+    organization: testorg
+    repository: testrepo
