@@ -1,0 +1,57 @@
+resources:
+- name: git-repo
+  type: git
+  source:
+    uri: https://github.com/spring-io/github-release-notes-generator
+    username: ((github-username))
+    password: ((github-password))
+    branch: master
+    ignore_paths: ["ci/images/*"]
+- name: ci-images-git-repo
+  type: git
+  source:
+    uri: https://github.com/spring-io/github-release-notes-generator
+    branch: master
+    paths: ["ci/images/*"]
+- name: github-release-notes-generator-ci-image
+  type: docker-image
+  source:
+    repository: springci/github-release-notes-generator-ci-image
+    username: ((docker-hub-username))
+    password: ((docker-hub-password))
+    tag: master
+- name: github-release-notes-generator-image
+  type: docker-image
+  source:
+    repository: springio/github-release-notes-generator
+    username: ((docker-hub-username))
+    password: ((docker-hub-password))
+jobs:
+- name: build-github-release-notes-generator-ci-image
+  plan:
+  - get: ci-images-git-repo
+    trigger: true
+  - put: github-release-notes-generator-ci-image
+    params:
+      build: ci-images-git-repo/ci/images/github-release-notes-generator-ci-image
+- name: build
+  plan:
+  - get: git-repo
+    trigger: true
+  - task: build
+    file: git-repo/ci/tasks/build.yml
+  - put: github-release-notes-generator-image
+    params:
+      build: .
+      dockerfile: git-repo/Dockerfile
+      tag: built-artifact/version
+      build_args:
+        root: git-repo
+        jar:  built-artifact/github-release-notes-generator.jar
+groups:
+- name: "Code"
+  jobs:
+  - build
+- name: "CI Images"
+  jobs:
+  - build-github-release-notes-generator-ci-image

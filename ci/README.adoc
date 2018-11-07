@@ -1,0 +1,11 @@
+== Concourse pipeline
+
+The pipeline can be deployed using the following command:
+
+[source]
+----
+$ fly -t github-release-notes-generator set-pipeline -p github-release-notes-generator -c ci/pipeline.yml
+----
+
+NOTE: This assumes that you have credhub integration configured with the appropriate
+secrets.
