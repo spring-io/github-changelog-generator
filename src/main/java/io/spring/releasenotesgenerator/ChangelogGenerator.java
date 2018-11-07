@@ -30,6 +30,7 @@ import java.util.stream.Collectors;
 import io.spring.releasenotesgenerator.github.GithubProperties;
 import io.spring.releasenotesgenerator.github.GithubService;
 import io.spring.releasenotesgenerator.github.Issue;
+import io.spring.releasenotesgenerator.github.Type;
 import io.spring.releasenotesgenerator.github.User;
 
 import org.springframework.stereotype.Component;
@@ -94,14 +95,17 @@ public class ChangelogGenerator {
 		return "- [@" + c.getName() + "]" + "(" + c.getUrl() + ")";
 	}
 
-	private Map<Issue.Type, List<Issue>> sortIssues(List<Issue> issues) {
-		return issues.stream().filter((issue) -> issue.getType() != null)
-				.sorted(Comparator.comparing(Issue::getType))
-				.collect(Collectors.groupingBy(Issue::getType, LinkedHashMap::new,
+	private Map<Type, List<Issue>> sortIssues(List<Issue> issues) {
+		return issues.stream()
+				.filter((issue) -> Type.fromLabels(issue.getLabels()) != null)
+				.sorted(Comparator
+						.comparing((issue) -> Type.fromLabels(issue.getLabels())))
+				.collect(Collectors.groupingBy(
+						(issue) -> Type.fromLabels(issue.getLabels()), LinkedHashMap::new,
 						Collectors.toList()));
 	}
 
-	private String getOutput(Issue.Type key, List<Issue> issues) {
+	private String getOutput(Type key, List<Issue> issues) {
 		String output = "## " + key.getEmoji() + " " + key.getDescription() + "\n\n";
 		for (Issue issue : issues) {
 			output = output + getFormattedIssue(issue);

@@ -44,8 +44,6 @@ public class Issue {
 	@JsonProperty("html_url")
 	private String url;
 
-	private Type type;
-
 	@JsonProperty("pull_request")
 	private PullRequest pullRequest;
 
@@ -71,21 +69,6 @@ public class Issue {
 
 	public void setLabels(List<Label> labels) {
 		this.labels = labels;
-		for (Label label : labels) {
-			String name = label.getName();
-			if (name.contains("bug") || name.contains("regression")) {
-				this.type = Type.BUG;
-			}
-			else if (name.contains("enhancement")) {
-				this.type = Type.ENHANCEMENT;
-			}
-			else if (name.contains("documentation")) {
-				this.type = Type.DOCUMENTATION;
-			}
-			else if (name.contains("dependency-upgrade")) {
-				this.type = Type.DEPENDENCY_UPGRADES;
-			}
-		}
 	}
 
 	public User getUser() {
@@ -112,14 +95,6 @@ public class Issue {
 		this.url = url;
 	}
 
-	public Type getType() {
-		return this.type;
-	}
-
-	public void setType(Type type) {
-		this.type = type;
-	}
-
 	public String getNumber() {
 		return this.number;
 	}
@@ -142,50 +117,6 @@ public class Issue {
 
 	public void setMilestone(Milestone milestone) {
 		this.milestone = milestone;
-	}
-
-	/**
-	 * Describe the available issue types.
-	 */
-	public enum Type {
-
-		/**
-		 * Enhancement.
-		 */
-		ENHANCEMENT("New Features", ":star:"),
-
-		/**
-		 * Bug fix.
-		 */
-		BUG("Bug fixes", ":beetle:"),
-
-		/**
-		 * Documentation change.
-		 */
-		DOCUMENTATION("Documentation", ":notebook_with_decorative_cover:"),
-
-		/**
-		 * Dependency upgrade.
-		 */
-		DEPENDENCY_UPGRADES("Dependency upgrades", ":hammer:");
-
-		private final String description;
-
-		private final String emoji;
-
-		Type(String description, String emoji) {
-			this.description = description;
-			this.emoji = emoji;
-		}
-
-		public String getDescription() {
-			return this.description;
-		}
-
-		public String getEmoji() {
-			return this.emoji;
-		}
-
 	}
 
 }

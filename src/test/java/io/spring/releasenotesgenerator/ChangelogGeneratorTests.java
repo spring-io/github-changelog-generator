@@ -77,7 +77,7 @@ public class ChangelogGeneratorTests {
 	public void generateWhenNoEnhancements() throws Exception {
 		User contributor1 = getUser("contributor1", "contributor1-github-url");
 		List<Issue> issues = new ArrayList<>();
-		issues.add(MockIssues.getPullRequest("Bug 1", "1", Issue.Type.BUG, "bug-1-url",
+		issues.add(MockIssues.getPullRequest("Bug 1", "1", "type: bug", "bug-1-url",
 				contributor1));
 		issues.add(MockIssues.getBug("Bug 3", "3", "bug-3-url"));
 		given(this.service.getIssuesForMilestone(23, "org", "name")).willReturn(issues);
@@ -93,9 +93,9 @@ public class ChangelogGeneratorTests {
 		List<Issue> issues = new ArrayList<>();
 		issues.add(MockIssues.getEnhancement("Enhancement 1", "2", "enhancement-1-url"));
 		issues.add(MockIssues.getEnhancement("Enhancement 2", "4", "enhancement-2-url"));
-		issues.add(MockIssues.getPullRequest("Enhancement 3", "5", Issue.Type.ENHANCEMENT,
+		issues.add(MockIssues.getPullRequest("Enhancement 3", "5", "type: enhancement",
 				"enhancement-5-url", contributor1));
-		issues.add(MockIssues.getPullRequest("Enhancement 4", "6", Issue.Type.ENHANCEMENT,
+		issues.add(MockIssues.getPullRequest("Enhancement 4", "6", "type: enhancement",
 				"enhancement-6-url", contributor2));
 		given(this.service.getIssuesForMilestone(23, "org", "name")).willReturn(issues);
 		File file = new File(this.temporaryFolder.getRoot().getPath() + "foo");
@@ -116,9 +116,9 @@ public class ChangelogGeneratorTests {
 		List<Issue> issues = new ArrayList<>();
 		issues.add(MockIssues.getEnhancement("Enhancement 1", "2", "enhancement-1-url"));
 		issues.add(MockIssues.getEnhancement("Enhancement 2", "4", "enhancement-2-url"));
-		issues.add(MockIssues.getPullRequest("Enhancement 3", "5", Issue.Type.ENHANCEMENT,
+		issues.add(MockIssues.getPullRequest("Enhancement 3", "5", "type: enhancement",
 				"enhancement-5-url", contributor1));
-		issues.add(MockIssues.getPullRequest("Enhancement 4", "6", Issue.Type.ENHANCEMENT,
+		issues.add(MockIssues.getPullRequest("Enhancement 4", "6", "type: enhancement",
 				"enhancement-6-url", contributor1));
 		given(this.service.getIssuesForMilestone(23, "org", "name")).willReturn(issues);
 		File file = new File(this.temporaryFolder.getRoot().getPath() + "foo");
