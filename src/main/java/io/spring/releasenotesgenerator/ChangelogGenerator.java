@@ -46,7 +46,7 @@ import org.springframework.util.StringUtils;
 public class ChangelogGenerator {
 
 	private static final String THANK_YOU = "## :heart: Contributors\n\n"
-			+ "We'd like to thank all the contributors who worked on our current release!";
+			+ "We'd like to thank all the contributors who worked on this release!";
 
 	private final GithubService service;
 
@@ -78,7 +78,11 @@ public class ChangelogGenerator {
 				.map((entry) -> getOutput(entry.getKey(), entry.getValue()))
 				.collect(Collectors.toCollection(LinkedHashSet::new));
 		String issuesOutput = output.stream().collect(Collectors.joining("\n"));
-		return issuesOutput + "\n" + getContributorSummary(contributors);
+		String contributorSummary = getContributorSummary(contributors);
+		if (StringUtils.hasLength(contributorSummary)) {
+			return issuesOutput + "\n" + contributorSummary + "\n";
+		}
+		return issuesOutput;
 	}
 
 	private Set<User> getContributors(List<Issue> issues) {
