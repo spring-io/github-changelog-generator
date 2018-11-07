@@ -46,7 +46,7 @@ import org.springframework.util.StringUtils;
 public class ChangelogGenerator {
 
 	private static final String THANK_YOU = "## :heart: Contributors\n\n"
-			+ "We’d like to thank all the contributors who worked on our current release!";
+			+ "We'd like to thank all the contributors who worked on our current release!";
 
 	private final GithubService service;
 
