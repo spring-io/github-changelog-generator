@@ -23,8 +23,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import io.spring.releasenotes.github.payload.Issue;
+import io.spring.releasenotes.properties.ApplicationProperties;
+import io.spring.releasenotes.properties.ApplicationProperties.Section;
+
+import org.springframework.util.CollectionUtils;
 
 /**
  * Manages sections of the change log report.
@@ -33,22 +38,43 @@ import io.spring.releasenotes.github.payload.Issue;
  */
 class ReleaseNotesSections {
 
-	private static final List<ReleaseNotesSection> SECTIONS;
+	private static final List<ReleaseNotesSection> DEFAULT_SECTIONS;
 	static {
 		List<ReleaseNotesSection> sections = new ArrayList<>();
-		sections.add(new ReleaseNotesSection("New Features", ":star:", "enhancement"));
-		sections.add(
-				new ReleaseNotesSection("Bug Fixes", ":beetle:", "bug", "regression"));
-		sections.add(new ReleaseNotesSection("Documentation",
-				":notebook_with_decorative_cover:", "documentation"));
-		sections.add(new ReleaseNotesSection("Dependency Upgrades", ":hammer:",
-				"dependency-upgrade"));
-		SECTIONS = Collections.unmodifiableList(sections);
+		add(sections, "New Features", ":star:", "enhancement");
+		add(sections, "Bug Fixes", ":beetle:", "bug", "regression");
+		add(sections, "Documentation", ":notebook_with_decorative_cover:",
+				"documentation");
+		add(sections, "Dependency Upgrades", ":hammer:", "dependency-upgrade");
+		DEFAULT_SECTIONS = Collections.unmodifiableList(sections);
+	}
+
+	private static void add(List<ReleaseNotesSection> sections, String title,
+			String emoji, String... labels) {
+		sections.add(new ReleaseNotesSection(title, emoji, labels));
+	}
+
+	private final List<ReleaseNotesSection> sections;
+
+	ReleaseNotesSections(ApplicationProperties properties) {
+		this.sections = adapt(properties.getSections());
+	}
+
+	private List<ReleaseNotesSection> adapt(List<Section> propertySections) {
+		if (CollectionUtils.isEmpty(propertySections)) {
+			return DEFAULT_SECTIONS;
+		}
+		return propertySections.stream().map(this::adapt).collect(Collectors.toList());
+	}
+
+	private ReleaseNotesSection adapt(Section propertySection) {
+		return new ReleaseNotesSection(propertySection.getTitle(),
+				propertySection.getEmoji(), propertySection.getLabels());
 	}
 
 	public Map<ReleaseNotesSection, List<Issue>> collate(List<Issue> issues) {
 		SortedMap<ReleaseNotesSection, List<Issue>> collated = new TreeMap<>(
-				Comparator.comparing(SECTIONS::indexOf));
+				Comparator.comparing(this.sections::indexOf));
 		for (Issue issue : issues) {
 			ReleaseNotesSection section = getSection(issue);
 			if (section != null) {
@@ -60,7 +86,7 @@ class ReleaseNotesSections {
 	}
 
 	private ReleaseNotesSection getSection(Issue issue) {
-		for (ReleaseNotesSection section : SECTIONS) {
+		for (ReleaseNotesSection section : this.sections) {
 			if (section.isMatchFor(issue)) {
 				return section;
 			}

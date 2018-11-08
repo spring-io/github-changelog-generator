@@ -57,7 +57,7 @@ public class ReleaseNotesGenerator {
 		this.service = service;
 		this.organization = properties.getGithub().getOrganization();
 		this.repository = properties.getGithub().getRepository();
-		this.sections = new ReleaseNotesSections();
+		this.sections = new ReleaseNotesSections(properties);
 	}
 
 	/**

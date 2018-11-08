@@ -19,6 +19,7 @@ package io.spring.releasenotes.properties;
 import java.util.List;
 
 import io.spring.releasenotes.properties.ApplicationProperties.Github;
+import io.spring.releasenotes.properties.ApplicationProperties.Section;
 import org.junit.Test;
 
 import org.springframework.boot.context.properties.bind.Binder;
@@ -49,6 +50,10 @@ public class ApplicationPropertiesTests {
 		assertThat(github.getPassword()).isEqualTo("testpass");
 		assertThat(github.getOrganization()).isEqualTo("testorg");
 		assertThat(github.getRepository()).isEqualTo("testrepo");
+		List<Section> sections = properties.getSections();
+		assertThat(sections.get(0).getTitle()).isEqualTo("New Features");
+		assertThat(sections.get(0).getEmoji()).isEqualTo(":star:");
+		assertThat(sections.get(0).getLabels()).containsExactly("enhancement");
 	}
 
 }
