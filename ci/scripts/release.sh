@@ -31,5 +31,6 @@ popd > /dev/null
 milestone_number=$( curl -s "https://api.github.com/repos/spring-io/github-release-notes-generator/milestones" -u ${GITHUB_USERNAME}:${GITHUB_TOKEN} | jq -r --arg MILESTONE "${releaseVersion}" '.[]  | select(.title == $MILESTONE) | .number' )
 
 echo $releaseVersion > built-artifact/version
+echo v$releaseVersion > built-artifact/tag
 cp release-git-repo/target/github-release-notes-generator.jar built-artifact/
 java -jar release-git-repo/target/github-release-notes-generator.jar  --releasenotes.github.organization=spring-io --releasenotes.github.repository=github-release-notes-generator $milestone_number built-artifact/release-notes.md

@@ -77,8 +77,8 @@ jobs:
         jar:  built-artifact/github-release-notes-generator.jar
   - put: github-release
     params:
-      name: built-artifact/version
-      tag: built-artifact/version
+      name: built-artifact/tag
+      tag: built-artifact/tag
       body: built-artifact/release-notes.md
       globs:
       - built-artifact/github-release-notes-generator.jar
