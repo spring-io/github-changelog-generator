@@ -26,6 +26,12 @@ resources:
     repository: springio/github-release-notes-generator
     username: ((docker-hub-username))
     password: ((docker-hub-password))
+- name: github-release
+  type: github-release
+  source:
+    owner: spring-io
+    repository: github-release-notes-generator
+    access_token: ((github-release-notes-access-token))
 jobs:
 - name: build-github-release-notes-generator-ci-image
   plan:
@@ -48,10 +54,39 @@ jobs:
       build_args:
         root: git-repo
         jar:  built-artifact/github-release-notes-generator.jar
+- name: release
+  plan:
+  - get: git-repo
+    passed: [build]
+    trigger: false
+  - task: release
+    file: git-repo/ci/tasks/release.yml
+    params:
+      GITHUB_USERNAME: ((github-username))
+      GITHUB_TOKEN: ((github-release-notes-access-token))
+  - put: git-repo
+    params:
+      repository: release-git-repo
+  - put: github-release-notes-generator-image
+    params:
+      build: .
+      dockerfile: git-repo/Dockerfile
+      tag: built-artifact/version
+      build_args:
+        root: git-repo
+        jar:  built-artifact/github-release-notes-generator.jar
+  - put: github-release
+    params:
+      name: built-artifact/version
+      tag: built-artifact/version
+      body: built-artifact/release-notes.md
+      globs:
+      - built-artifact/github-release-notes-generator.jar
 groups:
 - name: "Code"
   jobs:
   - build
+  - release
 - name: "CI Images"
   jobs:
   - build-github-release-notes-generator-ci-image
