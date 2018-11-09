@@ -1,7 +1,7 @@
 FROM ubuntu:bionic-20181018
 
 RUN apt-get update
-RUN apt-get install --no-install-recommends -y ca-certificates net-tools libxml2-utils git curl jq
+RUN apt-get install --no-install-recommends -y ca-certificates net-tools libxml2-utils git curl
 RUN rm -rf /var/lib/apt/lists/*
 
 ENV JAVA_HOME /opt/openjdk
