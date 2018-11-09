@@ -21,7 +21,7 @@ NOTE: When generating release notes for a public repository, the `username` and 
 ```
 $ ./mvnw clean install
 
-$ java -jar target/github-release-notes-generator-0.0.1-SNAPSHOT.jar <milestone_number> <path_to_generate_file>
+$ java -jar target/github-release-notes-generator.jar <milestone> <path_to_generate_file>
 ```
 
-NOTE: Make sure to use the milestone number and not the milestone name.
+NOTE: The `<milestone>` may either refer to the milestone number or a name.

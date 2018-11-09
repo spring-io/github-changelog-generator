@@ -49,10 +49,11 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
 @RestClientTest({ GithubService.class })
 public class GithubServiceTests {
 
-	/**
-	 *
-	 */
-	private static final String URL = "https://api.github.com/repos/org/repo/issues?milestone=";
+	private static final String API_URL = "https://api.github.com/repos/org/repo/";
+
+	private static final String MILESTONES_URL = API_URL + "milestones";
+
+	private static final String ISSUES_URL = API_URL + "issues?milestone=";
 
 	@Rule
 	public ExpectedException thrown = ExpectedException.none();
@@ -64,15 +65,29 @@ public class GithubServiceTests {
 	private GithubService service;
 
 	@Test
+	public void getMilestoneNumber() {
+		expectGet(MILESTONES_URL).andRespond(withJsonFrom("milestones.json"));
+		int number = this.service.getMilestoneNumber("2.1.1", "org", "repo");
+		assertThat(number).isEqualTo(125);
+	}
+
+	@Test
+	public void getMilestoneNumberWhenNotFoundThrowsException() {
+		expectGet(MILESTONES_URL).andRespond(withJsonFrom("milestones.json"));
+		this.thrown.expect(IllegalStateException.class);
+		this.service.getMilestoneNumber("0.0.0", "org", "repo");
+	}
+
+	@Test
 	public void getIssuesWhenNoIssues() {
-		expectGet(URL + "23&state=closed").andRespond(withJsonOf("[]"));
+		expectGet(ISSUES_URL + "23&state=closed").andRespond(withJsonOf("[]"));
 		List<Issue> issues = this.service.getIssuesForMilestone(23, "org", "repo");
 		assertThat(issues.size()).isEqualTo(0);
 	}
 
 	@Test
 	public void getIssuesWhenSinglePageOfIssuesPresent() {
-		expectGet(URL + "23&state=closed")
+		expectGet(ISSUES_URL + "23&state=closed")
 				.andRespond(withJsonFrom("closed-issues-for-milestone-page-1.json"));
 		List<Issue> issues = this.service.getIssuesForMilestone(23, "org", "repo");
 		assertThat(issues.size()).isEqualTo(30);
@@ -82,7 +97,7 @@ public class GithubServiceTests {
 	public void getIssuesWhenMultiplePagesOfIssuesPresent() {
 		HttpHeaders headers = new HttpHeaders();
 		headers.set("Link", "<page-two>; rel=\"next\"");
-		expectGet(URL + "23&state=closed").andRespond(
+		expectGet(ISSUES_URL + "23&state=closed").andRespond(
 				withJsonFrom("closed-issues-for-milestone-page-1.json").headers(headers));
 		expectGet("/page-two")
 				.andRespond(withJsonFrom("closed-issues-for-milestone-page-2.json"));

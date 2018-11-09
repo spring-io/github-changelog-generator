@@ -55,7 +55,7 @@ public class CommandProcessor implements ApplicationRunner {
 	private void run(String milestone, String path) throws IOException {
 		Assert.hasLength(milestone, "Milestone must not be specified");
 		Assert.hasLength(path, "Path must be specified");
-		this.generator.generate(Integer.parseInt(milestone), path);
+		this.generator.generate(milestone, path);
 	}
 
 }

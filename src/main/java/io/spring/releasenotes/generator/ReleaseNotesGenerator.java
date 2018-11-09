@@ -37,6 +37,7 @@ import org.springframework.util.FileCopyUtils;
  * milestone.
  *
  * @author Madhura Bhave
+ * @author Phillip Webb
  */
 @Configuration
 public class ReleaseNotesGenerator {
@@ -67,11 +68,22 @@ public class ReleaseNotesGenerator {
 	 * @param path the path to the file
 	 * @throws IOException if writing to file failed
 	 */
-	public void generate(int milestone, String path) throws IOException {
-		List<Issue> issues = this.service.getIssuesForMilestone(milestone,
+	public void generate(String milestone, String path) throws IOException {
+		int milestoneNumber = getMilestoneNumber(milestone);
+		List<Issue> issues = this.service.getIssuesForMilestone(milestoneNumber,
 				this.organization, this.repository);
 		String content = generateContent(issues);
 		writeContentToFile(content, path);
+	}
+
+	private int getMilestoneNumber(String milestone) {
+		try {
+			return Integer.parseInt(milestone);
+		}
+		catch (NumberFormatException ex) {
+			return this.service.getMilestoneNumber(milestone, this.organization,
+					this.repository);
+		}
 	}
 
 	private String generateContent(List<Issue> issues) {
