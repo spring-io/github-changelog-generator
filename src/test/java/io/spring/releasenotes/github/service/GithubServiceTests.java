@@ -19,9 +19,7 @@ package io.spring.releasenotes.github.service;
 import java.util.List;
 
 import io.spring.releasenotes.github.payload.Issue;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +34,7 @@ import org.springframework.test.web.client.ResponseActions;
 import org.springframework.test.web.client.response.DefaultResponseCreator;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
@@ -55,9 +54,6 @@ public class GithubServiceTests {
 
 	private static final String ISSUES_URL = API_URL + "issues?milestone=";
 
-	@Rule
-	public ExpectedException thrown = ExpectedException.none();
-
 	@Autowired
 	private MockRestServiceServer server;
 
@@ -74,8 +70,8 @@ public class GithubServiceTests {
 	@Test
 	public void getMilestoneNumberWhenNotFoundThrowsException() {
 		expectGet(MILESTONES_URL).andRespond(withJsonFrom("milestones.json"));
-		this.thrown.expect(IllegalStateException.class);
-		this.service.getMilestoneNumber("0.0.0", "org", "repo");
+		assertThatExceptionOfType(IllegalStateException.class).isThrownBy(
+				() -> this.service.getMilestoneNumber("0.0.0", "org", "repo"));
 	}
 
 	@Test
