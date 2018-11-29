@@ -16,7 +16,7 @@ releasenotes
 ----
 
 NOTE: When generating release notes for a public repository, the `username` and `password` properties are optional.
-However, specifying them ensures that you don't hit [Github's rate limit](https://developer.github.com/v3/?#rate-limiting) easily.
+However, specifying them ensures that you don't hit https://developer.github.com/v3/?#rate-limiting[Github's rate limit] easily.
 
 TIP: If you are only configuring a few properties you can alternatively use application arguments such as `--releasenotes.github.organization=...`.
 
