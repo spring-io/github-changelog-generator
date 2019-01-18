@@ -70,7 +70,7 @@ public class ReleaseNotesGeneratorTests {
 		issues.add(newIssue("Bug 1", "1", "bug-1-url", Type.BUG));
 		issues.add(newIssue("Enhancement 1", "2", "enhancement-1-url", Type.ENHANCEMENT));
 		issues.add(newIssue("Enhancement 2", "4", "enhancement-2-url", Type.ENHANCEMENT));
-		issues.add(newIssue("Bug 3", "3", "bug-3-url", Type.BUG));
+		issues.add(newIssue("Bug 3 for @Value", "3", "bug-3-url", Type.BUG));
 		given(this.service.getIssuesForMilestone(23, "org", "name")).willReturn(issues);
 		File file = new File(this.temporaryFolder.getRoot().getPath() + "foo");
 		this.generator.generate("23", file.getPath());
@@ -129,7 +129,7 @@ public class ReleaseNotesGeneratorTests {
 		issues.add(newIssue("Bug 1", "1", "bug-1-url", Type.BUG));
 		issues.add(newIssue("Enhancement 1", "2", "enhancement-1-url", Type.ENHANCEMENT));
 		issues.add(newIssue("Enhancement 2", "4", "enhancement-2-url", Type.ENHANCEMENT));
-		issues.add(newIssue("Bug 3", "3", "bug-3-url", Type.BUG));
+		issues.add(newIssue("Bug 3 for @Value", "3", "bug-3-url", Type.BUG));
 		given(this.service.getMilestoneNumber("v2.3", "org", "name")).willReturn(23);
 		given(this.service.getIssuesForMilestone(23, "org", "name")).willReturn(issues);
 		File file = new File(this.temporaryFolder.getRoot().getPath() + "foo");
