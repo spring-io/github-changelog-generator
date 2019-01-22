@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 the original author or authors.
+ * Copyright 2018-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ package io.spring.releasenotes.generator;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -70,7 +71,7 @@ public class ReleaseNotesGeneratorTests {
 		issues.add(newIssue("Bug 1", "1", "bug-1-url", Type.BUG));
 		issues.add(newIssue("Enhancement 1", "2", "enhancement-1-url", Type.ENHANCEMENT));
 		issues.add(newIssue("Enhancement 2", "4", "enhancement-2-url", Type.ENHANCEMENT));
-		issues.add(newIssue("Bug 3 for @Value", "3", "bug-3-url", Type.BUG));
+		issues.add(newIssue("Bug 3", "3", "bug-3-url", Type.BUG));
 		given(this.service.getIssuesForMilestone(23, "org", "name")).willReturn(issues);
 		File file = new File(this.temporaryFolder.getRoot().getPath() + "foo");
 		this.generator.generate("23", file.getPath());
@@ -129,12 +130,37 @@ public class ReleaseNotesGeneratorTests {
 		issues.add(newIssue("Bug 1", "1", "bug-1-url", Type.BUG));
 		issues.add(newIssue("Enhancement 1", "2", "enhancement-1-url", Type.ENHANCEMENT));
 		issues.add(newIssue("Enhancement 2", "4", "enhancement-2-url", Type.ENHANCEMENT));
-		issues.add(newIssue("Bug 3 for @Value", "3", "bug-3-url", Type.BUG));
+		issues.add(newIssue("Bug 3", "3", "bug-3-url", Type.BUG));
 		given(this.service.getMilestoneNumber("v2.3", "org", "name")).willReturn(23);
 		given(this.service.getIssuesForMilestone(23, "org", "name")).willReturn(issues);
 		File file = new File(this.temporaryFolder.getRoot().getPath() + "foo");
 		this.generator.generate("v2.3", file.getPath());
 		assertThat(file).hasContent(from("output-with-no-prs"));
+	}
+
+	@Test
+	public void whenUserMentionIsInIssueTitleItIsEscaped() throws IOException {
+		List<Issue> issues = new ArrayList<>();
+		issues.add(newIssue("Bug 1 for @Value", "1", "bug-1-url", Type.BUG));
+		given(this.service.getMilestoneNumber("v2.3", "org", "name")).willReturn(23);
+		given(this.service.getIssuesForMilestone(23, "org", "name")).willReturn(issues);
+		File file = new File(this.temporaryFolder.getRoot().getPath() + "foo");
+		this.generator.generate("v2.3", file.getPath());
+		assertThat(new String(Files.readAllBytes(file.toPath())))
+				.contains("Bug 1 for `@Value`");
+	}
+
+	@Test
+	public void whenEscapedUserMentionIsInIssueTitleItIsNotEscapedAgain()
+			throws IOException {
+		List<Issue> issues = new ArrayList<>();
+		issues.add(newIssue("Bug 1 for `@Value`", "1", "bug-1-url", Type.BUG));
+		given(this.service.getMilestoneNumber("v2.3", "org", "name")).willReturn(23);
+		given(this.service.getIssuesForMilestone(23, "org", "name")).willReturn(issues);
+		File file = new File(this.temporaryFolder.getRoot().getPath() + "foo");
+		this.generator.generate("v2.3", file.getPath());
+		assertThat(new String(Files.readAllBytes(file.toPath())))
+				.contains("Bug 1 for `@Value`");
 	}
 
 	private User createUser(String contributor12, String s) {
