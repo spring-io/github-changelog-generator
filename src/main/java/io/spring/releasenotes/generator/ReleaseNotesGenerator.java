@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 the original author or authors.
+ * Copyright 2018-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import io.spring.releasenotes.github.payload.Issue;
@@ -44,6 +45,9 @@ public class ReleaseNotesGenerator {
 
 	private static final String THANK_YOU = "## :heart: Contributors\n\n"
 			+ "We'd like to thank all the contributors who worked on this release!";
+
+	private static final Pattern ghUserMentionPattern = Pattern
+			.compile("(^|[^\\w`])(@[\\w-]+)");
 
 	private final GithubService service;
 
@@ -107,7 +111,9 @@ public class ReleaseNotesGenerator {
 	}
 
 	private String getFormattedIssue(Issue issue) {
-		return "- " + issue.getTitle() + " " + getLinkToIssue(issue) + "\n";
+		String title = issue.getTitle();
+		title = ghUserMentionPattern.matcher(title).replaceAll("$1`$2`");
+		return "- " + title + " " + getLinkToIssue(issue) + "\n";
 	}
 
 	private String getLinkToIssue(Issue issue) {
