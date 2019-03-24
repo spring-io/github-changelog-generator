@@ -7,7 +7,7 @@ To generate markdown release notes that comprise the list of bugs and issues in 
 
 [source,yaml]
 ----
-releasenotes
+releasenotes:
   github:
     organization:
     repository:
