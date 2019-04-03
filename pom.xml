@@ -16,7 +16,7 @@
 	</parent>
 	<properties>
 		<revision>0.0.3-SNAPSHOT</revision>
-		<spring-javaformat.version>0.0.7</spring-javaformat.version>
+		<spring-javaformat.version>0.0.9</spring-javaformat.version>
 	</properties>
 	<dependencies>
 		<dependency>
