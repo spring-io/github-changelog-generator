@@ -1,5 +1,12 @@
 == Concourse pipeline
 
+Ensure that you've setup the artifactory-resource target and can login
+
+[source]
+----
+$ fly -t github-release-notes-generator login -n github-release-notes-generator -c https://ci.spring.io
+----
+
 The pipeline can be deployed using the following command:
 
 [source]

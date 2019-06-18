@@ -39,7 +39,8 @@ jobs:
     trigger: true
   - put: github-release-notes-generator-ci-image
     params:
-      build: ci-images-git-repo/ci/images/github-release-notes-generator-ci-image
+      build: ci-images-git-repo/ci/images
+      dockerfile: ci-images-git-repo/ci/images/github-release-notes-generator-ci-image/Dockerfile
 - name: build
   plan:
   - get: git-repo
