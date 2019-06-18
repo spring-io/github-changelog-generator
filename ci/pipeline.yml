@@ -31,7 +31,7 @@ resources:
   source:
     owner: spring-io
     repository: github-release-notes-generator
-    access_token: ((github-release-notes-access-token))
+    access_token: ((github-ci-release-token))
 jobs:
 - name: build-github-release-notes-generator-ci-image
   plan:
@@ -63,7 +63,7 @@ jobs:
     file: git-repo/ci/tasks/release.yml
     params:
       GITHUB_USERNAME: ((github-username))
-      GITHUB_TOKEN: ((github-release-notes-access-token))
+      GITHUB_TOKEN: ((github-ci-release-token))
   - put: git-repo
     params:
       repository: release-git-repo
