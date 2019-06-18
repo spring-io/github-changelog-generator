@@ -50,8 +50,7 @@ public class GithubService {
 
 	private static final String MILESTONES_URI = API_URL + "milestones";
 
-	private static final String ISSUES_URI = API_URL
-			+ "issues?milestone={milestone}&state=closed";
+	private static final String ISSUES_URI = API_URL + "issues?milestone={milestone}&state=closed";
 
 	private final RestTemplate restTemplate;
 
@@ -64,22 +63,18 @@ public class GithubService {
 		this.restTemplate = builder.build();
 	}
 
-	public int getMilestoneNumber(String milestoneTitle, String organization,
-			String repository) {
+	public int getMilestoneNumber(String milestoneTitle, String organization, String repository) {
 		Assert.hasText(milestoneTitle, "MilestoneName must not be empty");
-		List<Milestone> milestones = getAll(Milestone.class, MILESTONES_URI, organization,
-				repository);
+		List<Milestone> milestones = getAll(Milestone.class, MILESTONES_URI, organization, repository);
 		for (Milestone milestone : milestones) {
 			if (milestoneTitle.equalsIgnoreCase(milestone.getTitle())) {
 				return milestone.getNumber();
 			}
 		}
-		throw new IllegalStateException(
-				"Unable to find open milestone with title '" + milestoneTitle + "'");
+		throw new IllegalStateException("Unable to find open milestone with title '" + milestoneTitle + "'");
 	}
 
-	public List<Issue> getIssuesForMilestone(int milestoneNumber, String organization,
-			String repository) {
+	public List<Issue> getIssuesForMilestone(int milestoneNumber, String organization, String repository) {
 		return getAll(Issue.class, ISSUES_URI, organization, repository, milestoneNumber);
 	}
 
@@ -97,10 +92,8 @@ public class GithubService {
 		if (!StringUtils.hasText(url)) {
 			return null;
 		}
-		ResponseEntity<T[]> response = this.restTemplate.getForEntity(url,
-				arrayType(type), uriVariables);
-		return new Page<T>(Arrays.asList(response.getBody()),
-				() -> getPage(type, getNextUrl(response.getHeaders())));
+		ResponseEntity<T[]> response = this.restTemplate.getForEntity(url, arrayType(type), uriVariables);
+		return new Page<T>(Arrays.asList(response.getBody()), () -> getPage(type, getNextUrl(response.getHeaders())));
 	}
 
 	@SuppressWarnings("unchecked")

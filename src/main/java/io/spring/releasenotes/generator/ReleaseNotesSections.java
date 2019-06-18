@@ -43,14 +43,12 @@ class ReleaseNotesSections {
 		List<ReleaseNotesSection> sections = new ArrayList<>();
 		add(sections, "New Features", ":star:", "enhancement");
 		add(sections, "Bug Fixes", ":beetle:", "bug", "regression");
-		add(sections, "Documentation", ":notebook_with_decorative_cover:",
-				"documentation");
+		add(sections, "Documentation", ":notebook_with_decorative_cover:", "documentation");
 		add(sections, "Dependency Upgrades", ":hammer:", "dependency-upgrade");
 		DEFAULT_SECTIONS = Collections.unmodifiableList(sections);
 	}
 
-	private static void add(List<ReleaseNotesSection> sections, String title,
-			String emoji, String... labels) {
+	private static void add(List<ReleaseNotesSection> sections, String title, String emoji, String... labels) {
 		sections.add(new ReleaseNotesSection(title, emoji, labels));
 	}
 
@@ -68,8 +66,8 @@ class ReleaseNotesSections {
 	}
 
 	private ReleaseNotesSection adapt(Section propertySection) {
-		return new ReleaseNotesSection(propertySection.getTitle(),
-				propertySection.getEmoji(), propertySection.getLabels());
+		return new ReleaseNotesSection(propertySection.getTitle(), propertySection.getEmoji(),
+				propertySection.getLabels());
 	}
 
 	public Map<ReleaseNotesSection, List<Issue>> collate(List<Issue> issues) {

@@ -70,8 +70,8 @@ public class GithubServiceTests {
 	@Test
 	public void getMilestoneNumberWhenNotFoundThrowsException() {
 		expectGet(MILESTONES_URL).andRespond(withJsonFrom("milestones.json"));
-		assertThatExceptionOfType(IllegalStateException.class).isThrownBy(
-				() -> this.service.getMilestoneNumber("0.0.0", "org", "repo"));
+		assertThatExceptionOfType(IllegalStateException.class)
+				.isThrownBy(() -> this.service.getMilestoneNumber("0.0.0", "org", "repo"));
 	}
 
 	@Test
@@ -83,8 +83,7 @@ public class GithubServiceTests {
 
 	@Test
 	public void getIssuesWhenSinglePageOfIssuesPresent() {
-		expectGet(ISSUES_URL + "23&state=closed")
-				.andRespond(withJsonFrom("closed-issues-for-milestone-page-1.json"));
+		expectGet(ISSUES_URL + "23&state=closed").andRespond(withJsonFrom("closed-issues-for-milestone-page-1.json"));
 		List<Issue> issues = this.service.getIssuesForMilestone(23, "org", "repo");
 		assertThat(issues.size()).isEqualTo(30);
 	}
@@ -93,17 +92,15 @@ public class GithubServiceTests {
 	public void getIssuesWhenMultiplePagesOfIssuesPresent() {
 		HttpHeaders headers = new HttpHeaders();
 		headers.set("Link", "<page-two>; rel=\"next\"");
-		expectGet(ISSUES_URL + "23&state=closed").andRespond(
-				withJsonFrom("closed-issues-for-milestone-page-1.json").headers(headers));
-		expectGet("/page-two")
-				.andRespond(withJsonFrom("closed-issues-for-milestone-page-2.json"));
+		expectGet(ISSUES_URL + "23&state=closed")
+				.andRespond(withJsonFrom("closed-issues-for-milestone-page-1.json").headers(headers));
+		expectGet("/page-two").andRespond(withJsonFrom("closed-issues-for-milestone-page-2.json"));
 		List<Issue> issues = this.service.getIssuesForMilestone(23, "org", "repo");
 		assertThat(issues.size()).isEqualTo(60);
 	}
 
 	private ResponseActions expectGet(String expectedUri) {
-		return this.server.expect(requestTo(expectedUri))
-				.andExpect(method(HttpMethod.GET));
+		return this.server.expect(requestTo(expectedUri)).andExpect(method(HttpMethod.GET));
 	}
 
 	private DefaultResponseCreator withJsonFrom(String path) {

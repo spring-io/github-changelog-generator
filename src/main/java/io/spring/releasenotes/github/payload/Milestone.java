@@ -29,8 +29,7 @@ public class Milestone {
 
 	private final String title;
 
-	public Milestone(@JsonProperty("number") int number,
-			@JsonProperty("title") String title) {
+	public Milestone(@JsonProperty("number") int number, @JsonProperty("title") String title) {
 		this.number = number;
 		this.title = title;
 	}

@@ -31,8 +31,7 @@ public class User {
 
 	private final String url;
 
-	public User(@JsonProperty("login") String name,
-			@JsonProperty("html_url") String url) {
+	public User(@JsonProperty("login") String name, @JsonProperty("html_url") String url) {
 		this.name = name;
 		this.url = url;
 	}
@@ -54,8 +53,7 @@ public class User {
 			return false;
 		}
 		User other = (User) o;
-		return Objects.equals(this.name, other.name)
-				&& Objects.equals(this.url, other.url);
+		return Objects.equals(this.name, other.name) && Objects.equals(this.url, other.url);
 	}
 
 	@Override

@@ -97,10 +97,8 @@ public class ReleaseNotesGeneratorTests {
 		List<Issue> issues = new ArrayList<>();
 		issues.add(newIssue("Enhancement 1", "2", "enhancement-1-url", Type.ENHANCEMENT));
 		issues.add(newIssue("Enhancement 2", "4", "enhancement-2-url", Type.ENHANCEMENT));
-		issues.add(newPullRequest("Enhancement 3", "5", Type.ENHANCEMENT,
-				"enhancement-5-url", contributor1));
-		issues.add(newPullRequest("Enhancement 4", "6", Type.ENHANCEMENT,
-				"enhancement-6-url", contributor2));
+		issues.add(newPullRequest("Enhancement 3", "5", Type.ENHANCEMENT, "enhancement-5-url", contributor1));
+		issues.add(newPullRequest("Enhancement 4", "6", Type.ENHANCEMENT, "enhancement-6-url", contributor2));
 		given(this.service.getIssuesForMilestone(23, "org", "name")).willReturn(issues);
 		File file = new File(this.temporaryFolder.getRoot().getPath() + "foo");
 		this.generator.generate("23", file.getPath());
@@ -113,10 +111,8 @@ public class ReleaseNotesGeneratorTests {
 		List<Issue> issues = new ArrayList<>();
 		issues.add(newIssue("Enhancement 1", "2", "enhancement-1-url", Type.ENHANCEMENT));
 		issues.add(newIssue("Enhancement 2", "4", "enhancement-2-url", Type.ENHANCEMENT));
-		issues.add(newPullRequest("Enhancement 3", "5", Type.ENHANCEMENT,
-				"enhancement-5-url", contributor1));
-		issues.add(newPullRequest("Enhancement 4", "6", Type.ENHANCEMENT,
-				"enhancement-6-url", contributor1));
+		issues.add(newPullRequest("Enhancement 3", "5", Type.ENHANCEMENT, "enhancement-5-url", contributor1));
+		issues.add(newPullRequest("Enhancement 4", "6", Type.ENHANCEMENT, "enhancement-6-url", contributor1));
 		given(this.service.getIssuesForMilestone(23, "org", "name")).willReturn(issues);
 		File file = new File(this.temporaryFolder.getRoot().getPath() + "foo");
 		this.generator.generate("23", file.getPath());
@@ -124,8 +120,7 @@ public class ReleaseNotesGeneratorTests {
 	}
 
 	@Test
-	public void runWhenMilestoneIsNotNumberCallsGeneratorWithResolvedNumber()
-			throws Exception {
+	public void runWhenMilestoneIsNotNumberCallsGeneratorWithResolvedNumber() throws Exception {
 		List<Issue> issues = new ArrayList<>();
 		issues.add(newIssue("Bug 1", "1", "bug-1-url", Type.BUG));
 		issues.add(newIssue("Enhancement 1", "2", "enhancement-1-url", Type.ENHANCEMENT));
@@ -146,21 +141,18 @@ public class ReleaseNotesGeneratorTests {
 		given(this.service.getIssuesForMilestone(23, "org", "name")).willReturn(issues);
 		File file = new File(this.temporaryFolder.getRoot().getPath() + "foo");
 		this.generator.generate("v2.3", file.getPath());
-		assertThat(new String(Files.readAllBytes(file.toPath())))
-				.contains("Bug 1 for `@Value`");
+		assertThat(new String(Files.readAllBytes(file.toPath()))).contains("Bug 1 for `@Value`");
 	}
 
 	@Test
-	public void whenEscapedUserMentionIsInIssueTitleItIsNotEscapedAgain()
-			throws IOException {
+	public void whenEscapedUserMentionIsInIssueTitleItIsNotEscapedAgain() throws IOException {
 		List<Issue> issues = new ArrayList<>();
 		issues.add(newIssue("Bug 1 for `@Value`", "1", "bug-1-url", Type.BUG));
 		given(this.service.getMilestoneNumber("v2.3", "org", "name")).willReturn(23);
 		given(this.service.getIssuesForMilestone(23, "org", "name")).willReturn(issues);
 		File file = new File(this.temporaryFolder.getRoot().getPath() + "foo");
 		this.generator.generate("v2.3", file.getPath());
-		assertThat(new String(Files.readAllBytes(file.toPath())))
-				.contains("Bug 1 for `@Value`");
+		assertThat(new String(Files.readAllBytes(file.toPath()))).contains("Bug 1 for `@Value`");
 	}
 
 	private User createUser(String contributor12, String s) {
@@ -168,18 +160,15 @@ public class ReleaseNotesGeneratorTests {
 	}
 
 	private String from(String path) throws IOException {
-		return FileCopyUtils.copyToString(
-				new InputStreamReader(getClass().getResourceAsStream(path)));
+		return FileCopyUtils.copyToString(new InputStreamReader(getClass().getResourceAsStream(path)));
 	}
 
 	private Issue newIssue(String title, String number, String url, Type type) {
 		return new Issue(number, title, null, type.getLabels(), url, null);
 	}
 
-	public Issue newPullRequest(String title, String number, Type type, String url,
-			User user) {
-		return new Issue(number, title, user, type.getLabels(), url,
-				new PullRequest("https://example.com"));
+	public Issue newPullRequest(String title, String number, Type type, String url, User user) {
+		return new Issue(number, title, user, type.getLabels(), url, new PullRequest("https://example.com"));
 	}
 
 	private enum Type {

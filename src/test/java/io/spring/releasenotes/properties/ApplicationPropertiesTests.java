@@ -43,8 +43,7 @@ public class ApplicationPropertiesTests {
 		List<PropertySource<?>> yaml = yamlLoader.load("application",
 				new ClassPathResource("test-application.yml", getClass()));
 		Binder binder = new Binder(ConfigurationPropertySources.from(yaml));
-		ApplicationProperties properties = binder
-				.bind("releasenotes", ApplicationProperties.class).get();
+		ApplicationProperties properties = binder.bind("releasenotes", ApplicationProperties.class).get();
 		Github github = properties.getGithub();
 		assertThat(github.getUsername()).isEqualTo("testuser");
 		assertThat(github.getPassword()).isEqualTo("testpass");

@@ -46,8 +46,7 @@ public class ReleaseNotesGenerator {
 	private static final String THANK_YOU = "## :heart: Contributors\n\n"
 			+ "We'd like to thank all the contributors who worked on this release!";
 
-	private static final Pattern ghUserMentionPattern = Pattern
-			.compile("(^|[^\\w`])(@[\\w-]+)");
+	private static final Pattern ghUserMentionPattern = Pattern.compile("(^|[^\\w`])(@[\\w-]+)");
 
 	private final GithubService service;
 
@@ -57,8 +56,7 @@ public class ReleaseNotesGenerator {
 
 	private final ReleaseNotesSections sections;
 
-	public ReleaseNotesGenerator(GithubService service,
-			ApplicationProperties properties) {
+	public ReleaseNotesGenerator(GithubService service, ApplicationProperties properties) {
 		this.service = service;
 		this.organization = properties.getGithub().getOrganization();
 		this.repository = properties.getGithub().getRepository();
@@ -74,8 +72,7 @@ public class ReleaseNotesGenerator {
 	 */
 	public void generate(String milestone, String path) throws IOException {
 		int milestoneNumber = getMilestoneNumber(milestone);
-		List<Issue> issues = this.service.getIssuesForMilestone(milestoneNumber,
-				this.organization, this.repository);
+		List<Issue> issues = this.service.getIssuesForMilestone(milestoneNumber, this.organization, this.repository);
 		String content = generateContent(issues);
 		writeContentToFile(content, path);
 	}
@@ -85,8 +82,7 @@ public class ReleaseNotesGenerator {
 			return Integer.parseInt(milestone);
 		}
 		catch (NumberFormatException ex) {
-			return this.service.getMilestoneNumber(milestone, this.organization,
-					this.repository);
+			return this.service.getMilestoneNumber(milestone, this.organization, this.repository);
 		}
 	}
 
@@ -121,8 +117,8 @@ public class ReleaseNotesGenerator {
 	}
 
 	private Set<User> getContributors(List<Issue> issues) {
-		return issues.stream().filter((issue) -> issue.getPullRequest() != null)
-				.map(Issue::getUser).collect(Collectors.toSet());
+		return issues.stream().filter((issue) -> issue.getPullRequest() != null).map(Issue::getUser)
+				.collect(Collectors.toSet());
 	}
 
 	private void addContributorsContent(StringBuilder content, Set<User> contributors) {
