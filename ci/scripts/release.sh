@@ -31,4 +31,4 @@ popd > /dev/null
 echo $releaseVersion > built-artifact/version
 echo v$releaseVersion > built-artifact/tag
 cp release-git-repo/target/github-release-notes-generator.jar built-artifact/
-java -jar release-git-repo/target/github-release-notes-generator.jar  --releasenotes.github.organization=spring-io --releasenotes.github.repository=github-release-notes-generator $releaseVersion built-artifact/release-notes.md
+java -jar release-git-repo/target/github-release-notes-generator.jar --releasenotes.github.username=${GITHUB_USERNAME} --releasenotes.github.password=${GITHUB_TOKEN} --releasenotes.github.organization=spring-io --releasenotes.github.repository=github-release-notes-generator $releaseVersion built-artifact/release-notes.md
