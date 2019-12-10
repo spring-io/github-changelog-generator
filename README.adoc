@@ -9,6 +9,7 @@ To generate markdown release notes that comprise the list of bugs and issues in 
 ----
 releasenotes:
   github:
+    api-url: #defaulted to https://api.github.com
     organization:
     repository:
     username:

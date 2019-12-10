@@ -46,11 +46,9 @@ public class GithubService {
 
 	private static final Pattern LINK_PATTERN = Pattern.compile("<(.+)>; rel=\"(.+)\"");
 
-	private static final String API_URL = "https://api.github.com/repos/{organization}/{repository}/";
+	private static final String MILESTONES_URI = "/repos/{organization}/{repository}/milestones";
 
-	private static final String MILESTONES_URI = API_URL + "milestones";
-
-	private static final String ISSUES_URI = API_URL + "issues?milestone={milestone}&state=closed";
+	private static final String ISSUES_URI = "/repos/{organization}/{repository}/issues?milestone={milestone}&state=closed";
 
 	private final RestTemplate restTemplate;
 
@@ -60,6 +58,7 @@ public class GithubService {
 		if (StringUtils.hasLength(username)) {
 			builder = builder.basicAuthentication(username, password);
 		}
+		builder = builder.rootUri(properties.getGithub().getApiUrl());
 		this.restTemplate = builder.build();
 	}
 
