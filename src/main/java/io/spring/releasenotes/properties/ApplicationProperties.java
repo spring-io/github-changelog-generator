@@ -54,7 +54,7 @@ public class ApplicationProperties {
 	public static class Github {
 
 		/**
-		 * The base url to github's api.
+		 * Base url to github's api.
 		 */
 		private String apiUrl = "https://api.github.com";
 

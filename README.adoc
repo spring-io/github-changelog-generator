@@ -9,7 +9,6 @@ To generate markdown release notes that comprise the list of bugs and issues in 
 ----
 releasenotes:
   github:
-    api-url: #defaulted to https://api.github.com
     organization:
     repository:
     username:
@@ -18,6 +17,8 @@ releasenotes:
 
 NOTE: When generating release notes for a public repository, the `username` and `password` properties are optional.
 However, specifying them ensures that you don't hit https://developer.github.com/v3/?#rate-limiting[GitHub's rate limit] easily.
+
+If you're using GitHub enterprise, the base url can be set using `releasenotes.github.api-url`.
 
 TIP: If you are only configuring a few properties you can alternatively use application arguments such as `--releasenotes.github.organization=...`.
 
