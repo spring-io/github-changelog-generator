@@ -33,7 +33,7 @@ public class ApplicationProperties {
 	/**
 	 * GitHub properties.
 	 */
-	private Github github = new Github();
+	private final Github github = new Github();
 
 	/**
 	 * Section definitions in the order that they should appear.
@@ -46,6 +46,10 @@ public class ApplicationProperties {
 
 	public List<Section> getSections() {
 		return this.sections;
+	}
+
+	public void setSections(List<Section> sections) {
+		this.sections = sections;
 	}
 
 	/**
@@ -86,22 +90,6 @@ public class ApplicationProperties {
 			this.apiUrl = apiUrl;
 		}
 
-		public String getOrganization() {
-			return this.organization;
-		}
-
-		public void setOrganization(String organization) {
-			this.organization = organization;
-		}
-
-		public String getRepository() {
-			return this.repository;
-		}
-
-		public void setRepository(String repository) {
-			this.repository = repository;
-		}
-
 		public String getUsername() {
 			return this.username;
 		}
@@ -116,6 +104,22 @@ public class ApplicationProperties {
 
 		public void setPassword(String password) {
 			this.password = password;
+		}
+
+		public String getOrganization() {
+			return this.organization;
+		}
+
+		public void setOrganization(String organization) {
+			this.organization = organization;
+		}
+
+		public String getRepository() {
+			return this.repository;
+		}
+
+		public void setRepository(String repository) {
+			this.repository = repository;
 		}
 
 	}
