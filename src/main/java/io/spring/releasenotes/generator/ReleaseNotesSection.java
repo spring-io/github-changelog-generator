@@ -51,7 +51,7 @@ class ReleaseNotesSection {
 		this.labels = labels;
 	}
 
-	public boolean isMatchFor(Issue issue) {
+	boolean isMatchFor(Issue issue) {
 		for (String candidate : this.labels) {
 			for (Label label : issue.getLabels()) {
 				if (label.getName().contains(candidate)) {

@@ -70,7 +70,7 @@ class ReleaseNotesSections {
 				propertySection.getLabels());
 	}
 
-	public Map<ReleaseNotesSection, List<Issue>> collate(List<Issue> issues) {
+	Map<ReleaseNotesSection, List<Issue>> collate(List<Issue> issues) {
 		SortedMap<ReleaseNotesSection, List<Issue>> collated = new TreeMap<>(
 				Comparator.comparing(this.sections::indexOf));
 		for (Issue issue : issues) {

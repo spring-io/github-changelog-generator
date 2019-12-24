@@ -43,11 +43,11 @@ class Page<T> {
 		this.nextPageSupplier = nextPageSupplier;
 	}
 
-	public List<T> getContent() {
+	List<T> getContent() {
 		return this.content;
 	}
 
-	public Page<T> getNextPage() {
+	Page<T> getNextPage() {
 		return this.nextPageSupplier.get();
 	}
 
