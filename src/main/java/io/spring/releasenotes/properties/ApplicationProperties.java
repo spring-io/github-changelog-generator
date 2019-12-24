@@ -54,6 +54,11 @@ public class ApplicationProperties {
 	public static class Github {
 
 		/**
+		 * Base url to github's api.
+		 */
+		private String apiUrl = "https://api.github.com";
+
+		/**
 		 * The username for the github user.
 		 */
 		private String username;
@@ -72,6 +77,14 @@ public class ApplicationProperties {
 		 * The name of the github repository.
 		 */
 		private String repository;
+
+		public String getApiUrl() {
+			return this.apiUrl;
+		}
+
+		public void setApiUrl(String apiUrl) {
+			this.apiUrl = apiUrl;
+		}
 
 		public String getOrganization() {
 			return this.organization;

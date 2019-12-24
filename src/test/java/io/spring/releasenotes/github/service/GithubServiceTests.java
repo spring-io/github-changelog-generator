@@ -48,11 +48,9 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
 @RestClientTest({ GithubService.class })
 public class GithubServiceTests {
 
-	private static final String API_URL = "https://api.github.com/repos/org/repo/";
+	private static final String MILESTONES_URL = "/repos/org/repo/milestones";
 
-	private static final String MILESTONES_URL = API_URL + "milestones";
-
-	private static final String ISSUES_URL = API_URL + "issues?milestone=";
+	private static final String ISSUES_URL = "/repos/org/repo/issues?milestone=";
 
 	@Autowired
 	private MockRestServiceServer server;
