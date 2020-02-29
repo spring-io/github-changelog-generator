@@ -48,9 +48,11 @@ public class ApplicationPropertiesTests {
 		assertThat(repository.getOwner()).isEqualTo("testorg");
 		assertThat(repository.getName()).isEqualTo("testrepo");
 		List<Section> sections = properties.getSections();
-		assertThat(sections.get(0).getTitle()).isEqualTo("New Features");
-		assertThat(sections.get(0).getEmoji()).isEqualTo(":star:");
+		assertThat(sections).hasSize(2);
+		assertThat(sections.get(0).getTitle()).isEqualTo(":star: New Features");
 		assertThat(sections.get(0).getLabels()).containsExactly("enhancement");
+		assertThat(sections.get(1).getTitle()).isEqualTo("Bugs");
+		assertThat(sections.get(1).getLabels()).containsExactly("bug");
 	}
 
 }
