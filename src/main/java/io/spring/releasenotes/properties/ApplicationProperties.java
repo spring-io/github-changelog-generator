@@ -17,7 +17,9 @@
 package io.spring.releasenotes.properties;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
@@ -40,8 +42,18 @@ public class ApplicationProperties {
 	 */
 	private List<Section> sections = new ArrayList<>();
 
+	private Set<String> ignoredLabels = new HashSet<>();
+
 	public Github getGithub() {
 		return this.github;
+	}
+
+	public Set<String> getIgnoredLabels() {
+		return this.ignoredLabels;
+	}
+
+	public void setIgnoredLabels(Set<String> ignoredLabels) {
+		this.ignoredLabels = ignoredLabels;
 	}
 
 	public List<Section> getSections() {

@@ -21,7 +21,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 
 import io.spring.releasenotes.github.payload.Issue;
@@ -61,6 +63,7 @@ public class ReleaseNotesGeneratorTests {
 		ApplicationProperties properties = new ApplicationProperties();
 		properties.getGithub().setRepository("name");
 		properties.getGithub().setOrganization("org");
+		properties.setIgnoredLabels(new HashSet<>(Arrays.asList("duplicate", "wontfix")));
 		this.service = mock(GithubService.class);
 		this.generator = new ReleaseNotesGenerator(this.service, properties);
 	}
@@ -120,6 +123,20 @@ public class ReleaseNotesGeneratorTests {
 	}
 
 	@Test
+	public void generateWhenNoIgnoredLabels() throws Exception {
+		User contributor1 = createUser("contributor1", "contributor1-github-url");
+		List<Issue> issues = new ArrayList<>();
+		issues.add(newIssue("Bug 1", "1", "bug-1-url", Type.BUG));
+		issues.add(newIssue("Ignored bug 2", "2", "bug-2-url", Type.BUG, "wontfix"));
+		issues.add(newPullRequest("PR 3", "3", Type.ENHANCEMENT, "pr-3-url", contributor1));
+		issues.add(newPullRequest("PR 4", "4", Type.ENHANCEMENT, "pr-4-url", contributor1, "duplicate"));
+		given(this.service.getIssuesForMilestone(23, "org", "name")).willReturn(issues);
+		File file = new File(this.temporaryFolder.getRoot().getPath() + "foo");
+		this.generator.generate("23", file.getPath());
+		assertThat(file).hasContent(from("output-with-ignored-labels"));
+	}
+
+	@Test
 	public void runWhenMilestoneIsNotNumberCallsGeneratorWithResolvedNumber() throws Exception {
 		List<Issue> issues = new ArrayList<>();
 		issues.add(newIssue("Bug 1", "1", "bug-1-url", Type.BUG));
@@ -167,8 +184,20 @@ public class ReleaseNotesGeneratorTests {
 		return new Issue(number, title, null, type.getLabels(), url, null);
 	}
 
+	private Issue newIssue(String title, String number, String url, Type type, String... extraLabels) {
+		List<Label> labels = new ArrayList<>(type.getLabels());
+		Arrays.stream(extraLabels).map(Label::new).forEach(labels::add);
+		return new Issue(number, title, null, labels, url, null);
+	}
+
 	public Issue newPullRequest(String title, String number, Type type, String url, User user) {
 		return new Issue(number, title, user, type.getLabels(), url, new PullRequest("https://example.com"));
+	}
+
+	public Issue newPullRequest(String title, String number, Type type, String url, User user, String... extraLabels) {
+		List<Label> labels = new ArrayList<>(type.getLabels());
+		Arrays.stream(extraLabels).map(Label::new).forEach(labels::add);
+		return new Issue(number, title, user, labels, url, new PullRequest("https://example.com"));
 	}
 
 	private enum Type {

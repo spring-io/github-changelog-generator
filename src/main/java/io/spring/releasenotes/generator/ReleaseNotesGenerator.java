@@ -26,11 +26,13 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import io.spring.releasenotes.github.payload.Issue;
+import io.spring.releasenotes.github.payload.Label;
 import io.spring.releasenotes.github.payload.User;
 import io.spring.releasenotes.github.service.GithubService;
 import io.spring.releasenotes.properties.ApplicationProperties;
 
 import org.springframework.context.annotation.Configuration;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.FileCopyUtils;
 
 /**
@@ -54,10 +56,13 @@ public class ReleaseNotesGenerator {
 
 	private final String repository;
 
+	private final Set<String> ignoredLabels;
+
 	private final ReleaseNotesSections sections;
 
 	public ReleaseNotesGenerator(GithubService service, ApplicationProperties properties) {
 		this.service = service;
+		this.ignoredLabels = properties.getIgnoredLabels();
 		this.organization = properties.getGithub().getOrganization();
 		this.repository = properties.getGithub().getRepository();
 		this.sections = new ReleaseNotesSections(properties);
@@ -73,8 +78,17 @@ public class ReleaseNotesGenerator {
 	public void generate(String milestone, String path) throws IOException {
 		int milestoneNumber = getMilestoneNumber(milestone);
 		List<Issue> issues = this.service.getIssuesForMilestone(milestoneNumber, this.organization, this.repository);
-		String content = generateContent(issues);
+		List<Issue> filteredIssues = filterIssues(issues);
+		String content = generateContent(filteredIssues);
 		writeContentToFile(content, path);
+	}
+
+	private List<Issue> filterIssues(List<Issue> issues) {
+		return issues.stream()
+				.filter((issue) -> !CollectionUtils.containsAny(
+						issue.getLabels().stream().map(Label::getName).collect(Collectors.toList()),
+						this.ignoredLabels))
+				.collect(Collectors.toList());
 	}
 
 	private int getMilestoneNumber(String milestone) {
