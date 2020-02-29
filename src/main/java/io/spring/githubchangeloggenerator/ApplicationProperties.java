@@ -18,6 +18,7 @@ package io.spring.githubchangeloggenerator;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 import io.spring.githubchangeloggenerator.github.service.Repository;
 
@@ -46,16 +47,19 @@ public class ApplicationProperties {
 	 */
 	private final MilestoneReference milestoneReference;
 
+	private final Set<String> ignoredLabels;
+
 	/**
 	 * Section definitions in the order that they should appear.
 	 */
 	private final List<Section> sections;
 
 	public ApplicationProperties(Repository repository, @DefaultValue("title") MilestoneReference milestoneReference,
-			List<Section> sections) {
+			Set<String> ignoredLabels, List<Section> sections) {
 		Assert.notNull(repository, "Repository must not be null");
 		this.repository = repository;
 		this.milestoneReference = milestoneReference;
+		this.ignoredLabels = ignoredLabels;
 		this.sections = sections;
 	}
 
@@ -65,6 +69,10 @@ public class ApplicationProperties {
 
 	public MilestoneReference getMilestoneReference() {
 		return this.milestoneReference;
+	}
+
+	public Set<String> getIgnoredLabels() {
+		return this.ignoredLabels;
 	}
 
 	public List<Section> getSections() {

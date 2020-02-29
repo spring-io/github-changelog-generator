@@ -94,6 +94,17 @@ An issue labeled with `new` and `noteworthy` will appear in both the "Highlights
 
 
 
+=== Filtering issues
+Issues and pull requests can be excluded from the release notes by configuring it to ignore certain labels:
+
+[source,yaml]
+----
+changelog:
+  ignoredLabels: ["wontfix", "question", "duplicate", "invalid"]
+----
+
+
+
 == License
 This project is Open Source software released under the
 https://www.apache.org/licenses/LICENSE-2.0.html[Apache 2.0 license].

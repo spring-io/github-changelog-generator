@@ -26,11 +26,13 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import io.spring.githubchangeloggenerator.github.payload.Issue;
+import io.spring.githubchangeloggenerator.github.payload.Label;
 import io.spring.githubchangeloggenerator.github.payload.User;
 import io.spring.githubchangeloggenerator.github.service.GitHubService;
 import io.spring.githubchangeloggenerator.github.service.Repository;
 
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.FileCopyUtils;
 
 /**
@@ -54,12 +56,15 @@ public class ChangelogGenerator {
 
 	private final MilestoneReference milestoneReference;
 
+	private final Set<String> ignoredLabels;
+
 	private final ChangelogSections sections;
 
 	public ChangelogGenerator(GitHubService service, ApplicationProperties properties) {
 		this.service = service;
 		this.repository = properties.getRepository();
 		this.milestoneReference = properties.getMilestoneReference();
+		this.ignoredLabels = properties.getIgnoredLabels();
 		this.sections = new ChangelogSections(properties);
 	}
 
@@ -73,8 +78,17 @@ public class ChangelogGenerator {
 	public void generate(String milestone, String path) throws IOException {
 		int milestoneNumber = resolveMilestoneReference(milestone);
 		List<Issue> issues = this.service.getIssuesForMilestone(milestoneNumber, this.repository);
-		String content = generateContent(issues);
+		List<Issue> filteredIssues = filterIssues(issues);
+		String content = generateContent(filteredIssues);
 		writeContentToFile(content, path);
+	}
+
+	private List<Issue> filterIssues(List<Issue> issues) {
+		return issues.stream()
+				.filter((issue) -> !CollectionUtils.containsAny(
+						issue.getLabels().stream().map(Label::getName).collect(Collectors.toList()),
+						this.ignoredLabels))
+				.collect(Collectors.toList());
 	}
 
 	private int resolveMilestoneReference(String milestone) {
