@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2019 the original author or authors.
+ * Copyright 2018-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -96,14 +96,12 @@ public class ReleaseNotesGenerator {
 		return content.toString();
 	}
 
-	private StringBuilder addSectionContent(StringBuilder content,
-			Map<ReleaseNotesSection, List<Issue>> sectionIssues) {
+	private void addSectionContent(StringBuilder content, Map<ReleaseNotesSection, List<Issue>> sectionIssues) {
 		sectionIssues.forEach((section, issues) -> {
 			content.append((content.length() != 0) ? "\n" : "");
-			content.append("## " + section + "\n\n");
+			content.append("## ").append(section).append("\n\n");
 			issues.stream().map(this::getFormattedIssue).forEach(content::append);
 		});
-		return content;
 	}
 
 	private String getFormattedIssue(Issue issue) {

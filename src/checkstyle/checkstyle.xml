@@ -4,6 +4,6 @@
 		"https://checkstyle.org/dtds/configuration_1_3.dtd">
 <module name="com.puppycrawl.tools.checkstyle.Checker">
 	<module name="io.spring.javaformat.checkstyle.SpringChecks">
-		<property name="headerCopyrightPattern" value="2018(-2019)*"/>
+		<property name="headerCopyrightPattern" value="2018(-20\d\d)*"/>
 	</module>
 </module>

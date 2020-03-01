@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2019 the original author or authors.
+ * Copyright 2018-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,7 +53,7 @@ public class CommandProcessor implements ApplicationRunner {
 	}
 
 	private void run(String milestone, String path) throws IOException {
-		Assert.hasLength(milestone, "Milestone must not be specified");
+		Assert.hasLength(milestone, "Milestone must be specified");
 		Assert.hasLength(path, "Path must be specified");
 		this.generator.generate(milestone, path);
 	}
