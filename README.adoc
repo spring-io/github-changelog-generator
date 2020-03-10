@@ -34,19 +34,20 @@ By default the release notes will contain the following sections:
 |===
 |Title |Label Text
 
-|New Features
+|":star: New Features"
 |"enhancement"
 
-|Bug Fixes
+|":beetle: Bug Fixes"
 |"regression" or "bug"
 
-|Documentation
+|":notebook_with_decorative_cover: Documentation"
 |"documentation"
 
-|Dependency Upgrades
+|":hammer: Dependency Upgrades"
 |"dependency-upgrade"
 |===
 
+The title is in https://guides.github.com/features/mastering-markdown[Markdown] format and emoji like ":star:" can be used.
 If you want something different then you can add `sections` YAML:
 
 [source,yaml]
@@ -54,10 +55,8 @@ If you want something different then you can add `sections` YAML:
 releasenotes:
   sections:
   - title: "Enhancements"
-    emoji: ":star:"
     labels: ["new"]
   - title: "Bugs"
-    emoji: ":beetle:"
     labels: ["fix"]
 ----
 

@@ -24,7 +24,6 @@ import io.spring.releasenotes.github.payload.Label;
 
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
 
 /**
  * A single section of a change log report.
@@ -35,19 +34,16 @@ class ReleaseNotesSection {
 
 	private final String title;
 
-	private final String emoji;
-
 	private final List<String> labels;
 
-	ReleaseNotesSection(String title, String emoji, String... labels) {
-		this(title, emoji, Arrays.asList(labels));
+	ReleaseNotesSection(String title, String... labels) {
+		this(title, Arrays.asList(labels));
 	}
 
-	ReleaseNotesSection(String title, String emoji, List<String> labels) {
+	ReleaseNotesSection(String title, List<String> labels) {
 		Assert.hasText(title, "Title must not be empty");
 		Assert.isTrue(!CollectionUtils.isEmpty(labels), "Labels must not be empty");
 		this.title = title;
-		this.emoji = emoji;
 		this.labels = labels;
 	}
 
@@ -64,12 +60,7 @@ class ReleaseNotesSection {
 
 	@Override
 	public String toString() {
-		if (StringUtils.hasText(this.emoji)) {
-			return this.emoji + " " + this.title;
-		}
-		else {
-			return this.title;
-		}
+		return this.title;
 	}
 
 }

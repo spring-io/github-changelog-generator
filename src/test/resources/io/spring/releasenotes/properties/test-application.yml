@@ -5,6 +5,7 @@ releasenotes:
     organization: testorg
     repository: testrepo
   sections:
-  - title: "New Features"
-    emoji: ":star:"
+  - title: ":star: New Features"
     labels: ["enhancement"]
+  - title: "Bugs"
+    labels: ["bug"]

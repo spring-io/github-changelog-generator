@@ -113,14 +113,9 @@ public class ApplicationProperties {
 	public static class Section {
 
 		/**
-		 * The title of the section.
+		 * The title of the section in Markdown format. Can also contain emoji characters like ":star:".
 		 */
 		private String title;
-
-		/**
-		 * The emoji character to use, for example ":star:".
-		 */
-		private String emoji;
 
 		/**
 		 * The labels used to identify if an issue is for the section.
@@ -133,14 +128,6 @@ public class ApplicationProperties {
 
 		public void setTitle(String title) {
 			this.title = title;
-		}
-
-		public String getEmoji() {
-			return this.emoji;
-		}
-
-		public void setEmoji(String emoji) {
-			this.emoji = emoji;
 		}
 
 		public List<String> getLabels() {
