@@ -113,7 +113,8 @@ public class ApplicationProperties {
 	public static class Section {
 
 		/**
-		 * The title of the section in Markdown format. Can also contain emoji characters like ":star:".
+		 * The title of the section in Markdown format. Can also contain emoji characters
+		 * like ":star:".
 		 */
 		private String title;
 
