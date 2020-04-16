@@ -53,6 +53,8 @@ public class ApplicationPropertiesTests {
 		assertThat(sections.get(0).getLabels()).containsExactly("enhancement");
 		assertThat(sections.get(1).getTitle()).isEqualTo("Bugs");
 		assertThat(sections.get(1).getLabels()).containsExactly("bug");
+		Boolean allowInMultipleSections = properties.getIssues().getAllowInMultipleSections();
+		assertThat(allowInMultipleSections).isTrue();
 	}
 
 }

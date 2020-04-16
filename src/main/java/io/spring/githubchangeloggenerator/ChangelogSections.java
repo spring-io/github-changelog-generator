@@ -52,8 +52,11 @@ class ChangelogSections {
 
 	private final List<ChangelogSection> sections;
 
+	private final Boolean allowInMultipleSections;
+
 	ChangelogSections(ApplicationProperties properties) {
 		this.sections = adapt(properties.getSections());
+		this.allowInMultipleSections = properties.getIssues().getAllowInMultipleSections();
 	}
 
 	private List<ChangelogSection> adapt(List<ApplicationProperties.Section> propertySections) {
@@ -70,10 +73,13 @@ class ChangelogSections {
 	Map<ChangelogSection, List<Issue>> collate(List<Issue> issues) {
 		SortedMap<ChangelogSection, List<Issue>> collated = new TreeMap<>(Comparator.comparing(this.sections::indexOf));
 		for (Issue issue : issues) {
-			ChangelogSection section = getSection(issue);
-			if (section != null) {
-				collated.computeIfAbsent(section, (key) -> new ArrayList<>());
-				collated.get(section).add(issue);
+			List<ChangelogSection> sections = (this.allowInMultipleSections) ? getAllMatchingSections(issue)
+					: Collections.singletonList(getSection(issue));
+			for (ChangelogSection section : sections) {
+				if (section != null) {
+					collated.computeIfAbsent(section, (key) -> new ArrayList<>());
+					collated.get(section).add(issue);
+				}
 			}
 		}
 		return collated;
@@ -86,6 +92,16 @@ class ChangelogSections {
 			}
 		}
 		return null;
+	}
+
+	private List<ChangelogSection> getAllMatchingSections(Issue issue) {
+		List<ChangelogSection> sections = new ArrayList<>();
+		for (ChangelogSection section : this.sections) {
+			if (section.isMatchFor(issue)) {
+				sections.add(section);
+			}
+		}
+		return sections;
 	}
 
 }

@@ -16,6 +16,7 @@
 
 package io.spring.githubchangeloggenerator;
 
+import java.util.Arrays;
 import java.util.List;
 
 import io.spring.githubchangeloggenerator.github.service.Repository;
@@ -50,12 +51,18 @@ public class ApplicationProperties {
 	 */
 	private final List<Section> sections;
 
+	/**
+	 * Issue structure within the changelog.
+	 */
+	private final Issues issues;
+
 	public ApplicationProperties(Repository repository, @DefaultValue("title") MilestoneReference milestoneReference,
-			List<Section> sections) {
+			List<Section> sections, Issues issues) {
 		Assert.notNull(repository, "Repository must not be null");
 		this.repository = repository;
 		this.milestoneReference = milestoneReference;
 		this.sections = sections;
+		this.issues = issues;
 	}
 
 	public Repository getRepository() {
@@ -68,6 +75,10 @@ public class ApplicationProperties {
 
 	public List<Section> getSections() {
 		return this.sections;
+	}
+
+	public Issues getIssues() {
+		return this.issues;
 	}
 
 	/**
@@ -85,9 +96,9 @@ public class ApplicationProperties {
 		 */
 		private final List<String> labels;
 
-		public Section(String title, List<String> labels) {
+		public Section(String title, String... labels) {
 			this.title = title;
-			this.labels = labels;
+			this.labels = Arrays.asList(labels);
 		}
 
 		public String getTitle() {
@@ -96,6 +107,26 @@ public class ApplicationProperties {
 
 		public List<String> getLabels() {
 			return this.labels;
+		}
+
+	}
+
+	/**
+	 * Properties relating to issue structure within the release notes.
+	 */
+	public static class Issues {
+
+		/**
+		 * Whether an issue can appear in multiple sections.
+		 */
+		private final Boolean allowInMultipleSections;
+
+		public Issues(@DefaultValue("false") Boolean allowInMultipleSections) {
+			this.allowInMultipleSections = allowInMultipleSections;
+		}
+
+		public Boolean getAllowInMultipleSections() {
+			return this.allowInMultipleSections;
 		}
 
 	}
