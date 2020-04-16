@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2019 the original author or authors.
+ * Copyright 2018-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,6 +40,11 @@ public class ApplicationProperties {
 	 */
 	private List<Section> sections = new ArrayList<>();
 
+	/**
+	 * Issue structure within the release notes.
+	 */
+	private Issues issues = new Issues();
+
 	public Github getGithub() {
 		return this.github;
 	}
@@ -50,6 +55,14 @@ public class ApplicationProperties {
 
 	public void setSections(List<Section> sections) {
 		this.sections = sections;
+	}
+
+	public Issues getIssues() {
+		return this.issues;
+	}
+
+	public void setIssues(Issues issues) {
+		this.issues = issues;
 	}
 
 	/**
@@ -166,6 +179,26 @@ public class ApplicationProperties {
 
 		public void setLabels(List<String> labels) {
 			this.labels = labels;
+		}
+
+	}
+
+	/**
+	 * Properties relating to issue structure within the release notes.
+	 */
+	public static class Issues {
+
+		/**
+		 * Whether an issue can appear in multiple sections.
+		 */
+		private Boolean allowInMultipleSections = false;
+
+		public Boolean getAllowInMultipleSections() {
+			return this.allowInMultipleSections;
+		}
+
+		public void setAllowInMultipleSections(Boolean allowInMultipleSections) {
+			this.allowInMultipleSections = allowInMultipleSections;
 		}
 
 	}

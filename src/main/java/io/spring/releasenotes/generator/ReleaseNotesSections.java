@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2019 the original author or authors.
+ * Copyright 2018-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,8 +54,11 @@ class ReleaseNotesSections {
 
 	private final List<ReleaseNotesSection> sections;
 
+	private final Boolean allowInMultipleSections;
+
 	ReleaseNotesSections(ApplicationProperties properties) {
 		this.sections = adapt(properties.getSections());
+		this.allowInMultipleSections = properties.getIssues().getAllowInMultipleSections();
 	}
 
 	private List<ReleaseNotesSection> adapt(List<Section> propertySections) {
@@ -74,10 +77,13 @@ class ReleaseNotesSections {
 		SortedMap<ReleaseNotesSection, List<Issue>> collated = new TreeMap<>(
 				Comparator.comparing(this.sections::indexOf));
 		for (Issue issue : issues) {
-			ReleaseNotesSection section = getSection(issue);
-			if (section != null) {
-				collated.computeIfAbsent(section, (key) -> new ArrayList<>());
-				collated.get(section).add(issue);
+			List<ReleaseNotesSection> sections = this.allowInMultipleSections ? getAllMatchingSections(issue)
+					: Collections.singletonList(getSection(issue));
+			for (ReleaseNotesSection section : sections) {
+				if (section != null) {
+					collated.computeIfAbsent(section, (key) -> new ArrayList<>());
+					collated.get(section).add(issue);
+				}
 			}
 		}
 		return collated;
@@ -90,6 +96,16 @@ class ReleaseNotesSections {
 			}
 		}
 		return null;
+	}
+
+	private List<ReleaseNotesSection> getAllMatchingSections(Issue issue) {
+		List<ReleaseNotesSection> sections = new ArrayList<>();
+		for (ReleaseNotesSection section : this.sections) {
+			if (section.isMatchFor(issue)) {
+				sections.add(section);
+			}
+		}
+		return sections;
 	}
 
 }

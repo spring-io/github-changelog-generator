@@ -106,6 +106,37 @@ public class ReleaseNotesSectionsTests {
 		assertThat(titlesToIssues.get(":beetle: Bug Fixes")).containsExactly(bug);
 	}
 
+	@Test
+	public void byDefaultIssueDoesNotAppearInMultipleSections() {
+		Issue bugAndDocumentation = new Issue("1", "Bug", null,
+				Arrays.asList(new Label("bug"), new Label("documentation")), "url1", null);
+		List<Issue> issues = Collections.singletonList(bugAndDocumentation);
+		ReleaseNotesSections sections = new ReleaseNotesSections(new ApplicationProperties());
+		Map<ReleaseNotesSection, List<Issue>> collated = sections.collate(issues);
+		Map<String, List<Issue>> titlesToIssues = getSectionNameToIssuesMap(collated);
+		assertThat(titlesToIssues.keySet()).containsExactly(":beetle: Bug Fixes");
+		assertThat(titlesToIssues.get(":beetle: Bug Fixes")).containsExactly(bugAndDocumentation);
+	}
+
+	@Test
+	public void whenAllowInMultipleSectionsIssueAppearsInAllMatchingSections() {
+		Issue bugAndDocumentation = new Issue("1", "Bug", null,
+				Arrays.asList(new Label("bug"), new Label("documentation")), "url1", null);
+		List<Issue> issueList = Collections.singletonList(bugAndDocumentation);
+		ApplicationProperties properties = new ApplicationProperties();
+		ApplicationProperties.Issues issueProperties = new ApplicationProperties.Issues();
+		issueProperties.setAllowInMultipleSections(true);
+		properties.setIssues(issueProperties);
+		ReleaseNotesSections sections = new ReleaseNotesSections(properties);
+		Map<ReleaseNotesSection, List<Issue>> collated = sections.collate(issueList);
+		Map<String, List<Issue>> titlesToIssues = getSectionNameToIssuesMap(collated);
+		assertThat(titlesToIssues.keySet()).containsExactlyInAnyOrder(":beetle: Bug Fixes",
+				":notebook_with_decorative_cover: Documentation");
+		assertThat(titlesToIssues.get(":beetle: Bug Fixes")).containsExactly(bugAndDocumentation);
+		assertThat(titlesToIssues.get(":notebook_with_decorative_cover: Documentation"))
+				.containsExactly(bugAndDocumentation);
+	}
+
 	private Map<String, List<Issue>> getSectionNameToIssuesMap(Map<ReleaseNotesSection, List<Issue>> collatedIssues) {
 		return collatedIssues.entrySet().stream()
 				.collect(Collectors.toMap((entry) -> entry.getKey().toString(), (entry) -> entry.getValue()));

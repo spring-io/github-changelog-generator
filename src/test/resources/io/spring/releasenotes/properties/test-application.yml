@@ -8,3 +8,5 @@ releasenotes:
   - title: "New Features"
     emoji: ":star:"
     labels: ["enhancement"]
+  issues:
+    allow-in-multiple-sections: true
