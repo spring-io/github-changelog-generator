@@ -11,7 +11,7 @@ $ docker build --no-cache -f <image-folder>/Dockerfile .
 For example
 
 ----
-$ docker build --no-cache -f github-release-notes-generator-ci-image/Dockerfile .
+$ docker build --no-cache -f github-changelog-generator-ci-image/Dockerfile .
 ----
 
 To test run:

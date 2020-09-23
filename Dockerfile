@@ -1,9 +1,9 @@
 FROM ubuntu:bionic-20181018
 
 ARG root=.
-ARG jar=target/github-release-notes-generator.jar
+ARG jar=target/github-changelog-generator.jar
 
-COPY ${jar} /github-release-notes-generator.jar
+COPY ${jar} /github-changelog-generator.jar
 
 RUN apt-get update
 RUN apt-get install --no-install-recommends -y ca-certificates curl

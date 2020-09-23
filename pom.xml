@@ -9,8 +9,8 @@
 		<version>2.3.3.RELEASE</version>
 		<relativePath/>
 	</parent>
-	<groupId>io.spring.githubreleasenotesgenerator</groupId>
-	<artifactId>github-release-notes-generator</artifactId>
+	<groupId>io.spring.githubchangeloggenerator</groupId>
+	<artifactId>github-changelog-generator</artifactId>
 	<version>${revision}</version>
 	<description>Release notes generator for GitHub projects</description>
 	<properties>
@@ -47,7 +47,7 @@
 		</dependency>
 	</dependencies>
 	<build>
-		<finalName>github-release-notes-generator</finalName>
+		<finalName>github-changelog-generator</finalName>
 		<plugins>
 			<plugin>
 				<groupId>io.spring.javaformat</groupId>

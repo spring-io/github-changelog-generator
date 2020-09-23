@@ -1,0 +1,10 @@
+changelog:
+  github:
+    username: testuser
+    password: testpass
+    organization: testorg
+    repository: testrepo
+  sections:
+  - title: "New Features"
+    emoji: ":star:"
+    labels: ["enhancement"]

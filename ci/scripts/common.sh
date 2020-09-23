@@ -5,4 +5,4 @@ build() {
 }
 
 setup_symlinks
-cleanup_maven_repo "io.spring.githubreleasenotesgenerator"
+cleanup_maven_repo "io.spring.githubchangeloggenerator"

@@ -2,7 +2,7 @@ resources:
 - name: git-repo
   type: git
   source:
-    uri: https://github.com/spring-io/github-release-notes-generator
+    uri: https://github.com/spring-io/github-changelog-generator
     username: ((github-username))
     password: ((github-password))
     branch: master
@@ -10,61 +10,67 @@ resources:
 - name: ci-images-git-repo
   type: git
   source:
-    uri: https://github.com/spring-io/github-release-notes-generator
+    uri: https://github.com/spring-io/github-changelog-generator
     branch: master
     paths: ["ci/images/*"]
-- name: github-release-notes-generator-ci-image
+- name: ci-image
   type: docker-image
   source:
-    repository: springci/github-release-notes-generator-ci-image
+    repository: springci/github-changelog-generator-ci
     username: ((docker-hub-username))
     password: ((docker-hub-password))
     tag: master
-- name: github-release-notes-generator-image
+- name: github-changelog-generator-image
   type: docker-image
   source:
-    repository: springio/github-release-notes-generator
+    repository: springio/github-changelog-generator
     username: ((docker-hub-username))
     password: ((docker-hub-password))
 - name: github-release
   type: github-release
   source:
     owner: spring-io
-    repository: github-release-notes-generator
+    repository: github-changelog-generator
     access_token: ((github-ci-release-token))
 jobs:
-- name: build-github-release-notes-generator-ci-image
+- name: build-ci-images
   plan:
   - get: ci-images-git-repo
     trigger: true
-  - put: github-release-notes-generator-ci-image
+  - put: ci-image
     params:
       build: ci-images-git-repo/ci/images
-      dockerfile: ci-images-git-repo/ci/images/github-release-notes-generator-ci-image/Dockerfile
+      dockerfile: ci-images-git-repo/ci/images/ci-image/Dockerfile
 - name: build
   plan:
+  - get: ci-image
   - get: git-repo
     trigger: true
-  - task: build
-    file: git-repo/ci/tasks/build.yml
-  - put: github-release-notes-generator-image
+  - do
+    - task: build
+      image: ci-image
+      file: git-repo/ci/tasks/build.yml
+  - put: github-changelog-generator-image
     params:
       build: .
       dockerfile: git-repo/Dockerfile
       tag: built-artifact/version
       build_args:
         root: git-repo
-        jar:  built-artifact/github-release-notes-generator.jar
+        jar:  built-artifact/github-changelog-generator.jar
 - name: release
   plan:
+  - get: ci-image
   - get: git-repo
     passed: [build]
     trigger: false
-  - task: release
-    file: git-repo/ci/tasks/release.yml
-    params:
-      GITHUB_USERNAME: ((github-username))
-      GITHUB_TOKEN: ((github-ci-release-token))
+  - do:
+    - task: release
+      image: ci-image
+      file: git-repo/ci/tasks/release.yml
+      params:
+        GITHUB_USERNAME: ((github-username))
+        GITHUB_TOKEN: ((github-ci-release-token))
   - put: git-repo
     params:
       repository: release-git-repo
@@ -75,19 +81,21 @@ jobs:
       tag: built-artifact/version
       build_args:
         root: git-repo
-        jar:  built-artifact/github-release-notes-generator.jar
+        jar:  built-artifact/github-changelog-generator.jar
   - put: github-release
     params:
       name: built-artifact/tag
       tag: built-artifact/tag
-      body: built-artifact/release-notes.md
+      body: built-artifact/changelog.md
       globs:
-      - built-artifact/github-release-notes-generator.jar
+      - built-artifact/github-changelog-generator.jar
 groups:
-- name: "Code"
+- name: "builds"
   jobs:
   - build
-  - release
-- name: "CI Images"
+- name: "releases"
   jobs:
-  - build-github-release-notes-generator-ci-image
+  - release
+- name: "ci-images"
+  jobs:
+  - build-github-changelog-generator-ci-image

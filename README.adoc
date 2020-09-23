@@ -1,13 +1,13 @@
-== Generate release notes for a GitHub milestone
+== Generate a changelog for a GitHub milestone
 
-To generate markdown release notes that comprise the list of bugs and issues in a GitHub milestone follow these steps:
+To generate a markdown changelog that comprise the list of bugs and issues in a GitHub milestone follow these steps:
 
-- Download a https://github.com/spring-io/github-release-notes-generator/releases[release JAR] or use the https://hub.docker.com/r/springio/github-release-notes-generator/[Docker image].
+- Download a https://github.com/spring-io/github-changelog-generator/releases[release JAR] or use the https://hub.docker.com/r/springio/github-changelog-generator/[Docker image].
 - Configure the application with the following properties:
 
 [source,yaml]
 ----
-releasenotes:
+changelog:
   github:
     organization:
     repository:
@@ -15,23 +15,23 @@ releasenotes:
     password:
 ----
 
-NOTE: When generating release notes for a public repository, the `username` and `password` properties are optional.
+NOTE: When generating a changelog for a public repository, the `username` and `password` properties are optional.
 However, specifying them ensures that you don't hit https://developer.github.com/v3/?#rate-limiting[GitHub's rate limit] easily.
 
-If you're using GitHub enterprise, the base url can be set using `releasenotes.github.api-url`.
+If you're using GitHub enterprise, the base url can be set using `changelog.github.api-url`.
 
-TIP: If you are only configuring a few properties you can alternatively use application arguments such as `--releasenotes.github.organization=...`.
+TIP: If you are only configuring a few properties you can alternatively use application arguments such as `--changelog.github.organization=...`.
 
 - Run the following commands:
 
 ----
-$ java -jar github-release-notes-generator.jar <milestone> <path_to_generate_file>
+$ java -jar github-changelog-generator.jar <milestone> <path_to_generate_file>
 ----
 
 NOTE: The `<milestone>` may either refer to the milestone number or a name.
 
 === Customizing Sections
-By default the release notes will contain the following sections:
+By default the changelog will contain the following sections:
 
 |===
 |Title |Label Text
@@ -53,7 +53,7 @@ If you want something different then you can add `sections` YAML:
 
 [source,yaml]
 ----
-releasenotes:
+changelog:
   sections:
   - title: "Enhancements"
     emoji: ":star:"
