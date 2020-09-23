@@ -46,7 +46,7 @@ jobs:
   - get: ci-image
   - get: git-repo
     trigger: true
-  - do
+  - do:
     - task: build
       image: ci-image
       file: git-repo/ci/tasks/build.yml
@@ -74,7 +74,7 @@ jobs:
   - put: git-repo
     params:
       repository: release-git-repo
-  - put: github-release-notes-generator-image
+  - put: github-changelog-generator-image
     params:
       build: .
       dockerfile: git-repo/Dockerfile
@@ -98,4 +98,4 @@ groups:
   - release
 - name: "ci-images"
   jobs:
-  - build-github-changelog-generator-ci-image
+  - build-ci-images
