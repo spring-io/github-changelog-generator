@@ -8,19 +8,18 @@ To generate a markdown changelog that comprise the list of bugs and issues in a 
 [source,yaml]
 ----
 changelog:
-  github:
-    organization:
-    repository:
-    username:
-    password:
+  repository: owner/name
+github:
+  username:
+  password:
 ----
 
 NOTE: When generating a changelog for a public repository, the `username` and `password` properties are optional.
 However, specifying them ensures that you don't hit https://developer.github.com/v3/?#rate-limiting[GitHub's rate limit] easily.
 
-If you're using GitHub enterprise, the base url can be set using `changelog.github.api-url`.
+If you're using GitHub enterprise, the base url can be set using `github.api-url`.
 
-TIP: If you are only configuring a few properties you can alternatively use application arguments such as `--changelog.github.organization=...`.
+TIP: If you are only configuring a few properties you can alternatively use application arguments such as `--changelog.repository=...`.
 
 - Run the following commands:
 

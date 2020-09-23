@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package io.spring.githubchangeloggenerator.properties;
+package io.spring.githubchangeloggenerator;
 
 import java.util.List;
 
-import io.spring.githubchangeloggenerator.properties.ApplicationProperties.Github;
-import io.spring.githubchangeloggenerator.properties.ApplicationProperties.Section;
+import io.spring.githubchangeloggenerator.ApplicationProperties.Section;
+import io.spring.githubchangeloggenerator.github.service.Repository;
 import org.junit.Test;
 
 import org.springframework.boot.context.properties.bind.Binder;
@@ -44,11 +44,9 @@ public class ApplicationPropertiesTests {
 				new ClassPathResource("test-application.yml", getClass()));
 		Binder binder = new Binder(ConfigurationPropertySources.from(yaml));
 		ApplicationProperties properties = binder.bind("changelog", ApplicationProperties.class).get();
-		Github github = properties.getGithub();
-		assertThat(github.getUsername()).isEqualTo("testuser");
-		assertThat(github.getPassword()).isEqualTo("testpass");
-		assertThat(github.getOrganization()).isEqualTo("testorg");
-		assertThat(github.getRepository()).isEqualTo("testrepo");
+		Repository repository = properties.getRepository();
+		assertThat(repository.getOwner()).isEqualTo("testorg");
+		assertThat(repository.getName()).isEqualTo("testrepo");
 		List<Section> sections = properties.getSections();
 		assertThat(sections.get(0).getTitle()).isEqualTo("New Features");
 		assertThat(sections.get(0).getEmoji()).isEqualTo(":star:");

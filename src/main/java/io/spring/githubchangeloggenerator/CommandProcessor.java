@@ -19,8 +19,6 @@ package io.spring.githubchangeloggenerator;
 import java.io.IOException;
 import java.util.List;
 
-import io.spring.githubchangeloggenerator.generator.Generator;
-
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
@@ -35,9 +33,9 @@ import org.springframework.util.Assert;
 @Component
 public class CommandProcessor implements ApplicationRunner {
 
-	private final Generator generator;
+	private final ChangelogGenerator generator;
 
-	public CommandProcessor(Generator generator) {
+	public CommandProcessor(ChangelogGenerator generator) {
 		this.generator = generator;
 	}
 

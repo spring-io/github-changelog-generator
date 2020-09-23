@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.spring.githubchangeloggenerator.generator;
+package io.spring.githubchangeloggenerator;
 
 import java.util.Arrays;
 import java.util.List;
@@ -30,7 +30,7 @@ import org.springframework.util.CollectionUtils;
  *
  * @author Phillip Webb
  */
-class Section {
+class ChangelogSection {
 
 	private final String title;
 
@@ -38,11 +38,11 @@ class Section {
 
 	private final List<String> labels;
 
-	Section(String title, String emoji, String... labels) {
+	ChangelogSection(String title, String emoji, String... labels) {
 		this(title, emoji, Arrays.asList(labels));
 	}
 
-	Section(String title, String emoji, List<String> labels) {
+	ChangelogSection(String title, String emoji, List<String> labels) {
 		Assert.hasText(title, "Title must not be empty");
 		Assert.hasText(emoji, "Emoji must not be empty");
 		Assert.isTrue(!CollectionUtils.isEmpty(labels), "Labels must not be empty");

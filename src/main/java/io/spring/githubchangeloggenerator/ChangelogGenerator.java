@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.spring.githubchangeloggenerator.generator;
+package io.spring.githubchangeloggenerator;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 import io.spring.githubchangeloggenerator.github.payload.Issue;
 import io.spring.githubchangeloggenerator.github.payload.User;
 import io.spring.githubchangeloggenerator.github.service.GitHubService;
-import io.spring.githubchangeloggenerator.properties.ApplicationProperties;
+import io.spring.githubchangeloggenerator.github.service.Repository;
 
 import org.springframework.stereotype.Component;
 import org.springframework.util.FileCopyUtils;
@@ -41,7 +41,7 @@ import org.springframework.util.FileCopyUtils;
  * @author Phillip Webb
  */
 @Component
-public class Generator {
+public class ChangelogGenerator {
 
 	private static final String THANK_YOU = "## :heart: Contributors\n\n"
 			+ "We'd like to thank all the contributors who worked on this release!";
@@ -50,17 +50,14 @@ public class Generator {
 
 	private final GitHubService service;
 
-	private final String organization;
+	private final Repository repository;
 
-	private final String repository;
+	private final ChangelogSections sections;
 
-	private final Sections sections;
-
-	public Generator(GitHubService service, ApplicationProperties properties) {
+	public ChangelogGenerator(GitHubService service, ApplicationProperties properties) {
 		this.service = service;
-		this.organization = properties.getGithub().getOrganization();
-		this.repository = properties.getGithub().getRepository();
-		this.sections = new Sections(properties);
+		this.repository = properties.getRepository();
+		this.sections = new ChangelogSections(properties);
 	}
 
 	/**
@@ -72,7 +69,7 @@ public class Generator {
 	 */
 	public void generate(String milestone, String path) throws IOException {
 		int milestoneNumber = getMilestoneNumber(milestone);
-		List<Issue> issues = this.service.getIssuesForMilestone(milestoneNumber, this.organization, this.repository);
+		List<Issue> issues = this.service.getIssuesForMilestone(milestoneNumber, this.repository);
 		String content = generateContent(issues);
 		writeContentToFile(content, path);
 	}
@@ -82,7 +79,7 @@ public class Generator {
 			return Integer.parseInt(milestone);
 		}
 		catch (NumberFormatException ex) {
-			return this.service.getMilestoneNumber(milestone, this.organization, this.repository);
+			return this.service.getMilestoneNumber(milestone, this.repository);
 		}
 	}
 
@@ -96,7 +93,7 @@ public class Generator {
 		return content.toString();
 	}
 
-	private void addSectionContent(StringBuilder content, Map<Section, List<Issue>> sectionIssues) {
+	private void addSectionContent(StringBuilder content, Map<ChangelogSection, List<Issue>> sectionIssues) {
 		sectionIssues.forEach((section, issues) -> {
 			content.append((content.length() != 0) ? "\n" : "");
 			content.append("## ").append(section).append("\n\n");

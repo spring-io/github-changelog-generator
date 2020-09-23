@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.spring.githubchangeloggenerator.generator;
+package io.spring.githubchangeloggenerator;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -26,7 +26,6 @@ import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import io.spring.githubchangeloggenerator.github.payload.Issue;
-import io.spring.githubchangeloggenerator.properties.ApplicationProperties;
 
 import org.springframework.util.CollectionUtils;
 
@@ -35,11 +34,11 @@ import org.springframework.util.CollectionUtils;
  *
  * @author Phillip Webb
  */
-class Sections {
+class ChangelogSections {
 
-	private static final List<Section> DEFAULT_SECTIONS;
+	private static final List<ChangelogSection> DEFAULT_SECTIONS;
 	static {
-		List<Section> sections = new ArrayList<>();
+		List<ChangelogSection> sections = new ArrayList<>();
 		add(sections, "New Features", ":star:", "enhancement");
 		add(sections, "Bug Fixes", ":beetle:", "bug", "regression");
 		add(sections, "Documentation", ":notebook_with_decorative_cover:", "documentation");
@@ -47,31 +46,32 @@ class Sections {
 		DEFAULT_SECTIONS = Collections.unmodifiableList(sections);
 	}
 
-	private static void add(List<Section> sections, String title, String emoji, String... labels) {
-		sections.add(new Section(title, emoji, labels));
+	private static void add(List<ChangelogSection> sections, String title, String emoji, String... labels) {
+		sections.add(new ChangelogSection(title, emoji, labels));
 	}
 
-	private final List<Section> sections;
+	private final List<ChangelogSection> sections;
 
-	Sections(ApplicationProperties properties) {
+	ChangelogSections(ApplicationProperties properties) {
 		this.sections = adapt(properties.getSections());
 	}
 
-	private List<Section> adapt(List<ApplicationProperties.Section> propertySections) {
+	private List<ChangelogSection> adapt(List<ApplicationProperties.Section> propertySections) {
 		if (CollectionUtils.isEmpty(propertySections)) {
 			return DEFAULT_SECTIONS;
 		}
 		return propertySections.stream().map(this::adapt).collect(Collectors.toList());
 	}
 
-	private Section adapt(ApplicationProperties.Section propertySection) {
-		return new Section(propertySection.getTitle(), propertySection.getEmoji(), propertySection.getLabels());
+	private ChangelogSection adapt(ApplicationProperties.Section propertySection) {
+		return new ChangelogSection(propertySection.getTitle(), propertySection.getEmoji(),
+				propertySection.getLabels());
 	}
 
-	Map<Section, List<Issue>> collate(List<Issue> issues) {
-		SortedMap<Section, List<Issue>> collated = new TreeMap<>(Comparator.comparing(this.sections::indexOf));
+	Map<ChangelogSection, List<Issue>> collate(List<Issue> issues) {
+		SortedMap<ChangelogSection, List<Issue>> collated = new TreeMap<>(Comparator.comparing(this.sections::indexOf));
 		for (Issue issue : issues) {
-			Section section = getSection(issue);
+			ChangelogSection section = getSection(issue);
 			if (section != null) {
 				collated.computeIfAbsent(section, (key) -> new ArrayList<>());
 				collated.get(section).add(issue);
@@ -80,8 +80,8 @@ class Sections {
 		return collated;
 	}
 
-	private Section getSection(Issue issue) {
-		for (Section section : this.sections) {
+	private ChangelogSection getSection(Issue issue) {
+		for (ChangelogSection section : this.sections) {
 			if (section.isMatchFor(issue)) {
 				return section;
 			}

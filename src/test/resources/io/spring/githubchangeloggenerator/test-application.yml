@@ -1,0 +1,6 @@
+changelog:
+  repository: testorg/testrepo
+  sections:
+  - title: "New Features"
+    emoji: ":star:"
+    labels: ["enhancement"]

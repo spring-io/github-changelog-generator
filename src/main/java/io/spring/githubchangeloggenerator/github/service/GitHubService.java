@@ -25,7 +25,6 @@ import java.util.regex.Pattern;
 
 import io.spring.githubchangeloggenerator.github.payload.Issue;
 import io.spring.githubchangeloggenerator.github.payload.Milestone;
-import io.spring.githubchangeloggenerator.properties.ApplicationProperties;
 
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpHeaders;
@@ -46,25 +45,26 @@ public class GitHubService {
 
 	private static final Pattern LINK_PATTERN = Pattern.compile("<(.+)>; rel=\"(.+)\"");
 
-	private static final String MILESTONES_URI = "/repos/{organization}/{repository}/milestones";
+	private static final String MILESTONES_URI = "/repos/{owner}/{name}/milestones";
 
-	private static final String ISSUES_URI = "/repos/{organization}/{repository}/issues?milestone={milestone}&state=closed";
+	private static final String ISSUES_URI = "/repos/{owner}/{name}/issues?milestone={milestone}&state=closed";
 
 	private final RestTemplate restTemplate;
 
-	public GitHubService(RestTemplateBuilder builder, ApplicationProperties properties) {
-		String username = properties.getGithub().getUsername();
-		String password = properties.getGithub().getPassword();
+	public GitHubService(RestTemplateBuilder builder, GitHubProperties properties) {
+		String username = properties.getUsername();
+		String password = properties.getPassword();
 		if (StringUtils.hasLength(username)) {
 			builder = builder.basicAuthentication(username, password);
 		}
-		builder = builder.rootUri(properties.getGithub().getApiUrl());
+		builder = builder.rootUri(properties.getApiUrl());
 		this.restTemplate = builder.build();
 	}
 
-	public int getMilestoneNumber(String milestoneTitle, String organization, String repository) {
+	public int getMilestoneNumber(String milestoneTitle, Repository repository) {
 		Assert.hasText(milestoneTitle, "MilestoneName must not be empty");
-		List<Milestone> milestones = getAll(Milestone.class, MILESTONES_URI, organization, repository);
+		List<Milestone> milestones = getAll(Milestone.class, MILESTONES_URI, repository.getOwner(),
+				repository.getName());
 		for (Milestone milestone : milestones) {
 			if (milestoneTitle.equalsIgnoreCase(milestone.getTitle())) {
 				return milestone.getNumber();
@@ -73,8 +73,8 @@ public class GitHubService {
 		throw new IllegalStateException("Unable to find open milestone with title '" + milestoneTitle + "'");
 	}
 
-	public List<Issue> getIssuesForMilestone(int milestoneNumber, String organization, String repository) {
-		return getAll(Issue.class, ISSUES_URI, organization, repository, milestoneNumber);
+	public List<Issue> getIssuesForMilestone(int milestoneNumber, Repository repository) {
+		return getAll(Issue.class, ISSUES_URI, repository.getOwner(), repository.getName(), milestoneNumber);
 	}
 
 	private <T> List<T> getAll(Class<T> type, String url, Object... uriVariables) {

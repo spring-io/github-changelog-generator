@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.spring.githubchangeloggenerator.generator;
+package io.spring.githubchangeloggenerator;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,7 +29,7 @@ import io.spring.githubchangeloggenerator.github.payload.Label;
 import io.spring.githubchangeloggenerator.github.payload.PullRequest;
 import io.spring.githubchangeloggenerator.github.payload.User;
 import io.spring.githubchangeloggenerator.github.service.GitHubService;
-import io.spring.githubchangeloggenerator.properties.ApplicationProperties;
+import io.spring.githubchangeloggenerator.github.service.Repository;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -42,27 +42,26 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 /**
- * Tests for {@link Generator}.
+ * Tests for {@link ChangelogGenerator}.
  *
  * @author Madhura Bhave
  * @author Phillip Webb
  */
-public class GeneratorTests {
+public class ChangelogGeneratorTests {
 
 	@Rule
 	public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-	private Generator generator;
+	private ChangelogGenerator generator;
 
 	private GitHubService service;
 
 	@Before
 	public void setup() {
-		ApplicationProperties properties = new ApplicationProperties();
-		properties.getGithub().setRepository("name");
-		properties.getGithub().setOrganization("org");
+		ApplicationProperties properties = new ApplicationProperties(Repository.of("org/name"),
+				Collections.emptyList());
 		this.service = mock(GitHubService.class);
-		this.generator = new Generator(this.service, properties);
+		this.generator = new ChangelogGenerator(this.service, properties);
 	}
 
 	@Test
@@ -72,7 +71,7 @@ public class GeneratorTests {
 		issues.add(newIssue("Enhancement 1", "2", "enhancement-1-url", Type.ENHANCEMENT));
 		issues.add(newIssue("Enhancement 2", "4", "enhancement-2-url", Type.ENHANCEMENT));
 		issues.add(newIssue("Bug 3", "3", "bug-3-url", Type.BUG));
-		given(this.service.getIssuesForMilestone(23, "org", "name")).willReturn(issues);
+		given(this.service.getIssuesForMilestone(23, Repository.of("org/name"))).willReturn(issues);
 		File file = new File(this.temporaryFolder.getRoot().getPath() + "foo");
 		this.generator.generate("23", file.getPath());
 		assertThat(file).hasContent(from("output-with-no-prs"));
@@ -84,7 +83,7 @@ public class GeneratorTests {
 		List<Issue> issues = new ArrayList<>();
 		issues.add(newPullRequest("Bug 1", "1", Type.BUG, "bug-1-url", contributor1));
 		issues.add(newIssue("Bug 3", "3", "bug-3-url", Type.BUG));
-		given(this.service.getIssuesForMilestone(23, "org", "name")).willReturn(issues);
+		given(this.service.getIssuesForMilestone(23, Repository.of("org/name"))).willReturn(issues);
 		File file = new File(this.temporaryFolder.getRoot().getPath() + "foo");
 		this.generator.generate("23", file.getPath());
 		assertThat(file).hasContent(from("output-with-no-enhancements"));
@@ -99,7 +98,7 @@ public class GeneratorTests {
 		issues.add(newIssue("Enhancement 2", "4", "enhancement-2-url", Type.ENHANCEMENT));
 		issues.add(newPullRequest("Enhancement 3", "5", Type.ENHANCEMENT, "enhancement-5-url", contributor1));
 		issues.add(newPullRequest("Enhancement 4", "6", Type.ENHANCEMENT, "enhancement-6-url", contributor2));
-		given(this.service.getIssuesForMilestone(23, "org", "name")).willReturn(issues);
+		given(this.service.getIssuesForMilestone(23, Repository.of("org/name"))).willReturn(issues);
 		File file = new File(this.temporaryFolder.getRoot().getPath() + "foo");
 		this.generator.generate("23", file.getPath());
 		assertThat(file).hasContent(from("output-with-no-bugs"));
@@ -113,7 +112,7 @@ public class GeneratorTests {
 		issues.add(newIssue("Enhancement 2", "4", "enhancement-2-url", Type.ENHANCEMENT));
 		issues.add(newPullRequest("Enhancement 3", "5", Type.ENHANCEMENT, "enhancement-5-url", contributor1));
 		issues.add(newPullRequest("Enhancement 4", "6", Type.ENHANCEMENT, "enhancement-6-url", contributor1));
-		given(this.service.getIssuesForMilestone(23, "org", "name")).willReturn(issues);
+		given(this.service.getIssuesForMilestone(23, Repository.of("org/name"))).willReturn(issues);
 		File file = new File(this.temporaryFolder.getRoot().getPath() + "foo");
 		this.generator.generate("23", file.getPath());
 		assertThat(file).hasContent(from("output-with-duplicate-contributors"));
@@ -126,8 +125,8 @@ public class GeneratorTests {
 		issues.add(newIssue("Enhancement 1", "2", "enhancement-1-url", Type.ENHANCEMENT));
 		issues.add(newIssue("Enhancement 2", "4", "enhancement-2-url", Type.ENHANCEMENT));
 		issues.add(newIssue("Bug 3", "3", "bug-3-url", Type.BUG));
-		given(this.service.getMilestoneNumber("v2.3", "org", "name")).willReturn(23);
-		given(this.service.getIssuesForMilestone(23, "org", "name")).willReturn(issues);
+		given(this.service.getMilestoneNumber("v2.3", Repository.of("org/name"))).willReturn(23);
+		given(this.service.getIssuesForMilestone(23, Repository.of("org/name"))).willReturn(issues);
 		File file = new File(this.temporaryFolder.getRoot().getPath() + "foo");
 		this.generator.generate("v2.3", file.getPath());
 		assertThat(file).hasContent(from("output-with-no-prs"));
@@ -137,8 +136,8 @@ public class GeneratorTests {
 	public void whenUserMentionIsInIssueTitleItIsEscaped() throws IOException {
 		List<Issue> issues = new ArrayList<>();
 		issues.add(newIssue("Bug 1 for @Value", "1", "bug-1-url", Type.BUG));
-		given(this.service.getMilestoneNumber("v2.3", "org", "name")).willReturn(23);
-		given(this.service.getIssuesForMilestone(23, "org", "name")).willReturn(issues);
+		given(this.service.getMilestoneNumber("v2.3", Repository.of("org/name"))).willReturn(23);
+		given(this.service.getIssuesForMilestone(23, Repository.of("org/name"))).willReturn(issues);
 		File file = new File(this.temporaryFolder.getRoot().getPath() + "foo");
 		this.generator.generate("v2.3", file.getPath());
 		assertThat(new String(Files.readAllBytes(file.toPath()))).contains("Bug 1 for `@Value`");
@@ -148,8 +147,8 @@ public class GeneratorTests {
 	public void whenEscapedUserMentionIsInIssueTitleItIsNotEscapedAgain() throws IOException {
 		List<Issue> issues = new ArrayList<>();
 		issues.add(newIssue("Bug 1 for `@Value`", "1", "bug-1-url", Type.BUG));
-		given(this.service.getMilestoneNumber("v2.3", "org", "name")).willReturn(23);
-		given(this.service.getIssuesForMilestone(23, "org", "name")).willReturn(issues);
+		given(this.service.getMilestoneNumber("v2.3", Repository.of("org/name"))).willReturn(23);
+		given(this.service.getIssuesForMilestone(23, Repository.of("org/name"))).willReturn(issues);
 		File file = new File(this.temporaryFolder.getRoot().getPath() + "foo");
 		this.generator.generate("v2.3", file.getPath());
 		assertThat(new String(Files.readAllBytes(file.toPath()))).contains("Bug 1 for `@Value`");
