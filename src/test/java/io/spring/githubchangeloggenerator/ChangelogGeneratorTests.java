@@ -123,7 +123,7 @@ public class ChangelogGeneratorTests {
 		given(this.service.getIssuesForMilestone(23, REPO)).willReturn(issues);
 		File file = new File(this.temporaryFolder.getRoot().getPath() + "foo");
 		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.ID, null, null,
-				new Contributors(new ContributorsExclude(Collections.singleton("contributor1"))));
+				new Contributors(null, new ContributorsExclude(Collections.singleton("contributor1"))));
 		this.generator = new ChangelogGenerator(this.service, properties);
 		this.generator.generate("23", file.getPath());
 		assertThat(file).hasContent(from("output-with-excluded-contributors"));
@@ -139,7 +139,7 @@ public class ChangelogGeneratorTests {
 		given(this.service.getIssuesForMilestone(23, REPO)).willReturn(issues);
 		File file = new File(this.temporaryFolder.getRoot().getPath() + "foo");
 		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.ID, null, null,
-				new Contributors(new ContributorsExclude(Collections.singleton("*"))));
+				new Contributors(null, new ContributorsExclude(Collections.singleton("*"))));
 		this.generator = new ChangelogGenerator(this.service, properties);
 		this.generator.generate("23", file.getPath());
 		assertThat(file).hasContent(from("output-with-all-contributors-excluded"));
@@ -248,6 +248,20 @@ public class ChangelogGeneratorTests {
 		assertThat(file).hasContent(from("output-with-title-sorted-issues"));
 	}
 
+	@Test
+	public void generateWhenHasCustomContributorsTitle() throws Exception {
+		User contributor1 = createUser("contributor1", "contributor1-github-url");
+		List<Issue> issues = new ArrayList<>();
+		issues.add(newPullRequest("Bug 1", "1", Type.BUG, "bug-1-url", contributor1));
+		given(this.service.getIssuesForMilestone(23, REPO)).willReturn(issues);
+		File file = new File(this.temporaryFolder.getRoot().getPath() + "foo");
+		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.ID, null, null,
+				new Contributors(":heart: Teamwork", null));
+		this.generator = new ChangelogGenerator(this.service, properties);
+		this.generator.generate("23", file.getPath());
+		assertThat(file).hasContent(from("output-with-custom-contributors-title"));
+	}
+
 	private void setupGenerator(MilestoneReference id) {
 		Set<String> labels = new HashSet<>(Arrays.asList("duplicate", "wontfix"));
 		ApplicationProperties properties = new ApplicationProperties(REPO, id, null,
@@ -273,11 +287,11 @@ public class ChangelogGeneratorTests {
 		return new Issue(number, title, null, labels, url, null);
 	}
 
-	public Issue newPullRequest(String title, String number, Type type, String url, User user) {
+	private Issue newPullRequest(String title, String number, Type type, String url, User user) {
 		return new Issue(number, title, user, type.getLabels(), url, new PullRequest("https://example.com"));
 	}
 
-	public Issue newPullRequest(String title, String number, Type type, String url, User user, String... extraLabels) {
+	private Issue newPullRequest(String title, String number, Type type, String url, User user, String... extraLabels) {
 		List<Label> labels = new ArrayList<>(type.getLabels());
 		Arrays.stream(extraLabels).map(Label::new).forEach(labels::add);
 		return new Issue(number, title, user, labels, url, new PullRequest("https://example.com"));

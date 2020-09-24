@@ -64,6 +64,15 @@ changelog:
     labels: ["fix"]
 ----
 
+You can also customize the contributors title using:
+
+[source,yaml]
+----
+changelog:
+  contributors:
+    title: "Contributors"
+----
+
 
 
 ==== Showing Issues in Multiple Sections

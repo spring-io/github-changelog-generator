@@ -12,5 +12,6 @@ changelog:
     exclude:
       labels: ["hide"]
   contributors:
+    title: "Nice one!"
     exclude:
       names: ["philwebb"]

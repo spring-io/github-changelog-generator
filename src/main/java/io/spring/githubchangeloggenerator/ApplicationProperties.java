@@ -69,7 +69,7 @@ public class ApplicationProperties {
 		this.milestoneReference = milestoneReference;
 		this.sections = (sections != null) ? sections : Collections.emptyList();
 		this.issues = (issues != null) ? issues : new Issues(null, null);
-		this.contributors = (contributors != null) ? contributors : new Contributors(null);
+		this.contributors = (contributors != null) ? contributors : new Contributors(null, null);
 	}
 
 	public Repository getRepository() {
@@ -199,12 +199,22 @@ public class ApplicationProperties {
 	public static class Contributors {
 
 		/**
+		 * Title for the contributors section.
+		 */
+		private final String title;
+
+		/**
 		 * Contributor exclusions.
 		 */
 		private final ContributorsExclude exclude;
 
-		public Contributors(ContributorsExclude exclude) {
+		public Contributors(String title, ContributorsExclude exclude) {
+			this.title = title;
 			this.exclude = (exclude != null) ? exclude : new ContributorsExclude(null);
+		}
+
+		public String getTitle() {
+			return this.title;
 		}
 
 		public ContributorsExclude getExclude() {

@@ -60,6 +60,7 @@ public class ApplicationPropertiesTests {
 		assertThat(sections.get(1).getSort()).isNull();
 		assertThat(properties.getIssues().getExcludes().getLabels()).containsExactly("hide");
 		assertThat(properties.getIssues().getSort()).isEqualTo(IssueSort.TITLE);
+		assertThat(properties.getContributors().getTitle()).isEqualTo("Nice one!");
 		assertThat(properties.getContributors().getExclude().getNames()).containsExactly("philwebb");
 	}
 

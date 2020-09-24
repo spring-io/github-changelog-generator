@@ -48,9 +48,6 @@ import org.springframework.util.FileCopyUtils;
 @Component
 public class ChangelogGenerator {
 
-	private static final String THANK_YOU = "## :heart: Contributors\n\n"
-			+ "We'd like to thank all the contributors who worked on this release!";
-
 	private static final Comparator<Issue> TITLE_COMPARATOR = Comparator.comparing(Issue::getTitle,
 			String.CASE_INSENSITIVE_ORDER);
 
@@ -68,6 +65,8 @@ public class ChangelogGenerator {
 
 	private final Set<String> excludeContributors;
 
+	private final String contributorsTitle;
+
 	private final ChangelogSections sections;
 
 	public ChangelogGenerator(GitHubService service, ApplicationProperties properties) {
@@ -77,6 +76,7 @@ public class ChangelogGenerator {
 		this.sort = properties.getIssues().getSort();
 		this.excludeLabels = properties.getIssues().getExcludes().getLabels();
 		this.excludeContributors = properties.getContributors().getExclude().getNames();
+		this.contributorsTitle = properties.getContributors().getTitle();
 		this.sections = new ChangelogSections(properties);
 	}
 
@@ -168,7 +168,9 @@ public class ChangelogGenerator {
 	}
 
 	private void addContributorsContent(StringBuilder content, Set<User> contributors) {
-		content.append("\n" + THANK_YOU + "\n\n");
+		content.append("\n## ");
+		content.append((this.contributorsTitle != null) ? this.contributorsTitle : ":heart: Contributors");
+		content.append("\n\nWe'd like to thank all the contributors who worked on this release!\n\n");
 		contributors.stream().map(this::formatContributors).forEach(content::append);
 	}
 
