@@ -146,19 +146,19 @@ public class ApplicationProperties {
 		/**
 		 * Issue exclusions.
 		 */
-		private final IssueExcludes excludes;
+		private final IssueExclude exclude;
 
-		public Issues(IssueSort sort, IssueExcludes excludes) {
+		public Issues(IssueSort sort, IssueExclude exclude) {
 			this.sort = sort;
-			this.excludes = (excludes != null) ? excludes : new IssueExcludes(null);
+			this.exclude = (exclude != null) ? exclude : new IssueExclude(null);
 		}
 
 		public IssueSort getSort() {
 			return this.sort;
 		}
 
-		public IssueExcludes getExcludes() {
-			return this.excludes;
+		public IssueExclude getExcludes() {
+			return this.exclude;
 		}
 
 	}
@@ -166,14 +166,14 @@ public class ApplicationProperties {
 	/**
 	 * Issue excludes.
 	 */
-	public static class IssueExcludes {
+	public static class IssueExclude {
 
 		/**
 		 * Labels used to exclude issues.
 		 */
 		private final Set<String> labels;
 
-		public IssueExcludes(Set<String> labels) {
+		public IssueExclude(Set<String> labels) {
 			this.labels = (labels != null) ? labels : Collections.emptySet();
 		}
 
