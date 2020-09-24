@@ -49,9 +49,6 @@ import static org.mockito.Mockito.mock;
  */
 public class ChangelogGeneratorTests {
 
-	/**
-	 *
-	 */
 	private static final Repository REPO = Repository.of("org/name");
 
 	@Rule

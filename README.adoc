@@ -30,6 +30,8 @@ $ java -jar github-changelog-generator.jar <milestone> <path_to_generate_file>
 NOTE: By default `<milestone>` refers to the milestone title.
 If you want to use milestone ID, you should set the `changelog.milestone-reference` property to `id`.
 
+
+
 === Customizing Sections
 By default the changelog will contain the following sections:
 
@@ -61,6 +63,36 @@ changelog:
   - title: "Bugs"
     labels: ["fix"]
 ----
+
+
+
+==== Showing issues in multiple sections
+Unless otherwise configured, issues will only appear in the first matching section.
+For example, if you have an issue labeled with `enhancement` and `documentation` then it will only appear in the "New Features" section.
+
+If you want an issue to appear in multiple sections, you can use the `group` property.
+Groups allow you to create logical groupings of related sections.
+An issue may only appear once in any given group.
+
+For example, you might define the following:
+
+[source,yaml]
+----
+changelog:
+  sections:
+  - title: "Highlights"
+    labels: ["noteworthy"]
+    group: "highlights"
+  - title: "Enhancements"
+    labels: ["new"]
+  - title: "Bugs"
+    labels: ["fix"]
+----
+
+This will create two distinct groups, "highlights" and "default" (which is used if no `group` property is specified).
+An issue labeled with `new` and `noteworthy` will appear in both the "Highlights" and "Enhancements" section.
+
+
 
 == License
 This project is Open Source software released under the

@@ -16,6 +16,7 @@
 
 package io.spring.githubchangeloggenerator;
 
+import java.util.Arrays;
 import java.util.List;
 
 import io.spring.githubchangeloggenerator.github.service.Repository;
@@ -76,22 +77,33 @@ public class ApplicationProperties {
 	public static class Section {
 
 		/**
-		 * The title of the section.
+		 * Title of the section.
 		 */
 		private final String title;
 
 		/**
-		 * The labels used to identify if an issue is for the section.
+		 * Group used to bound the contained issues. Issues appear in the first section of
+		 * each group.
+		 */
+		private final String group;
+
+		/**
+		 * Labels used to identify if an issue is for the section.
 		 */
 		private final List<String> labels;
 
-		public Section(String title, List<String> labels) {
+		public Section(String title, @DefaultValue("default") String group, String... labels) {
 			this.title = title;
-			this.labels = labels;
+			this.group = (group != null) ? group : "default";
+			this.labels = Arrays.asList(labels);
 		}
 
 		public String getTitle() {
 			return this.title;
+		}
+
+		public String getGroup() {
+			return this.group;
 		}
 
 		public List<String> getLabels() {

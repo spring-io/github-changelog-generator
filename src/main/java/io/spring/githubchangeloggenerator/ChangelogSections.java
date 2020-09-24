@@ -19,8 +19,10 @@ package io.spring.githubchangeloggenerator;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
@@ -47,7 +49,7 @@ class ChangelogSections {
 	}
 
 	private static void add(List<ChangelogSection> sections, String title, String... labels) {
-		sections.add(new ChangelogSection(title, labels));
+		sections.add(new ChangelogSection(title, null, labels));
 	}
 
 	private final List<ChangelogSection> sections;
@@ -64,14 +66,15 @@ class ChangelogSections {
 	}
 
 	private ChangelogSection adapt(ApplicationProperties.Section propertySection) {
-		return new ChangelogSection(propertySection.getTitle(), propertySection.getLabels());
+		return new ChangelogSection(propertySection.getTitle(), propertySection.getGroup(),
+				propertySection.getLabels());
 	}
 
 	Map<ChangelogSection, List<Issue>> collate(List<Issue> issues) {
 		SortedMap<ChangelogSection, List<Issue>> collated = new TreeMap<>(Comparator.comparing(this.sections::indexOf));
 		for (Issue issue : issues) {
-			ChangelogSection section = getSection(issue);
-			if (section != null) {
+			List<ChangelogSection> sections = getSections(issue);
+			for (ChangelogSection section : sections) {
 				collated.computeIfAbsent(section, (key) -> new ArrayList<>());
 				collated.get(section).add(issue);
 			}
@@ -79,13 +82,15 @@ class ChangelogSections {
 		return collated;
 	}
 
-	private ChangelogSection getSection(Issue issue) {
+	private List<ChangelogSection> getSections(Issue issue) {
+		List<ChangelogSection> result = new ArrayList<>();
+		Set<String> groupClaimes = new HashSet<>();
 		for (ChangelogSection section : this.sections) {
-			if (section.isMatchFor(issue)) {
-				return section;
+			if (section.isMatchFor(issue) && groupClaimes.add(section.getGroup())) {
+				result.add(section);
 			}
 		}
-		return null;
+		return result;
 	}
 
 }

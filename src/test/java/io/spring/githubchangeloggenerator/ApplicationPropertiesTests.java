@@ -51,8 +51,10 @@ public class ApplicationPropertiesTests {
 		assertThat(sections).hasSize(2);
 		assertThat(sections.get(0).getTitle()).isEqualTo(":star: New Features");
 		assertThat(sections.get(0).getLabels()).containsExactly("enhancement");
+		assertThat(sections.get(0).getGroup()).isEqualTo("default");
 		assertThat(sections.get(1).getTitle()).isEqualTo("Bugs");
 		assertThat(sections.get(1).getLabels()).containsExactly("bug");
+		assertThat(sections.get(1).getGroup()).isEqualTo("test");
 	}
 
 }
