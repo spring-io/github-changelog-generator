@@ -3,8 +3,11 @@ changelog:
   sections:
   - title: ":star: New Features"
     labels: ["enhancement"]
+    sort: "created"
   - title: "Bugs"
     labels: ["bug"]
     group: "test"
   issues:
-    allow-in-multiple-sections: true
+    sort: title
+    exclude:
+      labels: ["hide"]
