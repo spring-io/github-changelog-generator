@@ -27,6 +27,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import io.spring.githubchangeloggenerator.ApplicationProperties.IssueExcludes;
+import io.spring.githubchangeloggenerator.ApplicationProperties.Issues;
 import io.spring.githubchangeloggenerator.github.payload.Issue;
 import io.spring.githubchangeloggenerator.github.payload.Label;
 import io.spring.githubchangeloggenerator.github.payload.PullRequest;
@@ -175,9 +177,10 @@ public class ChangelogGeneratorTests {
 	}
 
 	private void setupGenerator(MilestoneReference id) {
-		Set<String> ignored = new HashSet<>(Arrays.asList("duplicate", "wontfix"));
-		this.generator = new ChangelogGenerator(this.service,
-				new ApplicationProperties(REPO, id, ignored, Collections.emptyList()));
+		Set<String> labels = new HashSet<>(Arrays.asList("duplicate", "wontfix"));
+		ApplicationProperties properties = new ApplicationProperties(REPO, id, null,
+				new Issues(new IssueExcludes(labels)));
+		this.generator = new ChangelogGenerator(this.service, properties);
 	}
 
 	private User createUser(String contributor12, String s) {

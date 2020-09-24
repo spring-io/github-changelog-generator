@@ -65,8 +65,8 @@ public class ChangelogSectionsTests {
 		ApplicationProperties.Section bugsSection = new ApplicationProperties.Section(":beetle: Bug Fixes", null,
 				"bug");
 		List<ApplicationProperties.Section> customSections = Arrays.asList(breaksPassivitySection, bugsSection);
-		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.TITLE, null,
-				customSections);
+		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.TITLE, customSections,
+				null);
 		ChangelogSections sections = new ChangelogSections(properties);
 		Issue bug = createIssue("1", "bug");
 		Issue nonPassive = createIssue("1", "breaks-passivity");
@@ -105,8 +105,8 @@ public class ChangelogSectionsTests {
 		ApplicationProperties.Section bugs = new ApplicationProperties.Section("Bugs", null, "bug");
 		ApplicationProperties.Section highlights = new ApplicationProperties.Section("Highlights", null, "highlight");
 		List<ApplicationProperties.Section> customSections = Arrays.asList(bugs, highlights);
-		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.TITLE, null,
-				customSections);
+		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.TITLE, customSections,
+				null);
 		ChangelogSections sections = new ChangelogSections(properties);
 		Map<ChangelogSection, List<Issue>> collated = sections.collate(Arrays.asList(bug, highlight, bugAndHighlight));
 		Map<String, List<Issue>> bySection = getBySection(collated);
@@ -124,8 +124,8 @@ public class ChangelogSectionsTests {
 		ApplicationProperties.Section highlights = new ApplicationProperties.Section("Highlights", "highlights",
 				"highlight");
 		List<ApplicationProperties.Section> customSections = Arrays.asList(bugs, highlights);
-		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.TITLE, null,
-				customSections);
+		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.TITLE, customSections,
+				null);
 		ChangelogSections sections = new ChangelogSections(properties);
 		Map<ChangelogSection, List<Issue>> collated = sections.collate(Arrays.asList(bug, highlight, bugAndHighlight));
 		Map<String, List<Issue>> bySection = getBySection(collated);

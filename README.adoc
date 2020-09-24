@@ -94,13 +94,17 @@ An issue labeled with `new` and `noteworthy` will appear in both the "Highlights
 
 
 
-=== Filtering issues
-Issues and pull requests can be excluded from the release notes by configuring it to ignore certain labels:
+=== Excluding issues
+Issues and pull requests can be excluded from the changlog by configuring exclusions.
+You can ignore all items that have certain labels using `changelog.issues.exclude.labeles`.
+For example:
 
 [source,yaml]
 ----
 changelog:
-  ignoredLabels: ["wontfix", "question", "duplicate", "invalid"]
+  issues:
+    exclude:
+      labels: ["wontfix", "question", "duplicate", "invalid"]
 ----
 
 

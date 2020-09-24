@@ -19,6 +19,7 @@ package io.spring.githubchangeloggenerator;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -32,7 +33,6 @@ import io.spring.githubchangeloggenerator.github.service.GitHubService;
 import io.spring.githubchangeloggenerator.github.service.Repository;
 
 import org.springframework.stereotype.Component;
-import org.springframework.util.CollectionUtils;
 import org.springframework.util.FileCopyUtils;
 
 /**
@@ -56,7 +56,7 @@ public class ChangelogGenerator {
 
 	private final MilestoneReference milestoneReference;
 
-	private final Set<String> ignoredLabels;
+	private final Set<String> excludeLabels;
 
 	private final ChangelogSections sections;
 
@@ -64,7 +64,7 @@ public class ChangelogGenerator {
 		this.service = service;
 		this.repository = properties.getRepository();
 		this.milestoneReference = properties.getMilestoneReference();
-		this.ignoredLabels = properties.getIgnoredLabels();
+		this.excludeLabels = properties.getIssues().getExcludes().getLabels();
 		this.sections = new ChangelogSections(properties);
 	}
 
@@ -77,18 +77,23 @@ public class ChangelogGenerator {
 	 */
 	public void generate(String milestone, String path) throws IOException {
 		int milestoneNumber = resolveMilestoneReference(milestone);
-		List<Issue> issues = this.service.getIssuesForMilestone(milestoneNumber, this.repository);
-		List<Issue> filteredIssues = filterIssues(issues);
-		String content = generateContent(filteredIssues);
+		List<Issue> issues = getIssues(milestoneNumber);
+		String content = generateContent(issues);
 		writeContentToFile(content, path);
 	}
 
-	private List<Issue> filterIssues(List<Issue> issues) {
-		return issues.stream()
-				.filter((issue) -> !CollectionUtils.containsAny(
-						issue.getLabels().stream().map(Label::getName).collect(Collectors.toList()),
-						this.ignoredLabels))
-				.collect(Collectors.toList());
+	private List<Issue> getIssues(int milestoneNumber) {
+		List<Issue> issues = new ArrayList<>(this.service.getIssuesForMilestone(milestoneNumber, this.repository));
+		issues.removeIf(this::isExcluded);
+		return issues;
+	}
+
+	private boolean isExcluded(Issue issue) {
+		return issue.getLabels().stream().anyMatch(this::isExcluded);
+	}
+
+	private boolean isExcluded(Label label) {
+		return this.excludeLabels.contains(label.getName());
 	}
 
 	private int resolveMilestoneReference(String milestone) {
