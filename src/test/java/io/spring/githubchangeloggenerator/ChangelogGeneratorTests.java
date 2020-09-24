@@ -27,9 +27,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import io.spring.githubchangeloggenerator.ApplicationProperties.IssueExclude;
+import io.spring.githubchangeloggenerator.ApplicationProperties.Contributors;
+import io.spring.githubchangeloggenerator.ApplicationProperties.ContributorsExclude;
 import io.spring.githubchangeloggenerator.ApplicationProperties.IssueSort;
 import io.spring.githubchangeloggenerator.ApplicationProperties.Issues;
+import io.spring.githubchangeloggenerator.ApplicationProperties.IssuesExclude;
 import io.spring.githubchangeloggenerator.ApplicationProperties.Section;
 import io.spring.githubchangeloggenerator.github.payload.Issue;
 import io.spring.githubchangeloggenerator.github.payload.Label;
@@ -112,6 +114,22 @@ public class ChangelogGeneratorTests {
 	}
 
 	@Test
+	public void generateWhenHasExcludedContributors() throws Exception {
+		User contributor1 = createUser("contributor1", "contributor1-github-url");
+		User contributor2 = createUser("contributor2", "contributor2-github-url");
+		List<Issue> issues = new ArrayList<>();
+		issues.add(newPullRequest("Enhancement 1", "1", Type.ENHANCEMENT, "enhancement-1-url", contributor1));
+		issues.add(newPullRequest("Enhancement 2", "2", Type.ENHANCEMENT, "enhancement-2-url", contributor2));
+		given(this.service.getIssuesForMilestone(23, REPO)).willReturn(issues);
+		File file = new File(this.temporaryFolder.getRoot().getPath() + "foo");
+		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.ID, null, null,
+				new Contributors(new ContributorsExclude(Collections.singleton("contributor1"))));
+		this.generator = new ChangelogGenerator(this.service, properties);
+		this.generator.generate("23", file.getPath());
+		assertThat(file).hasContent(from("output-with-excluded-contributors"));
+	}
+
+	@Test
 	public void generateWhenDuplicateContributor() throws Exception {
 		User contributor1 = createUser("contributor1", "contributor1-github-url");
 		List<Issue> issues = new ArrayList<>();
@@ -184,7 +202,7 @@ public class ChangelogGeneratorTests {
 		Set<String> labels = Collections.singleton("type: enhancement");
 		sections.add(new Section("Enhancements", null, IssueSort.TITLE, labels));
 		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.ID, sections,
-				new Issues(null, null));
+				new Issues(null, null), null);
 		this.generator = new ChangelogGenerator(this.service, properties);
 		List<Issue> issues = new ArrayList<>();
 		issues.add(newIssue("Enhancement c", "1", "enhancement-1-url", Type.ENHANCEMENT));
@@ -202,7 +220,7 @@ public class ChangelogGeneratorTests {
 		Set<String> labels = Collections.singleton("type: enhancement");
 		sections.add(new Section("Enhancements", null, null, labels));
 		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.ID, sections,
-				new Issues(IssueSort.TITLE, null));
+				new Issues(IssueSort.TITLE, null), null);
 		this.generator = new ChangelogGenerator(this.service, properties);
 		List<Issue> issues = new ArrayList<>();
 		issues.add(newIssue("Enhancement c", "1", "enhancement-1-url", Type.ENHANCEMENT));
@@ -217,7 +235,7 @@ public class ChangelogGeneratorTests {
 	private void setupGenerator(MilestoneReference id) {
 		Set<String> labels = new HashSet<>(Arrays.asList("duplicate", "wontfix"));
 		ApplicationProperties properties = new ApplicationProperties(REPO, id, null,
-				new Issues(null, new IssueExclude(labels)));
+				new Issues(null, new IssuesExclude(labels)), null);
 		this.generator = new ChangelogGenerator(this.service, properties);
 	}
 

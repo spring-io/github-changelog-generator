@@ -65,6 +65,8 @@ public class ChangelogGenerator {
 
 	private final Set<String> excludeLabels;
 
+	private final Set<String> excludeContributors;
+
 	private final ChangelogSections sections;
 
 	public ChangelogGenerator(GitHubService service, ApplicationProperties properties) {
@@ -73,6 +75,7 @@ public class ChangelogGenerator {
 		this.milestoneReference = properties.getMilestoneReference();
 		this.sort = properties.getIssues().getSort();
 		this.excludeLabels = properties.getIssues().getExcludes().getLabels();
+		this.excludeContributors = properties.getContributors().getExclude().getNames();
 		this.sections = new ChangelogSections(properties);
 	}
 
@@ -158,7 +161,12 @@ public class ChangelogGenerator {
 
 	private void addContributorsContent(StringBuilder content, Set<User> contributors) {
 		content.append("\n" + THANK_YOU + "\n\n");
-		contributors.stream().map(this::formatContributors).forEach(content::append);
+		contributors.stream().filter(this::isIncludedContributor).map(this::formatContributors)
+				.forEach(content::append);
+	}
+
+	private boolean isIncludedContributor(User user) {
+		return !this.excludeContributors.contains(user.getName());
 	}
 
 	private String formatContributors(User c) {

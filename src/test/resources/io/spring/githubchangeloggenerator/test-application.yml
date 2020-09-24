@@ -11,3 +11,6 @@ changelog:
     sort: title
     exclude:
       labels: ["hide"]
+  contributors:
+    exclude:
+      names: ["philwebb"]

@@ -109,6 +109,19 @@ changelog:
 
 
 
+=== Excluding Contributors
+If you have contributors that you don't want to thank (perhaps core team members or bots), you can set the following:
+
+[source,yaml]
+----
+changelog:
+  contributors:
+    exclude:
+      names: ["dependabot"]
+----
+
+
+
 === Sorting Issues
 By default issues are sorted by their "created" date.
 If you want to order them by title instead you can set `changelog.issues.sort` to `title`.

@@ -57,13 +57,19 @@ public class ApplicationProperties {
 	 */
 	private final Issues issues;
 
+	/**
+	 * Settings specific to contributors.
+	 */
+	private final Contributors contributors;
+
 	public ApplicationProperties(Repository repository, @DefaultValue("title") MilestoneReference milestoneReference,
-			List<Section> sections, Issues issues) {
+			List<Section> sections, Issues issues, Contributors contributors) {
 		Assert.notNull(repository, "Repository must not be null");
 		this.repository = repository;
 		this.milestoneReference = milestoneReference;
 		this.sections = (sections != null) ? sections : Collections.emptyList();
 		this.issues = (issues != null) ? issues : new Issues(null, null);
+		this.contributors = (contributors != null) ? contributors : new Contributors(null);
 	}
 
 	public Repository getRepository() {
@@ -80,6 +86,10 @@ public class ApplicationProperties {
 
 	public Issues getIssues() {
 		return this.issues;
+	}
+
+	public Contributors getContributors() {
+		return this.contributors;
 	}
 
 	/**
@@ -146,39 +156,79 @@ public class ApplicationProperties {
 		/**
 		 * Issue exclusions.
 		 */
-		private final IssueExclude exclude;
+		private final IssuesExclude exclude;
 
-		public Issues(IssueSort sort, IssueExclude exclude) {
+		public Issues(IssueSort sort, IssuesExclude exclude) {
 			this.sort = sort;
-			this.exclude = (exclude != null) ? exclude : new IssueExclude(null);
+			this.exclude = (exclude != null) ? exclude : new IssuesExclude(null);
 		}
 
 		public IssueSort getSort() {
 			return this.sort;
 		}
 
-		public IssueExclude getExcludes() {
+		public IssuesExclude getExcludes() {
 			return this.exclude;
 		}
 
 	}
 
 	/**
-	 * Issue excludes.
+	 * Issues exclude.
 	 */
-	public static class IssueExclude {
+	public static class IssuesExclude {
 
 		/**
 		 * Labels used to exclude issues.
 		 */
 		private final Set<String> labels;
 
-		public IssueExclude(Set<String> labels) {
+		public IssuesExclude(Set<String> labels) {
 			this.labels = (labels != null) ? labels : Collections.emptySet();
 		}
 
 		public Set<String> getLabels() {
 			return this.labels;
+		}
+
+	}
+
+	/**
+	 * Properties relating to constructors.
+	 */
+	public static class Contributors {
+
+		/**
+		 * Contributor exclusions.
+		 */
+		private final ContributorsExclude exclude;
+
+		public Contributors(ContributorsExclude exclude) {
+			this.exclude = (exclude != null) ? exclude : new ContributorsExclude(null);
+		}
+
+		public ContributorsExclude getExclude() {
+			return this.exclude;
+		}
+
+	}
+
+	/**
+	 * Contributors exclude.
+	 */
+	public static class ContributorsExclude {
+
+		/**
+		 * Contributor names to exclude.
+		 */
+		private final Set<String> names;
+
+		public ContributorsExclude(Set<String> names) {
+			this.names = (names != null) ? names : Collections.emptySet();
+		}
+
+		public Set<String> getNames() {
+			return this.names;
 		}
 
 	}
