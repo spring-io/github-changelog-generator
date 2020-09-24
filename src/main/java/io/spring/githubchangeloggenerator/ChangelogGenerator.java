@@ -52,11 +52,14 @@ public class ChangelogGenerator {
 
 	private final Repository repository;
 
+	private final MilestoneReference milestoneReference;
+
 	private final ChangelogSections sections;
 
 	public ChangelogGenerator(GitHubService service, ApplicationProperties properties) {
 		this.service = service;
 		this.repository = properties.getRepository();
+		this.milestoneReference = properties.getMilestoneReference();
 		this.sections = new ChangelogSections(properties);
 	}
 
@@ -68,18 +71,20 @@ public class ChangelogGenerator {
 	 * @throws IOException if writing to file failed
 	 */
 	public void generate(String milestone, String path) throws IOException {
-		int milestoneNumber = getMilestoneNumber(milestone);
+		int milestoneNumber = resolveMilestoneReference(milestone);
 		List<Issue> issues = this.service.getIssuesForMilestone(milestoneNumber, this.repository);
 		String content = generateContent(issues);
 		writeContentToFile(content, path);
 	}
 
-	private int getMilestoneNumber(String milestone) {
-		try {
-			return Integer.parseInt(milestone);
-		}
-		catch (NumberFormatException ex) {
+	private int resolveMilestoneReference(String milestone) {
+		switch (this.milestoneReference) {
+		case TITLE:
 			return this.service.getMilestoneNumber(milestone, this.repository);
+		case ID:
+			return Integer.parseInt(milestone);
+		default:
+			throw new IllegalStateException("Unsupported milestone reference value " + this.milestoneReference);
 		}
 	}
 

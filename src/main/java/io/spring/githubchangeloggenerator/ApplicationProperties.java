@@ -22,6 +22,7 @@ import io.spring.githubchangeloggenerator.github.service.Repository;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.ConstructorBinding;
+import org.springframework.boot.context.properties.bind.DefaultValue;
 import org.springframework.util.Assert;
 
 /**
@@ -35,23 +36,34 @@ import org.springframework.util.Assert;
 public class ApplicationProperties {
 
 	/**
-	 * The GitHub repository to use in the form "owner/repository".
+	 * GitHub repository to use in the form "owner/repository".
 	 */
 	private final Repository repository;
+
+	/**
+	 * The way that milestones are referenced. Supports "title", "id".
+	 */
+	private final MilestoneReference milestoneReference;
 
 	/**
 	 * Section definitions in the order that they should appear.
 	 */
 	private final List<Section> sections;
 
-	public ApplicationProperties(Repository repository, List<Section> sections) {
+	public ApplicationProperties(Repository repository, @DefaultValue("title") MilestoneReference milestoneReference,
+			List<Section> sections) {
 		Assert.notNull(repository, "Repository must not be null");
 		this.repository = repository;
+		this.milestoneReference = milestoneReference;
 		this.sections = sections;
 	}
 
 	public Repository getRepository() {
 		return this.repository;
+	}
+
+	public MilestoneReference getMilestoneReference() {
+		return this.milestoneReference;
 	}
 
 	public List<Section> getSections() {
