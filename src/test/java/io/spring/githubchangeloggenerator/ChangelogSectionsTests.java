@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import io.spring.githubchangeloggenerator.ApplicationProperties.Issues;
 import io.spring.githubchangeloggenerator.github.payload.Issue;
 import io.spring.githubchangeloggenerator.github.payload.Label;
 import io.spring.githubchangeloggenerator.github.service.Repository;
@@ -34,116 +33,113 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Tests for {@link ChangelogSections}.
  *
  * @author Eleftheria Stein
+ * @author Phillip Webb
  */
 public class ChangelogSectionsTests {
 
 	private static final Repository REPO = Repository.of("org/name");
 
 	@Test
-	public void whenNoCustomSectionsThenDefaultSectionsUsed() {
-		Issue enhancement = new Issue("1", "Enhancement", null, Collections.singletonList(new Label("enhancement")),
-				"url1", null);
-		Issue bug = new Issue("2", "Bug", null, Collections.singletonList(new Label("bug")), "url2", null);
-		Issue documentation = new Issue("3", "Documentation Change", null,
-				Collections.singletonList(new Label("documentation")), "url3", null);
-		Issue dependencyUpgrade = new Issue("4", "Dependency Upgrade", null,
-				Collections.singletonList(new Label("dependency-upgrade")), "url4", null);
-		List<Issue> issues = Arrays.asList(enhancement, bug, documentation, dependencyUpgrade);
-		ApplicationProperties properties = newApplicationProperties();
+	public void collateWhenNoCustomSectionsUsesDefaultSections() {
+		Issue enhancement = createIssue("1", "enhancement");
+		Issue bug = createIssue("2", "bug");
+		Issue documentation = createIssue("3", "documentation");
+		Issue dependencyUpgrade = createIssue("4", "dependency-upgrade");
+		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.TITLE, null);
 		ChangelogSections sections = new ChangelogSections(properties);
-		Map<ChangelogSection, List<Issue>> collated = sections.collate(issues);
-		Map<String, List<Issue>> titlesToIssues = getSectionNameToIssuesMap(collated);
-		assertThat(titlesToIssues.keySet()).containsExactlyInAnyOrder(":star: New Features", ":beetle: Bug Fixes",
+		Map<ChangelogSection, List<Issue>> collated = sections
+				.collate(Arrays.asList(enhancement, bug, documentation, dependencyUpgrade));
+		Map<String, List<Issue>> bySection = getBySection(collated);
+		assertThat(bySection).containsOnlyKeys(":star: New Features", ":beetle: Bug Fixes",
 				":notebook_with_decorative_cover: Documentation", ":hammer: Dependency Upgrades");
-		assertThat(titlesToIssues.get(":star: New Features")).containsExactly(enhancement);
-		assertThat(titlesToIssues.get(":beetle: Bug Fixes")).containsExactly(bug);
-		assertThat(titlesToIssues.get(":notebook_with_decorative_cover: Documentation")).containsExactly(documentation);
-		assertThat(titlesToIssues.get(":hammer: Dependency Upgrades")).containsExactly(dependencyUpgrade);
+		assertThat(bySection.get(":star: New Features")).containsExactly(enhancement);
+		assertThat(bySection.get(":beetle: Bug Fixes")).containsExactly(bug);
+		assertThat(bySection.get(":notebook_with_decorative_cover: Documentation")).containsExactly(documentation);
+		assertThat(bySection.get(":hammer: Dependency Upgrades")).containsExactly(dependencyUpgrade);
 	}
 
 	@Test
-	public void whenCustomSectionsThenUsed() {
+	public void collateWhenHasCustomSectionsUsesDefinedSections() {
 		ApplicationProperties.Section breaksPassivitySection = new ApplicationProperties.Section(":rewind: Non-passive",
-				"breaks-passivity");
-		ApplicationProperties.Section bugsSection = new ApplicationProperties.Section(":beetle: Bug Fixes", "bug");
+				null, "breaks-passivity");
+		ApplicationProperties.Section bugsSection = new ApplicationProperties.Section(":beetle: Bug Fixes", null,
+				"bug");
 		List<ApplicationProperties.Section> customSections = Arrays.asList(breaksPassivitySection, bugsSection);
-		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.TITLE, customSections,
-				new Issues(false));
-
+		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.TITLE, customSections);
 		ChangelogSections sections = new ChangelogSections(properties);
-		Issue bug = new Issue("1", "Bug", null, Collections.singletonList(new Label("bug")), "url1", null);
-		Issue nonPassive = new Issue("2", "Non-passive change", null,
-				Collections.singletonList(new Label("breaks-passivity")), "url2", null);
-		List<Issue> issues = Arrays.asList(bug, nonPassive);
-
-		Map<ChangelogSection, List<Issue>> collated = sections.collate(issues);
-		List<String> sectionTitles = collated.keySet().stream().map(ChangelogSection::toString)
-				.collect(Collectors.toList());
-		assertThat(sectionTitles).containsExactlyInAnyOrder(":beetle: Bug Fixes", ":rewind: Non-passive");
+		Issue bug = createIssue("1", "bug");
+		Issue nonPassive = createIssue("1", "breaks-passivity");
+		Map<ChangelogSection, List<Issue>> collated = sections.collate(Arrays.asList(bug, nonPassive));
+		Map<String, List<Issue>> bySection = getBySection(collated);
+		assertThat(bySection).containsOnlyKeys(":beetle: Bug Fixes", ":rewind: Non-passive");
 	}
 
 	@Test
-	public void whenNoIssuesInSectionThenSectionExcluded() {
-		Issue bug = new Issue("1", "Bug", null, Collections.singletonList(new Label("bug")), "url1", null);
-		List<Issue> issues = Collections.singletonList(bug);
-		ApplicationProperties properties = newApplicationProperties();
+	public void collateWhenNoIssuesInSectionExcludesSection() {
+		Issue bug = createIssue("1", "bug");
+		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.TITLE, null);
 		ChangelogSections sections = new ChangelogSections(properties);
-		Map<ChangelogSection, List<Issue>> collated = sections.collate(issues);
-		Map<String, List<Issue>> titlesToIssues = getSectionNameToIssuesMap(collated);
-		assertThat(titlesToIssues.keySet()).containsExactly(":beetle: Bug Fixes");
+		Map<ChangelogSection, List<Issue>> collated = sections.collate(Collections.singletonList(bug));
+		Map<String, List<Issue>> bySection = getBySection(collated);
+		assertThat(bySection.keySet()).containsExactly(":beetle: Bug Fixes");
 	}
 
 	@Test
-	public void whenIssueDoesNotMatchAnySectionLabelThenIssueExcluded() {
-		Issue bug = new Issue("1", "Bug", null, Collections.singletonList(new Label("bug")), "url1", null);
-		Issue nonPassive = new Issue("2", "Non-passive change", null,
-				Collections.singletonList(new Label("non-passive")), "url2", null);
-		List<Issue> issues = Arrays.asList(bug, nonPassive);
-		ApplicationProperties properties = newApplicationProperties();
+	public void collateWhenIssueDoesNotMatchAnySectionLabelThenExcludesIssue() {
+		Issue bug = createIssue("1", "bug");
+		Issue nonPassive = createIssue("2", "non-passive");
+		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.TITLE, null);
 		ChangelogSections sections = new ChangelogSections(properties);
-		Map<ChangelogSection, List<Issue>> collated = sections.collate(issues);
-		Map<String, List<Issue>> titlesToIssues = getSectionNameToIssuesMap(collated);
-		assertThat(titlesToIssues.keySet()).containsExactly(":beetle: Bug Fixes");
-		assertThat(titlesToIssues.get(":beetle: Bug Fixes")).containsExactly(bug);
+		Map<ChangelogSection, List<Issue>> collated = sections.collate(Arrays.asList(bug, nonPassive));
+		Map<String, List<Issue>> bySection = getBySection(collated);
+		assertThat(bySection).containsOnlyKeys(":beetle: Bug Fixes");
+		assertThat(bySection.get(":beetle: Bug Fixes")).containsExactly(bug);
 	}
 
 	@Test
-	public void byDefaultIssueDoesNotAppearInMultipleSections() {
-		Issue bugAndDocumentation = new Issue("1", "Bug", null,
-				Arrays.asList(new Label("bug"), new Label("documentation")), "url1", null);
-		List<Issue> issues = Collections.singletonList(bugAndDocumentation);
-		ApplicationProperties properties = newApplicationProperties();
+	public void collateWithDefaultsDoesNotAddIssueToMultipleSections() {
+		Issue bug = createIssue("1", "bug");
+		Issue highlight = createIssue("2", "highlight");
+		Issue bugAndHighlight = createIssue("3", "bug", "highlight");
+		ApplicationProperties.Section bugs = new ApplicationProperties.Section("Bugs", null, "bug");
+		ApplicationProperties.Section highlights = new ApplicationProperties.Section("Highlights", null, "highlight");
+		List<ApplicationProperties.Section> customSections = Arrays.asList(bugs, highlights);
+		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.TITLE, customSections);
 		ChangelogSections sections = new ChangelogSections(properties);
-		Map<ChangelogSection, List<Issue>> collated = sections.collate(issues);
-		Map<String, List<Issue>> titlesToIssues = getSectionNameToIssuesMap(collated);
-		assertThat(titlesToIssues.keySet()).containsExactly(":beetle: Bug Fixes");
-		assertThat(titlesToIssues.get(":beetle: Bug Fixes")).containsExactly(bugAndDocumentation);
+		Map<ChangelogSection, List<Issue>> collated = sections.collate(Arrays.asList(bug, highlight, bugAndHighlight));
+		Map<String, List<Issue>> bySection = getBySection(collated);
+		assertThat(bySection).containsOnlyKeys("Bugs", "Highlights");
+		assertThat(bySection.get("Bugs")).containsExactly(bug, bugAndHighlight);
+		assertThat(bySection.get("Highlights")).containsExactly(highlight);
 	}
 
 	@Test
-	public void whenAllowInMultipleSectionsIssueAppearsInAllMatchingSections() {
-		Issue bugAndDocumentation = new Issue("1", "Bug", null,
-				Arrays.asList(new Label("bug"), new Label("documentation")), "url1", null);
-		List<Issue> issueList = Collections.singletonList(bugAndDocumentation);
-		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.TITLE, null,
-				new Issues(true));
+	public void collateWithGroupsAddsIssuePerGroup() {
+		Issue bug = createIssue("1", "bug");
+		Issue highlight = createIssue("2", "highlight");
+		Issue bugAndHighlight = createIssue("3", "bug", "highlight");
+		ApplicationProperties.Section bugs = new ApplicationProperties.Section("Bugs", null, "bug");
+		ApplicationProperties.Section highlights = new ApplicationProperties.Section("Highlights", "highlights",
+				"highlight");
+		List<ApplicationProperties.Section> customSections = Arrays.asList(bugs, highlights);
+		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.TITLE, customSections);
 		ChangelogSections sections = new ChangelogSections(properties);
-		Map<ChangelogSection, List<Issue>> collated = sections.collate(issueList);
-		Map<String, List<Issue>> titlesToIssues = getSectionNameToIssuesMap(collated);
-		assertThat(titlesToIssues.keySet()).containsExactlyInAnyOrder(":beetle: Bug Fixes",
-				":notebook_with_decorative_cover: Documentation");
-		assertThat(titlesToIssues.get(":beetle: Bug Fixes")).containsExactly(bugAndDocumentation);
-		assertThat(titlesToIssues.get(":notebook_with_decorative_cover: Documentation"))
-				.containsExactly(bugAndDocumentation);
+		Map<ChangelogSection, List<Issue>> collated = sections.collate(Arrays.asList(bug, highlight, bugAndHighlight));
+		Map<String, List<Issue>> bySection = getBySection(collated);
+		assertThat(bySection).containsOnlyKeys("Bugs", "Highlights");
+		assertThat(bySection.get("Bugs")).containsExactly(bug, bugAndHighlight);
+		assertThat(bySection.get("Highlights")).containsExactly(highlight, bugAndHighlight);
 	}
 
-	private Map<String, List<Issue>> getSectionNameToIssuesMap(Map<ChangelogSection, List<Issue>> collatedIssues) {
+	private Issue createIssue(String number, String... labels) {
+		return new Issue(number, "I am #" + number, null,
+				Arrays.stream(labels).map(Label::new).collect(Collectors.toList()), "https://example.com/" + number,
+				null);
+	}
+
+	private Map<String, List<Issue>> getBySection(Map<ChangelogSection, List<Issue>> collatedIssues) {
 		return collatedIssues.entrySet().stream()
 				.collect(Collectors.toMap((entry) -> entry.getKey().toString(), (entry) -> entry.getValue()));
-	}
-
-	private ApplicationProperties newApplicationProperties() {
-		return new ApplicationProperties(REPO, MilestoneReference.TITLE, null, new Issues(false));
 	}
 
 }

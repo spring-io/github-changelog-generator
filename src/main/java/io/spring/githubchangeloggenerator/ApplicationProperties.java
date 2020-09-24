@@ -51,18 +51,12 @@ public class ApplicationProperties {
 	 */
 	private final List<Section> sections;
 
-	/**
-	 * Issue structure within the changelog.
-	 */
-	private final Issues issues;
-
 	public ApplicationProperties(Repository repository, @DefaultValue("title") MilestoneReference milestoneReference,
-			List<Section> sections, Issues issues) {
+			List<Section> sections) {
 		Assert.notNull(repository, "Repository must not be null");
 		this.repository = repository;
 		this.milestoneReference = milestoneReference;
 		this.sections = sections;
-		this.issues = issues;
 	}
 
 	public Repository getRepository() {
@@ -77,27 +71,30 @@ public class ApplicationProperties {
 		return this.sections;
 	}
 
-	public Issues getIssues() {
-		return this.issues;
-	}
-
 	/**
 	 * Properties for a single changelog section.
 	 */
 	public static class Section {
 
 		/**
-		 * The title of the section.
+		 * Title of the section.
 		 */
 		private final String title;
 
 		/**
-		 * The labels used to identify if an issue is for the section.
+		 * Group used to bound the contained issues. Issues appear in the first section of
+		 * each group.
+		 */
+		private final String group;
+
+		/**
+		 * Labels used to identify if an issue is for the section.
 		 */
 		private final List<String> labels;
 
-		public Section(String title, String... labels) {
+		public Section(String title, @DefaultValue("default") String group, String... labels) {
 			this.title = title;
+			this.group = (group != null) ? group : "default";
 			this.labels = Arrays.asList(labels);
 		}
 
@@ -105,28 +102,12 @@ public class ApplicationProperties {
 			return this.title;
 		}
 
+		public String getGroup() {
+			return this.group;
+		}
+
 		public List<String> getLabels() {
 			return this.labels;
-		}
-
-	}
-
-	/**
-	 * Properties relating to issue structure within the release notes.
-	 */
-	public static class Issues {
-
-		/**
-		 * Whether an issue can appear in multiple sections.
-		 */
-		private final Boolean allowInMultipleSections;
-
-		public Issues(@DefaultValue("false") Boolean allowInMultipleSections) {
-			this.allowInMultipleSections = allowInMultipleSections;
-		}
-
-		public Boolean getAllowInMultipleSections() {
-			return this.allowInMultipleSections;
 		}
 
 	}

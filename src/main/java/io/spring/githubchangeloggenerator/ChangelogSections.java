@@ -19,8 +19,10 @@ package io.spring.githubchangeloggenerator;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
@@ -47,16 +49,13 @@ class ChangelogSections {
 	}
 
 	private static void add(List<ChangelogSection> sections, String title, String... labels) {
-		sections.add(new ChangelogSection(title, labels));
+		sections.add(new ChangelogSection(title, null, labels));
 	}
 
 	private final List<ChangelogSection> sections;
 
-	private final Boolean allowInMultipleSections;
-
 	ChangelogSections(ApplicationProperties properties) {
 		this.sections = adapt(properties.getSections());
-		this.allowInMultipleSections = properties.getIssues().getAllowInMultipleSections();
 	}
 
 	private List<ChangelogSection> adapt(List<ApplicationProperties.Section> propertySections) {
@@ -67,41 +66,31 @@ class ChangelogSections {
 	}
 
 	private ChangelogSection adapt(ApplicationProperties.Section propertySection) {
-		return new ChangelogSection(propertySection.getTitle(), propertySection.getLabels());
+		return new ChangelogSection(propertySection.getTitle(), propertySection.getGroup(),
+				propertySection.getLabels());
 	}
 
 	Map<ChangelogSection, List<Issue>> collate(List<Issue> issues) {
 		SortedMap<ChangelogSection, List<Issue>> collated = new TreeMap<>(Comparator.comparing(this.sections::indexOf));
 		for (Issue issue : issues) {
-			List<ChangelogSection> sections = (this.allowInMultipleSections) ? getAllMatchingSections(issue)
-					: Collections.singletonList(getSection(issue));
+			List<ChangelogSection> sections = getSections(issue);
 			for (ChangelogSection section : sections) {
-				if (section != null) {
-					collated.computeIfAbsent(section, (key) -> new ArrayList<>());
-					collated.get(section).add(issue);
-				}
+				collated.computeIfAbsent(section, (key) -> new ArrayList<>());
+				collated.get(section).add(issue);
 			}
 		}
 		return collated;
 	}
 
-	private ChangelogSection getSection(Issue issue) {
+	private List<ChangelogSection> getSections(Issue issue) {
+		List<ChangelogSection> result = new ArrayList<>();
+		Set<String> groupClaimes = new HashSet<>();
 		for (ChangelogSection section : this.sections) {
-			if (section.isMatchFor(issue)) {
-				return section;
+			if (section.isMatchFor(issue) && groupClaimes.add(section.getGroup())) {
+				result.add(section);
 			}
 		}
-		return null;
-	}
-
-	private List<ChangelogSection> getAllMatchingSections(Issue issue) {
-		List<ChangelogSection> sections = new ArrayList<>();
-		for (ChangelogSection section : this.sections) {
-			if (section.isMatchFor(issue)) {
-				sections.add(section);
-			}
-		}
-		return sections;
+		return result;
 	}
 
 }

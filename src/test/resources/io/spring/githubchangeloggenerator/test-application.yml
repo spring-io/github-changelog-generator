@@ -5,5 +5,6 @@ changelog:
     labels: ["enhancement"]
   - title: "Bugs"
     labels: ["bug"]
+    group: "test"
   issues:
     allow-in-multiple-sections: true

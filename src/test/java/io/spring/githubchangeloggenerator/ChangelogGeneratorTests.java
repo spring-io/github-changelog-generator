@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import io.spring.githubchangeloggenerator.ApplicationProperties.Issues;
 import io.spring.githubchangeloggenerator.github.payload.Issue;
 import io.spring.githubchangeloggenerator.github.payload.Label;
 import io.spring.githubchangeloggenerator.github.payload.PullRequest;
@@ -160,7 +159,7 @@ public class ChangelogGeneratorTests {
 
 	private void setupGenerator(MilestoneReference id) {
 		this.generator = new ChangelogGenerator(this.service,
-				new ApplicationProperties(REPO, id, Collections.emptyList(), new Issues(false)));
+				new ApplicationProperties(REPO, id, Collections.emptyList()));
 	}
 
 	private User createUser(String contributor12, String s) {

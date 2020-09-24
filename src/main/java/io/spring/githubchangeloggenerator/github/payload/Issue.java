@@ -75,4 +75,9 @@ public class Issue {
 		return this.pullRequest;
 	}
 
+	@Override
+	public String toString() {
+		return this.title;
+	}
+
 }

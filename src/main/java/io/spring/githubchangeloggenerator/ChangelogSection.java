@@ -34,17 +34,24 @@ class ChangelogSection {
 
 	private final String title;
 
+	private final String group;
+
 	private final List<String> labels;
 
-	ChangelogSection(String title, String... labels) {
-		this(title, Arrays.asList(labels));
+	ChangelogSection(String title, String group, String... labels) {
+		this(title, group, Arrays.asList(labels));
 	}
 
-	ChangelogSection(String title, List<String> labels) {
+	ChangelogSection(String title, String group, List<String> labels) {
 		Assert.hasText(title, "Title must not be empty");
 		Assert.isTrue(!CollectionUtils.isEmpty(labels), "Labels must not be empty");
 		this.title = title;
+		this.group = group;
 		this.labels = labels;
+	}
+
+	String getGroup() {
+		return this.group;
 	}
 
 	boolean isMatchFor(Issue issue) {
