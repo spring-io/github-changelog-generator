@@ -1,4 +1,4 @@
-FROM ubuntu:bionic-20181018
+FROM ubuntu:focal-20200916
 
 ARG root=.
 ARG jar=target/github-changelog-generator.jar
