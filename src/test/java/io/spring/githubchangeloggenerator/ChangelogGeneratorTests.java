@@ -130,6 +130,22 @@ public class ChangelogGeneratorTests {
 	}
 
 	@Test
+	public void generateWhenHasAllContributorsExcluded() throws Exception {
+		User contributor1 = createUser("contributor1", "contributor1-github-url");
+		User contributor2 = createUser("contributor2", "contributor2-github-url");
+		List<Issue> issues = new ArrayList<>();
+		issues.add(newPullRequest("Enhancement 1", "1", Type.ENHANCEMENT, "enhancement-1-url", contributor1));
+		issues.add(newPullRequest("Enhancement 2", "2", Type.ENHANCEMENT, "enhancement-2-url", contributor2));
+		given(this.service.getIssuesForMilestone(23, REPO)).willReturn(issues);
+		File file = new File(this.temporaryFolder.getRoot().getPath() + "foo");
+		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.ID, null, null,
+				new Contributors(new ContributorsExclude(Collections.singleton("*"))));
+		this.generator = new ChangelogGenerator(this.service, properties);
+		this.generator.generate("23", file.getPath());
+		assertThat(file).hasContent(from("output-with-all-contributors-excluded"));
+	}
+
+	@Test
 	public void generateWhenDuplicateContributor() throws Exception {
 		User contributor1 = createUser("contributor1", "contributor1-github-url");
 		List<Issue> issues = new ArrayList<>();

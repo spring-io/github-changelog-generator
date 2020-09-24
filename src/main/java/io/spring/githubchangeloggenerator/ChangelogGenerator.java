@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -155,18 +156,20 @@ public class ChangelogGenerator {
 	}
 
 	private Set<User> getContributors(List<Issue> issues) {
+		if (this.excludeContributors.contains("*")) {
+			return Collections.emptySet();
+		}
 		return issues.stream().filter((issue) -> issue.getPullRequest() != null).map(Issue::getUser)
-				.collect(Collectors.toSet());
-	}
-
-	private void addContributorsContent(StringBuilder content, Set<User> contributors) {
-		content.append("\n" + THANK_YOU + "\n\n");
-		contributors.stream().filter(this::isIncludedContributor).map(this::formatContributors)
-				.forEach(content::append);
+				.filter(this::isIncludedContributor).collect(Collectors.toSet());
 	}
 
 	private boolean isIncludedContributor(User user) {
 		return !this.excludeContributors.contains(user.getName());
+	}
+
+	private void addContributorsContent(StringBuilder content, Set<User> contributors) {
+		content.append("\n" + THANK_YOU + "\n\n");
+		contributors.stream().map(this::formatContributors).forEach(content::append);
 	}
 
 	private String formatContributors(User c) {

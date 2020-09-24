@@ -120,6 +120,8 @@ changelog:
       names: ["dependabot"]
 ----
 
+You can also use `*` if you want to drop the contributors section entirely.
+
 
 
 === Sorting Issues
