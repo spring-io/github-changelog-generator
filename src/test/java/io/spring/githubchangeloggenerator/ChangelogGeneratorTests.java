@@ -28,7 +28,9 @@ import java.util.List;
 import java.util.Set;
 
 import io.spring.githubchangeloggenerator.ApplicationProperties.IssueExcludes;
+import io.spring.githubchangeloggenerator.ApplicationProperties.IssueSort;
 import io.spring.githubchangeloggenerator.ApplicationProperties.Issues;
+import io.spring.githubchangeloggenerator.ApplicationProperties.Section;
 import io.spring.githubchangeloggenerator.github.payload.Issue;
 import io.spring.githubchangeloggenerator.github.payload.Label;
 import io.spring.githubchangeloggenerator.github.payload.PullRequest;
@@ -176,10 +178,46 @@ public class ChangelogGeneratorTests {
 		assertThat(new String(Files.readAllBytes(file.toPath()))).contains("Bug 1 for `@Value`");
 	}
 
+	@Test
+	public void generateWhenSectionSortedByTitle() throws Exception {
+		List<Section> sections = new ArrayList<>();
+		Set<String> labels = Collections.singleton("type: enhancement");
+		sections.add(new Section("Enhancements", null, IssueSort.TITLE, labels));
+		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.ID, sections,
+				new Issues(null, null));
+		this.generator = new ChangelogGenerator(this.service, properties);
+		List<Issue> issues = new ArrayList<>();
+		issues.add(newIssue("Enhancement c", "1", "enhancement-1-url", Type.ENHANCEMENT));
+		issues.add(newIssue("Enhancement z", "2", "enhancement-2-url", Type.ENHANCEMENT));
+		issues.add(newIssue("enHAncEMent a", "3", "enhancement-3-url", Type.ENHANCEMENT));
+		given(this.service.getIssuesForMilestone(23, REPO)).willReturn(issues);
+		File file = new File(this.temporaryFolder.getRoot().getPath() + "foo");
+		this.generator.generate("23", file.getPath());
+		assertThat(file).hasContent(from("output-with-title-sorted-issues"));
+	}
+
+	@Test
+	public void generateWhenAllIssuesSortedByTitle() throws Exception {
+		List<Section> sections = new ArrayList<>();
+		Set<String> labels = Collections.singleton("type: enhancement");
+		sections.add(new Section("Enhancements", null, null, labels));
+		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.ID, sections,
+				new Issues(IssueSort.TITLE, null));
+		this.generator = new ChangelogGenerator(this.service, properties);
+		List<Issue> issues = new ArrayList<>();
+		issues.add(newIssue("Enhancement c", "1", "enhancement-1-url", Type.ENHANCEMENT));
+		issues.add(newIssue("Enhancement z", "2", "enhancement-2-url", Type.ENHANCEMENT));
+		issues.add(newIssue("enHAncEMent a", "3", "enhancement-3-url", Type.ENHANCEMENT));
+		given(this.service.getIssuesForMilestone(23, REPO)).willReturn(issues);
+		File file = new File(this.temporaryFolder.getRoot().getPath() + "foo");
+		this.generator.generate("23", file.getPath());
+		assertThat(file).hasContent(from("output-with-title-sorted-issues"));
+	}
+
 	private void setupGenerator(MilestoneReference id) {
 		Set<String> labels = new HashSet<>(Arrays.asList("duplicate", "wontfix"));
 		ApplicationProperties properties = new ApplicationProperties(REPO, id, null,
-				new Issues(new IssueExcludes(labels)));
+				new Issues(null, new IssueExcludes(labels)));
 		this.generator = new ChangelogGenerator(this.service, properties);
 	}
 

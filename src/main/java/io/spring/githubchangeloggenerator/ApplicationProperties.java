@@ -16,7 +16,6 @@
 
 package io.spring.githubchangeloggenerator;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -64,7 +63,7 @@ public class ApplicationProperties {
 		this.repository = repository;
 		this.milestoneReference = milestoneReference;
 		this.sections = (sections != null) ? sections : Collections.emptyList();
-		this.issues = (issues != null) ? issues : new Issues(null);
+		this.issues = (issues != null) ? issues : new Issues(null, null);
 	}
 
 	public Repository getRepository() {
@@ -100,14 +99,20 @@ public class ApplicationProperties {
 		private final String group;
 
 		/**
+		 * Sort order for issues within this section.
+		 */
+		private final IssueSort sort;
+
+		/**
 		 * Labels used to identify if an issue is for the section.
 		 */
-		private final List<String> labels;
+		private final Set<String> labels;
 
-		public Section(String title, @DefaultValue("default") String group, String... labels) {
+		public Section(String title, @DefaultValue("default") String group, IssueSort sort, Set<String> labels) {
 			this.title = title;
 			this.group = (group != null) ? group : "default";
-			this.labels = Arrays.asList(labels);
+			this.sort = sort;
+			this.labels = labels;
 		}
 
 		public String getTitle() {
@@ -118,7 +123,11 @@ public class ApplicationProperties {
 			return this.group;
 		}
 
-		public List<String> getLabels() {
+		public IssueSort getSort() {
+			return this.sort;
+		}
+
+		public Set<String> getLabels() {
 			return this.labels;
 		}
 
@@ -130,12 +139,22 @@ public class ApplicationProperties {
 	public static class Issues {
 
 		/**
+		 * The issue sort order.
+		 */
+		private final IssueSort sort;
+
+		/**
 		 * Issue exclusions.
 		 */
 		private final IssueExcludes excludes;
 
-		public Issues(IssueExcludes excludes) {
+		public Issues(IssueSort sort, IssueExcludes excludes) {
+			this.sort = sort;
 			this.excludes = (excludes != null) ? excludes : new IssueExcludes(null);
+		}
+
+		public IssueSort getSort() {
+			return this.sort;
 		}
 
 		public IssueExcludes getExcludes() {
@@ -161,6 +180,20 @@ public class ApplicationProperties {
 		public Set<String> getLabels() {
 			return this.labels;
 		}
+
+	}
+
+	public enum IssueSort {
+
+		/**
+		 * Sort by the created date.
+		 */
+		CREATED,
+
+		/**
+		 * Sort by the title.
+		 */
+		TITLE
 
 	}
 

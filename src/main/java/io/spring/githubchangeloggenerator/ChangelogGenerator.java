@@ -20,12 +20,14 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import io.spring.githubchangeloggenerator.ApplicationProperties.IssueSort;
 import io.spring.githubchangeloggenerator.github.payload.Issue;
 import io.spring.githubchangeloggenerator.github.payload.Label;
 import io.spring.githubchangeloggenerator.github.payload.User;
@@ -48,6 +50,9 @@ public class ChangelogGenerator {
 	private static final String THANK_YOU = "## :heart: Contributors\n\n"
 			+ "We'd like to thank all the contributors who worked on this release!";
 
+	private static final Comparator<Issue> TITLE_COMPARATOR = Comparator.comparing(Issue::getTitle,
+			String.CASE_INSENSITIVE_ORDER);
+
 	private static final Pattern ghUserMentionPattern = Pattern.compile("(^|[^\\w`])(@[\\w-]+)");
 
 	private final GitHubService service;
@@ -55,6 +60,8 @@ public class ChangelogGenerator {
 	private final Repository repository;
 
 	private final MilestoneReference milestoneReference;
+
+	private final IssueSort sort;
 
 	private final Set<String> excludeLabels;
 
@@ -64,6 +71,7 @@ public class ChangelogGenerator {
 		this.service = service;
 		this.repository = properties.getRepository();
 		this.milestoneReference = properties.getMilestoneReference();
+		this.sort = properties.getIssues().getSort();
 		this.excludeLabels = properties.getIssues().getExcludes().getLabels();
 		this.sections = new ChangelogSections(properties);
 	}
@@ -119,10 +127,18 @@ public class ChangelogGenerator {
 
 	private void addSectionContent(StringBuilder content, Map<ChangelogSection, List<Issue>> sectionIssues) {
 		sectionIssues.forEach((section, issues) -> {
+			sort(section.getSort(), issues);
 			content.append((content.length() != 0) ? "\n" : "");
 			content.append("## ").append(section).append("\n\n");
 			issues.stream().map(this::getFormattedIssue).forEach(content::append);
 		});
+	}
+
+	private void sort(IssueSort sort, List<Issue> issues) {
+		sort = (sort != null) ? sort : this.sort;
+		if (sort == IssueSort.TITLE) {
+			issues.sort(TITLE_COMPARATOR);
+		}
 	}
 
 	private String getFormattedIssue(Issue issue) {

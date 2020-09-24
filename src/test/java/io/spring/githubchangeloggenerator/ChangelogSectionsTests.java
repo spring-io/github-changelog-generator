@@ -61,9 +61,9 @@ public class ChangelogSectionsTests {
 	@Test
 	public void collateWhenHasCustomSectionsUsesDefinedSections() {
 		ApplicationProperties.Section breaksPassivitySection = new ApplicationProperties.Section(":rewind: Non-passive",
-				null, "breaks-passivity");
-		ApplicationProperties.Section bugsSection = new ApplicationProperties.Section(":beetle: Bug Fixes", null,
-				"bug");
+				null, null, Collections.singleton("breaks-passivity"));
+		ApplicationProperties.Section bugsSection = new ApplicationProperties.Section(":beetle: Bug Fixes", null, null,
+				Collections.singleton("bug"));
 		List<ApplicationProperties.Section> customSections = Arrays.asList(breaksPassivitySection, bugsSection);
 		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.TITLE, customSections,
 				null);
@@ -102,8 +102,10 @@ public class ChangelogSectionsTests {
 		Issue bug = createIssue("1", "bug");
 		Issue highlight = createIssue("2", "highlight");
 		Issue bugAndHighlight = createIssue("3", "bug", "highlight");
-		ApplicationProperties.Section bugs = new ApplicationProperties.Section("Bugs", null, "bug");
-		ApplicationProperties.Section highlights = new ApplicationProperties.Section("Highlights", null, "highlight");
+		ApplicationProperties.Section bugs = new ApplicationProperties.Section("Bugs", null, null,
+				Collections.singleton("bug"));
+		ApplicationProperties.Section highlights = new ApplicationProperties.Section("Highlights", null, null,
+				Collections.singleton("highlight"));
 		List<ApplicationProperties.Section> customSections = Arrays.asList(bugs, highlights);
 		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.TITLE, customSections,
 				null);
@@ -120,9 +122,10 @@ public class ChangelogSectionsTests {
 		Issue bug = createIssue("1", "bug");
 		Issue highlight = createIssue("2", "highlight");
 		Issue bugAndHighlight = createIssue("3", "bug", "highlight");
-		ApplicationProperties.Section bugs = new ApplicationProperties.Section("Bugs", null, "bug");
-		ApplicationProperties.Section highlights = new ApplicationProperties.Section("Highlights", "highlights",
-				"highlight");
+		ApplicationProperties.Section bugs = new ApplicationProperties.Section("Bugs", null, null,
+				Collections.singleton("bug"));
+		ApplicationProperties.Section highlights = new ApplicationProperties.Section("Highlights", "highlights", null,
+				Collections.singleton("highlight"));
 		List<ApplicationProperties.Section> customSections = Arrays.asList(bugs, highlights);
 		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.TITLE, customSections,
 				null);

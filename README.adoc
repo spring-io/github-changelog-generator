@@ -109,7 +109,25 @@ changelog:
 
 
 
-== License
+=== Sorting issues
+By default issues are sorted by their "created" date.
+If you want to order them by title instead you can set `changelog.issues.sort` to `title`.
+It's also set the property on section configuration if you want ordering per section:
+
+[source,yaml]
+----
+changelog:
+  sections:
+  - title: "Bugs"
+    labels: ["bug"]
+  - title: "Dependency Upgrades"
+    labels: ["dependency"]
+    sort: "title"
+----
+
+
+
+=== License
 This project is Open Source software released under the
 https://www.apache.org/licenses/LICENSE-2.0.html[Apache 2.0 license].
 

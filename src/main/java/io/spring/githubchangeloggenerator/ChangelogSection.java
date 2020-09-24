@@ -17,8 +17,10 @@
 package io.spring.githubchangeloggenerator;
 
 import java.util.Arrays;
-import java.util.List;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
+import io.spring.githubchangeloggenerator.ApplicationProperties.IssueSort;
 import io.spring.githubchangeloggenerator.github.payload.Issue;
 import io.spring.githubchangeloggenerator.github.payload.Label;
 
@@ -36,22 +38,29 @@ class ChangelogSection {
 
 	private final String group;
 
-	private final List<String> labels;
+	private final IssueSort sort;
 
-	ChangelogSection(String title, String group, String... labels) {
-		this(title, group, Arrays.asList(labels));
+	private final Set<String> labels;
+
+	ChangelogSection(String title, String group, IssueSort sort, String... labels) {
+		this(title, group, sort, new LinkedHashSet<>(Arrays.asList(labels)));
 	}
 
-	ChangelogSection(String title, String group, List<String> labels) {
+	ChangelogSection(String title, String group, IssueSort sort, Set<String> labels) {
 		Assert.hasText(title, "Title must not be empty");
 		Assert.isTrue(!CollectionUtils.isEmpty(labels), "Labels must not be empty");
 		this.title = title;
 		this.group = group;
+		this.sort = sort;
 		this.labels = labels;
 	}
 
 	String getGroup() {
 		return this.group;
+	}
+
+	IssueSort getSort() {
+		return this.sort;
 	}
 
 	boolean isMatchFor(Issue issue) {
