@@ -1,4 +1,4 @@
-== Generate a changelog for a GitHub milestone
+== Generate a Changelog for a GitHub Milestone
 
 To generate a markdown changelog that comprise the list of bugs and issues in a GitHub milestone follow these steps:
 
@@ -66,7 +66,7 @@ changelog:
 
 
 
-==== Showing issues in multiple sections
+==== Showing Issues in Multiple Sections
 Unless otherwise configured, issues will only appear in the first matching section.
 For example, if you have an issue labeled with `enhancement` and `documentation` then it will only appear in the "New Features" section.
 
@@ -94,7 +94,7 @@ An issue labeled with `new` and `noteworthy` will appear in both the "Highlights
 
 
 
-=== Excluding issues
+=== Excluding Issues
 Issues and pull requests can be excluded from the changlog by configuring exclusions.
 You can ignore all items that have certain labels using `changelog.issues.exclude.labeles`.
 For example:
@@ -109,7 +109,7 @@ changelog:
 
 
 
-=== Sorting issues
+=== Sorting Issues
 By default issues are sorted by their "created" date.
 If you want to order them by title instead you can set `changelog.issues.sort` to `title`.
 It's also set the property on section configuration if you want ordering per section:

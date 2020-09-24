@@ -140,7 +140,7 @@ public class ChangelogGeneratorTests {
 	}
 
 	@Test
-	public void runWhenMilestoneIsNotNumberCallsGeneratorWithResolvedNumber() throws Exception {
+	public void generateWhenMilestoneIsNotNumberCallsGeneratorWithResolvedNumber() throws Exception {
 		setupGenerator(MilestoneReference.TITLE);
 		List<Issue> issues = new ArrayList<>();
 		issues.add(newIssue("Bug 1", "1", "bug-1-url", Type.BUG));
@@ -155,7 +155,7 @@ public class ChangelogGeneratorTests {
 	}
 
 	@Test
-	public void whenUserMentionIsInIssueTitleItIsEscaped() throws IOException {
+	public void generateWhenUserMentionIsInIssueTitleItIsEscaped() throws IOException {
 		setupGenerator(MilestoneReference.TITLE);
 		List<Issue> issues = new ArrayList<>();
 		issues.add(newIssue("Bug 1 for @Value", "1", "bug-1-url", Type.BUG));
@@ -167,7 +167,7 @@ public class ChangelogGeneratorTests {
 	}
 
 	@Test
-	public void whenEscapedUserMentionIsInIssueTitleItIsNotEscapedAgain() throws IOException {
+	public void generateWhenEscapedUserMentionIsInIssueTitleItIsNotEscapedAgain() throws IOException {
 		setupGenerator(MilestoneReference.TITLE);
 		List<Issue> issues = new ArrayList<>();
 		issues.add(newIssue("Bug 1 for `@Value`", "1", "bug-1-url", Type.BUG));
