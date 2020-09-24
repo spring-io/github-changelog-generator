@@ -34,20 +34,16 @@ class ChangelogSection {
 
 	private final String title;
 
-	private final String emoji;
-
 	private final List<String> labels;
 
-	ChangelogSection(String title, String emoji, String... labels) {
-		this(title, emoji, Arrays.asList(labels));
+	ChangelogSection(String title, String... labels) {
+		this(title, Arrays.asList(labels));
 	}
 
-	ChangelogSection(String title, String emoji, List<String> labels) {
+	ChangelogSection(String title, List<String> labels) {
 		Assert.hasText(title, "Title must not be empty");
-		Assert.hasText(emoji, "Emoji must not be empty");
 		Assert.isTrue(!CollectionUtils.isEmpty(labels), "Labels must not be empty");
 		this.title = title;
-		this.emoji = emoji;
 		this.labels = labels;
 	}
 
@@ -64,7 +60,7 @@ class ChangelogSection {
 
 	@Override
 	public String toString() {
-		return this.emoji + " " + this.title;
+		return this.title;
 	}
 
 }

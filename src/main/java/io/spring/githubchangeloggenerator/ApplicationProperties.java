@@ -81,27 +81,17 @@ public class ApplicationProperties {
 		private final String title;
 
 		/**
-		 * The emoji character to use, for example ":star:".
-		 */
-		private final String emoji;
-
-		/**
 		 * The labels used to identify if an issue is for the section.
 		 */
 		private final List<String> labels;
 
-		public Section(String title, String emoji, List<String> labels) {
+		public Section(String title, List<String> labels) {
 			this.title = title;
-			this.emoji = emoji;
 			this.labels = labels;
 		}
 
 		public String getTitle() {
 			return this.title;
-		}
-
-		public String getEmoji() {
-			return this.emoji;
 		}
 
 		public List<String> getLabels() {

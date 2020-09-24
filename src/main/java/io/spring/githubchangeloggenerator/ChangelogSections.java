@@ -39,15 +39,15 @@ class ChangelogSections {
 	private static final List<ChangelogSection> DEFAULT_SECTIONS;
 	static {
 		List<ChangelogSection> sections = new ArrayList<>();
-		add(sections, "New Features", ":star:", "enhancement");
-		add(sections, "Bug Fixes", ":beetle:", "bug", "regression");
-		add(sections, "Documentation", ":notebook_with_decorative_cover:", "documentation");
-		add(sections, "Dependency Upgrades", ":hammer:", "dependency-upgrade");
+		add(sections, ":star: New Features", "enhancement");
+		add(sections, ":beetle: Bug Fixes", "bug", "regression");
+		add(sections, ":notebook_with_decorative_cover: Documentation", "documentation");
+		add(sections, ":hammer: Dependency Upgrades", "dependency-upgrade");
 		DEFAULT_SECTIONS = Collections.unmodifiableList(sections);
 	}
 
-	private static void add(List<ChangelogSection> sections, String title, String emoji, String... labels) {
-		sections.add(new ChangelogSection(title, emoji, labels));
+	private static void add(List<ChangelogSection> sections, String title, String... labels) {
+		sections.add(new ChangelogSection(title, labels));
 	}
 
 	private final List<ChangelogSection> sections;
@@ -64,8 +64,7 @@ class ChangelogSections {
 	}
 
 	private ChangelogSection adapt(ApplicationProperties.Section propertySection) {
-		return new ChangelogSection(propertySection.getTitle(), propertySection.getEmoji(),
-				propertySection.getLabels());
+		return new ChangelogSection(propertySection.getTitle(), propertySection.getLabels());
 	}
 
 	Map<ChangelogSection, List<Issue>> collate(List<Issue> issues) {
