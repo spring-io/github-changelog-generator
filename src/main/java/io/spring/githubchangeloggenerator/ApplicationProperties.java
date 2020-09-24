@@ -17,7 +17,9 @@
 package io.spring.githubchangeloggenerator;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import io.spring.githubchangeloggenerator.github.service.Repository;
 
@@ -51,12 +53,18 @@ public class ApplicationProperties {
 	 */
 	private final List<Section> sections;
 
+	/**
+	 * Settings specific to issues.
+	 */
+	private final Issues issues;
+
 	public ApplicationProperties(Repository repository, @DefaultValue("title") MilestoneReference milestoneReference,
-			List<Section> sections) {
+			List<Section> sections, Issues issues) {
 		Assert.notNull(repository, "Repository must not be null");
 		this.repository = repository;
 		this.milestoneReference = milestoneReference;
-		this.sections = sections;
+		this.sections = (sections != null) ? sections : Collections.emptyList();
+		this.issues = (issues != null) ? issues : new Issues(null);
 	}
 
 	public Repository getRepository() {
@@ -69,6 +77,10 @@ public class ApplicationProperties {
 
 	public List<Section> getSections() {
 		return this.sections;
+	}
+
+	public Issues getIssues() {
+		return this.issues;
 	}
 
 	/**
@@ -107,6 +119,46 @@ public class ApplicationProperties {
 		}
 
 		public List<String> getLabels() {
+			return this.labels;
+		}
+
+	}
+
+	/**
+	 * Properties relating to issues.
+	 */
+	public static class Issues {
+
+		/**
+		 * Issue exclusions.
+		 */
+		private final IssueExcludes excludes;
+
+		public Issues(IssueExcludes excludes) {
+			this.excludes = (excludes != null) ? excludes : new IssueExcludes(null);
+		}
+
+		public IssueExcludes getExcludes() {
+			return this.excludes;
+		}
+
+	}
+
+	/**
+	 * Issue excludes.
+	 */
+	public static class IssueExcludes {
+
+		/**
+		 * Labels used to exclude issues.
+		 */
+		private final Set<String> labels;
+
+		public IssueExcludes(Set<String> labels) {
+			this.labels = (labels != null) ? labels : Collections.emptySet();
+		}
+
+		public Set<String> getLabels() {
 			return this.labels;
 		}
 

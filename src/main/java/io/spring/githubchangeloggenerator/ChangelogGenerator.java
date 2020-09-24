@@ -19,6 +19,7 @@ package io.spring.githubchangeloggenerator;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -26,6 +27,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import io.spring.githubchangeloggenerator.github.payload.Issue;
+import io.spring.githubchangeloggenerator.github.payload.Label;
 import io.spring.githubchangeloggenerator.github.payload.User;
 import io.spring.githubchangeloggenerator.github.service.GitHubService;
 import io.spring.githubchangeloggenerator.github.service.Repository;
@@ -54,12 +56,15 @@ public class ChangelogGenerator {
 
 	private final MilestoneReference milestoneReference;
 
+	private final Set<String> excludeLabels;
+
 	private final ChangelogSections sections;
 
 	public ChangelogGenerator(GitHubService service, ApplicationProperties properties) {
 		this.service = service;
 		this.repository = properties.getRepository();
 		this.milestoneReference = properties.getMilestoneReference();
+		this.excludeLabels = properties.getIssues().getExcludes().getLabels();
 		this.sections = new ChangelogSections(properties);
 	}
 
@@ -72,9 +77,23 @@ public class ChangelogGenerator {
 	 */
 	public void generate(String milestone, String path) throws IOException {
 		int milestoneNumber = resolveMilestoneReference(milestone);
-		List<Issue> issues = this.service.getIssuesForMilestone(milestoneNumber, this.repository);
+		List<Issue> issues = getIssues(milestoneNumber);
 		String content = generateContent(issues);
 		writeContentToFile(content, path);
+	}
+
+	private List<Issue> getIssues(int milestoneNumber) {
+		List<Issue> issues = new ArrayList<>(this.service.getIssuesForMilestone(milestoneNumber, this.repository));
+		issues.removeIf(this::isExcluded);
+		return issues;
+	}
+
+	private boolean isExcluded(Issue issue) {
+		return issue.getLabels().stream().anyMatch(this::isExcluded);
+	}
+
+	private boolean isExcluded(Label label) {
+		return this.excludeLabels.contains(label.getName());
 	}
 
 	private int resolveMilestoneReference(String milestone) {
