@@ -7,7 +7,7 @@ outputs:
 - name: built-artifact
 params:
   GITHUB_USERNAME:
-  GITHUB_PASSWORD:
+  GITHUB_TOKEN:
 caches:
 - path: maven
 run:

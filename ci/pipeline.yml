@@ -70,7 +70,7 @@ jobs:
       file: git-repo/ci/tasks/release.yml
       params:
         GITHUB_USERNAME: ((github-username))
-        GITHUB_PASSWORD: ((github-ci-release-token))
+        GITHUB_TOKEN: ((github-ci-release-token))
   - put: git-repo
     params:
       repository: release-git-repo

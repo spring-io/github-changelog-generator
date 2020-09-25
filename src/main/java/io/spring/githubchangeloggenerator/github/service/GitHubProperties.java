@@ -19,6 +19,7 @@ package io.spring.githubchangeloggenerator.github.service;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.ConstructorBinding;
 import org.springframework.boot.context.properties.bind.DefaultValue;
+import org.springframework.util.StringUtils;
 
 /**
  * Github related properties.
@@ -45,10 +46,11 @@ public class GitHubProperties {
 	 */
 	private final String password;
 
-	public GitHubProperties(@DefaultValue("https://api.github.com") String apiUrl, String username, String password) {
+	public GitHubProperties(@DefaultValue("https://api.github.com") String apiUrl, String username, String password,
+			String token) {
 		this.apiUrl = apiUrl;
 		this.username = username;
-		this.password = password;
+		this.password = StringUtils.hasText(token) ? token : password;
 	}
 
 	public String getApiUrl() {
