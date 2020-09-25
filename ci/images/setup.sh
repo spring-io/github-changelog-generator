@@ -1,12 +1,16 @@
 #!/bin/bash
 set -ex
 
+export DEBIAN_FRONTEND=noninteractive
+
 ###########################################################
 # UTILS
 ###########################################################
 
 apt-get update
-apt-get install --no-install-recommends -y ca-certificates net-tools libxml2-utils git curl
+apt-get install --no-install-recommends -y tzdata ca-certificates net-tools libxml2-utils git curl
+ln -fs /usr/share/zoneinfo/UTC /etc/localtime
+dpkg-reconfigure --frontend noninteractive tzdata
 rm -rf /var/lib/apt/lists/*
 
 curl https://raw.githubusercontent.com/spring-io/concourse-java-scripts/v0.0.2/concourse-java.sh > /opt/concourse-java.sh
