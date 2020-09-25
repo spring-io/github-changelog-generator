@@ -42,6 +42,7 @@ jobs:
       build: ci-images-git-repo/ci/images
       dockerfile: ci-images-git-repo/ci/images/ci-image/Dockerfile
 - name: build
+  public: true
   plan:
   - get: ci-image
   - get: git-repo
