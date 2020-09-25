@@ -1,6 +1,7 @@
 resources:
 - name: git-repo
   type: git
+  icon: github
   source:
     uri: https://github.com/spring-io/github-changelog-generator
     username: ((github-username))
@@ -9,12 +10,14 @@ resources:
     ignore_paths: ["ci/images/*"]
 - name: ci-images-git-repo
   type: git
+  icon: github
   source:
     uri: https://github.com/spring-io/github-changelog-generator
     branch: master
     paths: ["ci/images/*"]
 - name: ci-image
   type: docker-image
+  icon: docker
   source:
     repository: springci/github-changelog-generator-ci
     username: ((docker-hub-username))
@@ -22,12 +25,14 @@ resources:
     tag: master
 - name: github-changelog-generator-image
   type: docker-image
+  icon: docker
   source:
     repository: springio/github-changelog-generator
     username: ((docker-hub-username))
     password: ((docker-hub-password))
 - name: github-release
   type: github-release
+  icon: briefcase-download
   source:
     owner: spring-io
     repository: github-changelog-generator
