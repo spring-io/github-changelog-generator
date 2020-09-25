@@ -31,4 +31,4 @@ popd > /dev/null
 echo $releaseVersion > built-artifact/version
 echo v$releaseVersion > built-artifact/tag
 cp release-git-repo/target/github-changelog-generator.jar built-artifact/
-java -jar release-git-repo/target/github-changelog-generator.jar --changelog.repository=spring-io/github-changelog-generator $releaseVersion built-artifact/release-notes.md
+java -jar release-git-repo/target/github-changelog-generator.jar --changelog.repository=spring-io/github-changelog-generator $releaseVersion built-artifact/changelog.md
