@@ -12,11 +12,9 @@
 	<groupId>io.spring.githubchangeloggenerator</groupId>
 	<artifactId>github-changelog-generator</artifactId>
 	<version>${revision}</version>
-	<description>Release notes generator for GitHub projects</description>
+	<description>Changelog generator for GitHub projects</description>
 	<properties>
 		<revision>0.0.4-SNAPSHOT</revision>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<java.version>1.8</java.version>
 		<spring-javaformat.version>0.0.25</spring-javaformat.version>
 	</properties>
