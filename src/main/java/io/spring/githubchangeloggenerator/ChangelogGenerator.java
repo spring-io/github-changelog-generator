@@ -132,8 +132,8 @@ public class ChangelogGenerator {
 	private void addSectionContent(StringBuilder content, Map<ChangelogSection, List<Issue>> sectionIssues) {
 		sectionIssues.forEach((section, issues) -> {
 			sort(section.getSort(), issues);
-			content.append((content.length() != 0) ? "\n" : "");
-			content.append("## ").append(section).append("\n\n");
+			content.append((content.length() != 0) ? String.format("%n") : "");
+			content.append("## ").append(section).append(String.format("%n%n"));
 			issues.stream().map(this::getFormattedIssue).forEach(content::append);
 		});
 	}
@@ -148,7 +148,7 @@ public class ChangelogGenerator {
 	private String getFormattedIssue(Issue issue) {
 		String title = issue.getTitle();
 		title = ghUserMentionPattern.matcher(title).replaceAll("$1`$2`");
-		return "- " + title + " " + getLinkToIssue(issue) + "\n";
+		return String.format("- %s %s%n", title, getLinkToIssue(issue));
 	}
 
 	private String getLinkToIssue(Issue issue) {
@@ -168,14 +168,14 @@ public class ChangelogGenerator {
 	}
 
 	private void addContributorsContent(StringBuilder content, Set<User> contributors) {
-		content.append("\n## ");
+		content.append(String.format("%n## "));
 		content.append((this.contributorsTitle != null) ? this.contributorsTitle : ":heart: Contributors");
-		content.append("\n\nWe'd like to thank all the contributors who worked on this release!\n\n");
+		content.append(String.format("%n%nWe'd like to thank all the contributors who worked on this release!%n%n"));
 		contributors.stream().map(this::formatContributors).forEach(content::append);
 	}
 
 	private String formatContributors(User c) {
-		return "- [@" + c.getName() + "]" + "(" + c.getUrl() + ")\n";
+		return String.format("- [@%s](%s)%n", c.getName(), c.getUrl());
 	}
 
 	private void writeContentToFile(String content, String path) throws IOException {
