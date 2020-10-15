@@ -16,4 +16,4 @@ ENV JAVA_HOME /opt/openjdk
 ENV PATH $JAVA_HOME/bin:$PATH
 RUN mkdir -p /opt/openjdk && \
     cd /opt/openjdk && \
-    curl -L https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u265-b01/OpenJDK8U-jdk_x64_linux_hotspot_8u265b01.tar.gz | tar xz
+    curl -L https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u265-b01/OpenJDK8U-jdk_x64_linux_hotspot_8u265b01.tar.gz | tar xz --strip-components=1
