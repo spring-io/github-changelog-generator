@@ -50,7 +50,7 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
 @MockBean(GitHubProperties.class)
 public class GitHubServiceTests {
 
-	private static final String MILESTONES_URL = "/repos/org/repo/milestones";
+	private static final String MILESTONES_URL = "/repos/org/repo/milestones?state=all&sort=due_on&direction=desc&per_page=50";
 
 	private static final String ISSUES_URL = "/repos/org/repo/issues?milestone=";
 
