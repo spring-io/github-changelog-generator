@@ -19,6 +19,7 @@ package io.spring.githubchangeloggenerator;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import io.spring.githubchangeloggenerator.github.service.Repository;
 
@@ -68,7 +69,7 @@ public class ApplicationProperties {
 		this.repository = repository;
 		this.milestoneReference = milestoneReference;
 		this.sections = (sections != null) ? sections : Collections.emptyList();
-		this.issues = (issues != null) ? issues : new Issues(null, null);
+		this.issues = (issues != null) ? issues : new Issues(null, null, null);
 		this.contributors = (contributors != null) ? contributors : new Contributors(null, null);
 	}
 
@@ -158,9 +159,15 @@ public class ApplicationProperties {
 		 */
 		private final IssuesExclude exclude;
 
-		public Issues(IssueSort sort, IssuesExclude exclude) {
+		/**
+		 * Identification of issues that are a forward-port or back-port of another issue.
+		 */
+		private final Set<PortedIssue> ports;
+
+		public Issues(IssueSort sort, IssuesExclude exclude, Set<PortedIssue> ports) {
 			this.sort = sort;
 			this.exclude = (exclude != null) ? exclude : new IssuesExclude(null);
+			this.ports = (ports != null) ? ports : Collections.emptySet();
 		}
 
 		public IssueSort getSort() {
@@ -169,6 +176,10 @@ public class ApplicationProperties {
 
 		public IssuesExclude getExcludes() {
 			return this.exclude;
+		}
+
+		public Set<PortedIssue> getPorts() {
+			return this.ports;
 		}
 
 	}
@@ -189,6 +200,37 @@ public class ApplicationProperties {
 
 		public Set<String> getLabels() {
 			return this.labels;
+		}
+
+	}
+
+	/**
+	 * Properties related to identification of ported issues.
+	 */
+	public static class PortedIssue {
+
+		/**
+		 * Label used to identify a ported issue.
+		 */
+		private final String label;
+
+		/**
+		 * Regular expression used to extract the upstream or downstream issue ID from the
+		 * body of a ported issue.
+		 */
+		private final Pattern bodyExpression;
+
+		public PortedIssue(String label, String bodyExpression) {
+			this.label = label;
+			this.bodyExpression = Pattern.compile(bodyExpression);
+		}
+
+		public String getLabel() {
+			return this.label;
+		}
+
+		public Pattern getBodyExpression() {
+			return this.bodyExpression;
 		}
 
 	}

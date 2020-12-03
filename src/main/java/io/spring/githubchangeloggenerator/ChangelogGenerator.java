@@ -25,10 +25,12 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import io.spring.githubchangeloggenerator.ApplicationProperties.IssueSort;
+import io.spring.githubchangeloggenerator.ApplicationProperties.PortedIssue;
 import io.spring.githubchangeloggenerator.github.payload.Issue;
 import io.spring.githubchangeloggenerator.github.payload.Label;
 import io.spring.githubchangeloggenerator.github.payload.User;
@@ -63,6 +65,8 @@ public class ChangelogGenerator {
 
 	private final Set<String> excludeLabels;
 
+	private final Set<PortedIssue> portedIssues;
+
 	private final Set<String> excludeContributors;
 
 	private final String contributorsTitle;
@@ -78,6 +82,7 @@ public class ChangelogGenerator {
 		this.excludeContributors = properties.getContributors().getExclude().getNames();
 		this.contributorsTitle = properties.getContributors().getTitle();
 		this.sections = new ChangelogSections(properties);
+		this.portedIssues = properties.getIssues().getPorts();
 	}
 
 	/**
@@ -159,8 +164,26 @@ public class ChangelogGenerator {
 		if (this.excludeContributors.contains("*")) {
 			return Collections.emptySet();
 		}
-		return issues.stream().filter((issue) -> issue.getPullRequest() != null).map(Issue::getUser)
-				.filter(this::isIncludedContributor).collect(Collectors.toSet());
+		return issues.stream().map(this::getPortedReferenceIssue).filter((issue) -> issue.getPullRequest() != null)
+				.map(Issue::getUser).filter(this::isIncludedContributor).collect(Collectors.toSet());
+	}
+
+	private Issue getPortedReferenceIssue(Issue issue) {
+		for (PortedIssue portedIssue : this.portedIssues) {
+			List<String> labelNames = issue.getLabels().stream().map(Label::getName).collect(Collectors.toList());
+			if (labelNames.contains(portedIssue.getLabel())) {
+				Pattern pattern = portedIssue.getBodyExpression();
+				Matcher matcher = pattern.matcher(issue.getBody());
+				if (matcher.matches()) {
+					String issueNumber = matcher.group(1);
+					Issue referencedIssue = this.service.getIssue(issueNumber, this.repository);
+					if (referencedIssue != null) {
+						return getPortedReferenceIssue(referencedIssue);
+					}
+				}
+			}
+		}
+		return issue;
 	}
 
 	private boolean isIncludedContributor(User user) {

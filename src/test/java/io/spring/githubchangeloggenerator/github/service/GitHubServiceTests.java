@@ -28,6 +28,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.client.MockRestServiceServer;
@@ -38,6 +39,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
 /**
@@ -53,6 +55,8 @@ public class GitHubServiceTests {
 	private static final String MILESTONES_URL = "/repos/org/repo/milestones";
 
 	private static final String ISSUES_URL = "/repos/org/repo/issues?milestone=";
+
+	private static final String ISSUE_URL = "/repos/org/repo/issues";
 
 	@Autowired
 	private MockRestServiceServer server;
@@ -72,6 +76,20 @@ public class GitHubServiceTests {
 		expectGet(MILESTONES_URL).andRespond(withJsonFrom("milestones.json"));
 		assertThatExceptionOfType(IllegalStateException.class)
 				.isThrownBy(() -> this.service.getMilestoneNumber("0.0.0", Repository.of("org/repo")));
+	}
+
+	@Test
+	public void getIssue() {
+		expectGet(ISSUE_URL + "/12730").andRespond(withJsonFrom("issue.json"));
+		Issue issue = this.service.getIssue("12730", Repository.of("org/repo"));
+		assertThat(issue.getNumber()).isEqualTo("12730");
+	}
+
+	@Test
+	public void getIssueWhenIssueDoesNotExist() {
+		expectGet(ISSUE_URL + "/12730").andRespond(withStatus(HttpStatus.NOT_FOUND));
+		Issue issue = this.service.getIssue("12730", Repository.of("org/repo"));
+		assertThat(issue).isNull();
 	}
 
 	@Test
