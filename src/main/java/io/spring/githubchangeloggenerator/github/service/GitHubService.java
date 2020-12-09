@@ -45,7 +45,7 @@ public class GitHubService {
 
 	private static final Pattern LINK_PATTERN = Pattern.compile("<(.+)>; rel=\"(.+)\"");
 
-	private static final String MILESTONES_URI = "/repos/{owner}/{name}/milestones";
+	private static final String MILESTONES_URI = "/repos/{owner}/{name}/milestones?state=all&sort=due_on&direction=desc&per_page=50";
 
 	private static final String ISSUES_URI = "/repos/{owner}/{name}/issues?milestone={milestone}&state=closed";
 
@@ -70,7 +70,7 @@ public class GitHubService {
 				return milestone.getNumber();
 			}
 		}
-		throw new IllegalStateException("Unable to find open milestone with title '" + milestoneTitle + "'");
+		throw new IllegalStateException("Unable to find milestone with title '" + milestoneTitle + "'");
 	}
 
 	public List<Issue> getIssuesForMilestone(int milestoneNumber, Repository repository) {
