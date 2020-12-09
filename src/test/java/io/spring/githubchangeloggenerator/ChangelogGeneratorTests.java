@@ -26,12 +26,14 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import io.spring.githubchangeloggenerator.ApplicationProperties.Contributors;
 import io.spring.githubchangeloggenerator.ApplicationProperties.ContributorsExclude;
 import io.spring.githubchangeloggenerator.ApplicationProperties.IssueSort;
 import io.spring.githubchangeloggenerator.ApplicationProperties.Issues;
 import io.spring.githubchangeloggenerator.ApplicationProperties.IssuesExclude;
+import io.spring.githubchangeloggenerator.ApplicationProperties.PortedIssue;
 import io.spring.githubchangeloggenerator.ApplicationProperties.Section;
 import io.spring.githubchangeloggenerator.github.payload.Issue;
 import io.spring.githubchangeloggenerator.github.payload.Label;
@@ -108,6 +110,28 @@ public class ChangelogGeneratorTests {
 		issues.add(newPullRequest("Enhancement 3", "5", Type.ENHANCEMENT, "enhancement-5-url", contributor1));
 		issues.add(newPullRequest("Enhancement 4", "6", Type.ENHANCEMENT, "enhancement-6-url", contributor2));
 		given(this.service.getIssuesForMilestone(23, REPO)).willReturn(issues);
+		File file = new File(this.temporaryFolder.getRoot().getPath() + "foo");
+		this.generator.generate("23", file.getPath());
+		assertThat(file).hasContent(from("output-with-no-bugs"));
+	}
+
+	@Test
+	public void generateWhenHasForwardAndBackPorts() throws Exception {
+		User contributor1 = createUser("contributor1", "contributor1-github-url");
+		User contributor2 = createUser("contributor2", "contributor2-github-url");
+		List<Issue> issues = new ArrayList<>();
+		issues.add(newPortedIssue("Enhancement 1", "2", "Forward port of issue #10", "enhancement-1-url",
+				Type.FORWARD_PORT));
+		issues.add(newPortedIssue("Enhancement 2", "4", "Back port of issue #11", "enhancement-2-url", Type.BACK_PORT));
+		issues.add(newIssue("Enhancement 3", "5", "enhancement-5-url", Type.ENHANCEMENT));
+		issues.add(newIssue("Enhancement 4", "6", "enhancement-6-url", Type.ENHANCEMENT));
+		given(this.service.getIssuesForMilestone(23, REPO)).willReturn(issues);
+		given(this.service.getIssue("10", REPO)).willReturn(
+				newPullRequest("Original Enhancement 10", "10", Type.ENHANCEMENT, "enhancement-10-url", contributor1));
+		given(this.service.getIssue("11", REPO)).willReturn(
+				newPortedIssue("Enhancement 11", "11", "Back port of issue #20", "enhancement-11-url", Type.BACK_PORT));
+		given(this.service.getIssue("20", REPO)).willReturn(
+				newPullRequest("Original Enhancement 20", "20", Type.ENHANCEMENT, "enhancement-20-url", contributor2));
 		File file = new File(this.temporaryFolder.getRoot().getPath() + "foo");
 		this.generator.generate("23", file.getPath());
 		assertThat(file).hasContent(from("output-with-no-bugs"));
@@ -218,7 +242,7 @@ public class ChangelogGeneratorTests {
 		Set<String> labels = Collections.singleton("type: enhancement");
 		sections.add(new Section("Enhancements", null, IssueSort.TITLE, labels));
 		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.ID, sections,
-				new Issues(null, null), null);
+				new Issues(null, null, null), null);
 		this.generator = new ChangelogGenerator(this.service, properties);
 		List<Issue> issues = new ArrayList<>();
 		issues.add(newIssue("Enhancement c", "1", "enhancement-1-url", Type.ENHANCEMENT));
@@ -236,7 +260,7 @@ public class ChangelogGeneratorTests {
 		Set<String> labels = Collections.singleton("type: enhancement");
 		sections.add(new Section("Enhancements", null, null, labels));
 		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.ID, sections,
-				new Issues(IssueSort.TITLE, null), null);
+				new Issues(IssueSort.TITLE, null, null), null);
 		this.generator = new ChangelogGenerator(this.service, properties);
 		List<Issue> issues = new ArrayList<>();
 		issues.add(newIssue("Enhancement c", "1", "enhancement-1-url", Type.ENHANCEMENT));
@@ -264,8 +288,11 @@ public class ChangelogGeneratorTests {
 
 	private void setupGenerator(MilestoneReference id) {
 		Set<String> labels = new HashSet<>(Arrays.asList("duplicate", "wontfix"));
+		PortedIssue forwardPort = new PortedIssue("status: forward-port", "Forward port of issue #(\\d+)");
+		PortedIssue cherryPick = new PortedIssue("status: back-port", "Back port of issue #(\\d+)");
+		Set<PortedIssue> portedIssues = new HashSet<>(Arrays.asList(forwardPort, cherryPick));
 		ApplicationProperties properties = new ApplicationProperties(REPO, id, null,
-				new Issues(null, new IssuesExclude(labels)), null);
+				new Issues(null, new IssuesExclude(labels), portedIssues), null);
 		this.generator = new ChangelogGenerator(this.service, properties);
 	}
 
@@ -278,35 +305,44 @@ public class ChangelogGeneratorTests {
 	}
 
 	private Issue newIssue(String title, String number, String url, Type type) {
-		return new Issue(number, title, null, type.getLabels(), url, null);
+		return new Issue(number, title, null, type.getLabels(), url, null, null);
 	}
 
 	private Issue newIssue(String title, String number, String url, Type type, String... extraLabels) {
 		List<Label> labels = new ArrayList<>(type.getLabels());
 		Arrays.stream(extraLabels).map(Label::new).forEach(labels::add);
-		return new Issue(number, title, null, labels, url, null);
+		return new Issue(number, title, null, labels, url, null, null);
+	}
+
+	private Issue newPortedIssue(String title, String number, String body, String url, Type portType) {
+		List<Label> labels = new ArrayList<>(portType.getLabels());
+		return new Issue(number, title, null, labels, url, null, body);
 	}
 
 	private Issue newPullRequest(String title, String number, Type type, String url, User user) {
-		return new Issue(number, title, user, type.getLabels(), url, new PullRequest("https://example.com"));
+		return new Issue(number, title, user, type.getLabels(), url, new PullRequest("https://example.com"), null);
 	}
 
 	private Issue newPullRequest(String title, String number, Type type, String url, User user, String... extraLabels) {
 		List<Label> labels = new ArrayList<>(type.getLabels());
 		Arrays.stream(extraLabels).map(Label::new).forEach(labels::add);
-		return new Issue(number, title, user, labels, url, new PullRequest("https://example.com"));
+		return new Issue(number, title, user, labels, url, new PullRequest("https://example.com"), null);
 	}
 
 	private enum Type {
 
 		BUG("type: bug"),
 
-		ENHANCEMENT("type: enhancement");
+		ENHANCEMENT("type: enhancement"),
 
-		private List<Label> labels;
+		FORWARD_PORT("type: enhancement", "status: forward-port"),
 
-		Type(String label) {
-			this.labels = Collections.singletonList(new Label(label));
+		BACK_PORT("type: enhancement", "status: back-port");
+
+		private final List<Label> labels;
+
+		Type(String... labels) {
+			this.labels = Arrays.stream(labels).map(Label::new).collect(Collectors.toList());
 		}
 
 		public List<Label> getLabels() {

@@ -39,9 +39,12 @@ public class Issue {
 
 	private final PullRequest pullRequest;
 
+	private final String body;
+
 	public Issue(@JsonProperty("number") String number, @JsonProperty("title") String title,
 			@JsonProperty("user") User user, @JsonProperty("labels") List<Label> labels,
-			@JsonProperty("html_url") String url, @JsonProperty("pull_request") PullRequest pullRequest) {
+			@JsonProperty("html_url") String url, @JsonProperty("pull_request") PullRequest pullRequest,
+			@JsonProperty("body") String body) {
 		super();
 		this.number = number;
 		this.title = title;
@@ -49,6 +52,7 @@ public class Issue {
 		this.labels = labels;
 		this.url = url;
 		this.pullRequest = pullRequest;
+		this.body = body;
 	}
 
 	public String getTitle() {
@@ -73,6 +77,10 @@ public class Issue {
 
 	public PullRequest getPullRequest() {
 		return this.pullRequest;
+	}
+
+	public String getBody() {
+		return this.body;
 	}
 
 	@Override

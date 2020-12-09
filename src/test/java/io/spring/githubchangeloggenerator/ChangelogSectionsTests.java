@@ -140,7 +140,7 @@ public class ChangelogSectionsTests {
 	private Issue createIssue(String number, String... labels) {
 		return new Issue(number, "I am #" + number, null,
 				Arrays.stream(labels).map(Label::new).collect(Collectors.toList()), "https://example.com/" + number,
-				null);
+				null, null);
 	}
 
 	private Map<String, List<Issue>> getBySection(Map<ChangelogSection, List<Issue>> collatedIssues) {

@@ -32,6 +32,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 /**
@@ -48,6 +49,8 @@ public class GitHubService {
 	private static final String MILESTONES_URI = "/repos/{owner}/{name}/milestones?state=all&sort=due_on&direction=desc&per_page=50";
 
 	private static final String ISSUES_URI = "/repos/{owner}/{name}/issues?milestone={milestone}&state=closed";
+
+	private static final String ISSUE_URI = "/repos/{owner}/{name}/issues/{issueNumber}";
 
 	private final RestTemplate restTemplate;
 
@@ -71,6 +74,16 @@ public class GitHubService {
 			}
 		}
 		throw new IllegalStateException("Unable to find milestone with title '" + milestoneTitle + "'");
+	}
+
+	public Issue getIssue(String issueNumber, Repository repository) {
+		try {
+			return this.restTemplate.getForObject(ISSUE_URI, Issue.class, repository.getOwner(), repository.getName(),
+					issueNumber);
+		}
+		catch (RestClientException clientException) {
+			return null;
+		}
 	}
 
 	public List<Issue> getIssuesForMilestone(int milestoneNumber, Repository repository) {
