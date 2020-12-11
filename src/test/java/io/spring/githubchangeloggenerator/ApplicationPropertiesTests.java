@@ -18,6 +18,7 @@ package io.spring.githubchangeloggenerator;
 
 import java.util.List;
 
+import io.spring.githubchangeloggenerator.ApplicationProperties.ExternalLink;
 import io.spring.githubchangeloggenerator.ApplicationProperties.IssueSort;
 import io.spring.githubchangeloggenerator.ApplicationProperties.Section;
 import io.spring.githubchangeloggenerator.github.service.Repository;
@@ -49,6 +50,7 @@ public class ApplicationPropertiesTests {
 		assertThat(repository.getOwner()).isEqualTo("testorg");
 		assertThat(repository.getName()).isEqualTo("testrepo");
 		List<Section> sections = properties.getSections();
+		List<ExternalLink> externalLinks = properties.getExternalLinks();
 		assertThat(sections).hasSize(2);
 		assertThat(sections.get(0).getTitle()).isEqualTo(":star: New Features");
 		assertThat(sections.get(0).getLabels()).containsExactly("enhancement");
@@ -62,6 +64,9 @@ public class ApplicationPropertiesTests {
 		assertThat(properties.getIssues().getSort()).isEqualTo(IssueSort.TITLE);
 		assertThat(properties.getContributors().getTitle()).isEqualTo("Nice one!");
 		assertThat(properties.getContributors().getExclude().getNames()).containsExactly("philwebb");
+		assertThat(externalLinks.get(0).getName()).isEqualTo("Release notes");
+		assertThat(externalLinks.get(0).getLocation())
+				.isEqualTo("https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-2.3-Release-Notes");
 	}
 
 }

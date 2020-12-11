@@ -30,6 +30,7 @@ import java.util.stream.Collectors;
 
 import io.spring.githubchangeloggenerator.ApplicationProperties.Contributors;
 import io.spring.githubchangeloggenerator.ApplicationProperties.ContributorsExclude;
+import io.spring.githubchangeloggenerator.ApplicationProperties.ExternalLink;
 import io.spring.githubchangeloggenerator.ApplicationProperties.IssueSort;
 import io.spring.githubchangeloggenerator.ApplicationProperties.Issues;
 import io.spring.githubchangeloggenerator.ApplicationProperties.IssuesExclude;
@@ -147,7 +148,7 @@ public class ChangelogGeneratorTests {
 		given(this.service.getIssuesForMilestone(23, REPO)).willReturn(issues);
 		File file = new File(this.temporaryFolder.getRoot().getPath() + "foo");
 		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.ID, null, null,
-				new Contributors(null, new ContributorsExclude(Collections.singleton("contributor1"))));
+				new Contributors(null, new ContributorsExclude(Collections.singleton("contributor1"))), null);
 		this.generator = new ChangelogGenerator(this.service, properties);
 		this.generator.generate("23", file.getPath());
 		assertThat(file).hasContent(from("output-with-excluded-contributors"));
@@ -163,7 +164,7 @@ public class ChangelogGeneratorTests {
 		given(this.service.getIssuesForMilestone(23, REPO)).willReturn(issues);
 		File file = new File(this.temporaryFolder.getRoot().getPath() + "foo");
 		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.ID, null, null,
-				new Contributors(null, new ContributorsExclude(Collections.singleton("*"))));
+				new Contributors(null, new ContributorsExclude(Collections.singleton("*"))), null);
 		this.generator = new ChangelogGenerator(this.service, properties);
 		this.generator.generate("23", file.getPath());
 		assertThat(file).hasContent(from("output-with-all-contributors-excluded"));
@@ -242,7 +243,7 @@ public class ChangelogGeneratorTests {
 		Set<String> labels = Collections.singleton("type: enhancement");
 		sections.add(new Section("Enhancements", null, IssueSort.TITLE, labels));
 		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.ID, sections,
-				new Issues(null, null, null), null);
+				new Issues(null, null, null), null, null);
 		this.generator = new ChangelogGenerator(this.service, properties);
 		List<Issue> issues = new ArrayList<>();
 		issues.add(newIssue("Enhancement c", "1", "enhancement-1-url", Type.ENHANCEMENT));
@@ -260,7 +261,7 @@ public class ChangelogGeneratorTests {
 		Set<String> labels = Collections.singleton("type: enhancement");
 		sections.add(new Section("Enhancements", null, null, labels));
 		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.ID, sections,
-				new Issues(IssueSort.TITLE, null, null), null);
+				new Issues(IssueSort.TITLE, null, null), null, null);
 		this.generator = new ChangelogGenerator(this.service, properties);
 		List<Issue> issues = new ArrayList<>();
 		issues.add(newIssue("Enhancement c", "1", "enhancement-1-url", Type.ENHANCEMENT));
@@ -280,10 +281,25 @@ public class ChangelogGeneratorTests {
 		given(this.service.getIssuesForMilestone(23, REPO)).willReturn(issues);
 		File file = new File(this.temporaryFolder.getRoot().getPath() + "foo");
 		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.ID, null, null,
-				new Contributors(":heart: Teamwork", null));
+				new Contributors(":heart: Teamwork", null), null);
 		this.generator = new ChangelogGenerator(this.service, properties);
 		this.generator.generate("23", file.getPath());
 		assertThat(file).hasContent(from("output-with-custom-contributors-title"));
+	}
+
+	@Test
+	public void generateWhenHasExternalLinks() throws IOException {
+		List<ExternalLink> externalLinks = new ArrayList<>();
+		ExternalLink externalLink1 = new ExternalLink("Release Note 1", "first-url");
+		ExternalLink externalLink2 = new ExternalLink("Release Note 2", "second-url");
+		externalLinks.add(externalLink1);
+		externalLinks.add(externalLink2);
+		File file = new File(this.temporaryFolder.getRoot().getPath() + "foo");
+		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.ID, null, null, null,
+				externalLinks);
+		this.generator = new ChangelogGenerator(this.service, properties);
+		this.generator.generate("23", file.getPath());
+		assertThat(file).hasContent(from("output-with-external-links"));
 	}
 
 	private void setupGenerator(MilestoneReference id) {
@@ -292,7 +308,7 @@ public class ChangelogGeneratorTests {
 		PortedIssue cherryPick = new PortedIssue("status: back-port", "Back port of issue #(\\d+)");
 		Set<PortedIssue> portedIssues = new HashSet<>(Arrays.asList(forwardPort, cherryPick));
 		ApplicationProperties properties = new ApplicationProperties(REPO, id, null,
-				new Issues(null, new IssuesExclude(labels), portedIssues), null);
+				new Issues(null, new IssuesExclude(labels), portedIssues), null, null);
 		this.generator = new ChangelogGenerator(this.service, properties);
 	}
 

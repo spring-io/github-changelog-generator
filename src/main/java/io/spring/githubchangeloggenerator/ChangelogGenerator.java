@@ -29,6 +29,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import io.spring.githubchangeloggenerator.ApplicationProperties.ExternalLink;
 import io.spring.githubchangeloggenerator.ApplicationProperties.IssueSort;
 import io.spring.githubchangeloggenerator.ApplicationProperties.PortedIssue;
 import io.spring.githubchangeloggenerator.github.payload.Issue;
@@ -73,6 +74,8 @@ public class ChangelogGenerator {
 
 	private final ChangelogSections sections;
 
+	private final List<ExternalLink> externalLinks;
+
 	public ChangelogGenerator(GitHubService service, ApplicationProperties properties) {
 		this.service = service;
 		this.repository = properties.getRepository();
@@ -83,6 +86,7 @@ public class ChangelogGenerator {
 		this.contributorsTitle = properties.getContributors().getTitle();
 		this.sections = new ChangelogSections(properties);
 		this.portedIssues = properties.getIssues().getPorts();
+		this.externalLinks = properties.getExternalLinks();
 	}
 
 	/**
@@ -131,7 +135,16 @@ public class ChangelogGenerator {
 		if (!contributors.isEmpty()) {
 			addContributorsContent(content, contributors);
 		}
+		Set<ExternalLink> externalLinks = getExternalLinks();
+		if (!externalLinks.isEmpty()) {
+			addExternalLinksContent(content, externalLinks);
+		}
 		return content.toString();
+	}
+
+	private void addExternalLinksContent(StringBuilder content, Set<ExternalLink> externalLinks) {
+		content.append(String.format("## External Links%n%n"));
+		externalLinks.stream().map(ExternalLink::toMDFormatItem).forEach(content::append);
 	}
 
 	private void addSectionContent(StringBuilder content, Map<ChangelogSection, List<Issue>> sectionIssues) {
@@ -166,6 +179,12 @@ public class ChangelogGenerator {
 		}
 		return issues.stream().map(this::getPortedReferenceIssue).filter((issue) -> issue.getPullRequest() != null)
 				.map(Issue::getUser).filter(this::isIncludedContributor).collect(Collectors.toSet());
+	}
+
+	private Set<ExternalLink> getExternalLinks() {
+		return this.externalLinks.stream()
+				.filter((externalLink) -> externalLink.name != null && externalLink.location != null)
+				.collect(Collectors.toSet());
 	}
 
 	private Issue getPortedReferenceIssue(Issue issue) {
