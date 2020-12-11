@@ -64,7 +64,7 @@ public class ApplicationProperties {
 	private final Contributors contributors;
 
 	/**
-	 * External Links definitions in the order that they should appear.
+	 * External Links to display extra information of the changelog.
 	 */
 	private final List<ExternalLink> externalLinks;
 
