@@ -21,7 +21,7 @@ import java.util.List;
 import io.spring.githubchangeloggenerator.ApplicationProperties.IssueSort;
 import io.spring.githubchangeloggenerator.ApplicationProperties.Section;
 import io.spring.githubchangeloggenerator.github.service.Repository;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.boot.context.properties.bind.Binder;
 import org.springframework.boot.context.properties.source.ConfigurationPropertySources;
@@ -36,10 +36,10 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Phillip Webb
  */
-public class ApplicationPropertiesTests {
+class ApplicationPropertiesTests {
 
 	@Test
-	public void loadYaml() throws Exception {
+	void loadYaml() throws Exception {
 		YamlPropertySourceLoader yamlLoader = new YamlPropertySourceLoader();
 		List<PropertySource<?>> yaml = yamlLoader.load("application",
 				new ClassPathResource("test-application.yml", getClass()));

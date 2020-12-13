@@ -20,12 +20,13 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import io.spring.githubchangeloggenerator.github.payload.Issue;
 import io.spring.githubchangeloggenerator.github.payload.Label;
 import io.spring.githubchangeloggenerator.github.service.Repository;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -35,12 +36,12 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Eleftheria Stein
  * @author Phillip Webb
  */
-public class ChangelogSectionsTests {
+class ChangelogSectionsTests {
 
 	private static final Repository REPO = Repository.of("org/name");
 
 	@Test
-	public void collateWhenNoCustomSectionsUsesDefaultSections() {
+	void collateWhenNoCustomSectionsUsesDefaultSections() {
 		Issue enhancement = createIssue("1", "enhancement");
 		Issue bug = createIssue("2", "bug");
 		Issue documentation = createIssue("3", "documentation");
@@ -59,7 +60,7 @@ public class ChangelogSectionsTests {
 	}
 
 	@Test
-	public void collateWhenHasCustomSectionsUsesDefinedSections() {
+	void collateWhenHasCustomSectionsUsesDefinedSections() {
 		ApplicationProperties.Section breaksPassivitySection = new ApplicationProperties.Section(":rewind: Non-passive",
 				null, null, Collections.singleton("breaks-passivity"));
 		ApplicationProperties.Section bugsSection = new ApplicationProperties.Section(":beetle: Bug Fixes", null, null,
@@ -76,7 +77,7 @@ public class ChangelogSectionsTests {
 	}
 
 	@Test
-	public void collateWhenNoIssuesInSectionExcludesSection() {
+	void collateWhenNoIssuesInSectionExcludesSection() {
 		Issue bug = createIssue("1", "bug");
 		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.TITLE, null, null, null);
 		ChangelogSections sections = new ChangelogSections(properties);
@@ -86,7 +87,7 @@ public class ChangelogSectionsTests {
 	}
 
 	@Test
-	public void collateWhenIssueDoesNotMatchAnySectionLabelThenExcludesIssue() {
+	void collateWhenIssueDoesNotMatchAnySectionLabelThenExcludesIssue() {
 		Issue bug = createIssue("1", "bug");
 		Issue nonPassive = createIssue("2", "non-passive");
 		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.TITLE, null, null, null);
@@ -98,7 +99,7 @@ public class ChangelogSectionsTests {
 	}
 
 	@Test
-	public void collateWithDefaultsDoesNotAddIssueToMultipleSections() {
+	void collateWithDefaultsDoesNotAddIssueToMultipleSections() {
 		Issue bug = createIssue("1", "bug");
 		Issue highlight = createIssue("2", "highlight");
 		Issue bugAndHighlight = createIssue("3", "bug", "highlight");
@@ -118,7 +119,7 @@ public class ChangelogSectionsTests {
 	}
 
 	@Test
-	public void collateWithGroupsAddsIssuePerGroup() {
+	void collateWithGroupsAddsIssuePerGroup() {
 		Issue bug = createIssue("1", "bug");
 		Issue highlight = createIssue("2", "highlight");
 		Issue bugAndHighlight = createIssue("3", "bug", "highlight");
@@ -145,7 +146,7 @@ public class ChangelogSectionsTests {
 
 	private Map<String, List<Issue>> getBySection(Map<ChangelogSection, List<Issue>> collatedIssues) {
 		return collatedIssues.entrySet().stream()
-				.collect(Collectors.toMap((entry) -> entry.getKey().toString(), (entry) -> entry.getValue()));
+				.collect(Collectors.toMap((entry) -> entry.getKey().toString(), Entry::getValue));
 	}
 
 }

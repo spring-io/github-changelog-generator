@@ -16,13 +16,11 @@
 
 package io.spring.githubchangeloggenerator.github.payload;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.json.JsonTest;
 import org.springframework.boot.test.json.JacksonTester;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -31,15 +29,14 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Phillip Webb
  */
-@RunWith(SpringRunner.class)
 @JsonTest
-public class MilestoneJsonTests {
+class MilestoneJsonTests {
 
 	@Autowired
 	private JacksonTester<Milestone> json;
 
 	@Test
-	public void issueDeserialization() throws Exception {
+	void issueDeserialization() throws Exception {
 		Milestone milestone = this.json.read("milestone.json").getObject();
 		assertThat(milestone.getNumber()).isEqualTo(94);
 		assertThat(milestone.getTitle()).isEqualTo("General Backlog");

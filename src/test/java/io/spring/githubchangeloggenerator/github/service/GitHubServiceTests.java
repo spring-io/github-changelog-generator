@@ -19,8 +19,7 @@ package io.spring.githubchangeloggenerator.github.service;
 import java.util.List;
 
 import io.spring.githubchangeloggenerator.github.payload.Issue;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.client.RestClientTest;
@@ -30,7 +29,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.test.web.client.ResponseActions;
 import org.springframework.test.web.client.response.DefaultResponseCreator;
@@ -47,10 +45,9 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
  *
  * @author Madhura Bhave
  */
-@RunWith(SpringRunner.class)
 @RestClientTest(GitHubService.class)
 @MockBean(GitHubProperties.class)
-public class GitHubServiceTests {
+class GitHubServiceTests {
 
 	private static final String MILESTONES_URL = "/repos/org/repo/milestones?state=all&sort=due_on&direction=desc&per_page=50";
 
@@ -65,49 +62,49 @@ public class GitHubServiceTests {
 	private GitHubService service;
 
 	@Test
-	public void getMilestoneNumber() {
+	void getMilestoneNumber() {
 		expectGet(MILESTONES_URL).andRespond(withJsonFrom("milestones.json"));
 		int number = this.service.getMilestoneNumber("2.1.1", Repository.of("org/repo"));
 		assertThat(number).isEqualTo(125);
 	}
 
 	@Test
-	public void getMilestoneNumberWhenNotFoundThrowsException() {
+	void getMilestoneNumberWhenNotFoundThrowsException() {
 		expectGet(MILESTONES_URL).andRespond(withJsonFrom("milestones.json"));
 		assertThatExceptionOfType(IllegalStateException.class)
 				.isThrownBy(() -> this.service.getMilestoneNumber("0.0.0", Repository.of("org/repo")));
 	}
 
 	@Test
-	public void getIssue() {
+	void getIssue() {
 		expectGet(ISSUE_URL + "/12730").andRespond(withJsonFrom("issue.json"));
 		Issue issue = this.service.getIssue("12730", Repository.of("org/repo"));
 		assertThat(issue.getNumber()).isEqualTo("12730");
 	}
 
 	@Test
-	public void getIssueWhenIssueDoesNotExist() {
+	void getIssueWhenIssueDoesNotExist() {
 		expectGet(ISSUE_URL + "/12730").andRespond(withStatus(HttpStatus.NOT_FOUND));
 		Issue issue = this.service.getIssue("12730", Repository.of("org/repo"));
 		assertThat(issue).isNull();
 	}
 
 	@Test
-	public void getIssuesWhenNoIssues() {
+	void getIssuesWhenNoIssues() {
 		expectGet(ISSUES_URL + "23&state=closed").andRespond(withJsonOf("[]"));
 		List<Issue> issues = this.service.getIssuesForMilestone(23, Repository.of("org/repo"));
 		assertThat(issues.size()).isEqualTo(0);
 	}
 
 	@Test
-	public void getIssuesWhenSinglePageOfIssuesPresent() {
+	void getIssuesWhenSinglePageOfIssuesPresent() {
 		expectGet(ISSUES_URL + "23&state=closed").andRespond(withJsonFrom("closed-issues-for-milestone-page-1.json"));
 		List<Issue> issues = this.service.getIssuesForMilestone(23, Repository.of("org/repo"));
 		assertThat(issues.size()).isEqualTo(30);
 	}
 
 	@Test
-	public void getIssuesWhenMultiplePagesOfIssuesPresent() {
+	void getIssuesWhenMultiplePagesOfIssuesPresent() {
 		HttpHeaders headers = new HttpHeaders();
 		headers.set("Link", "<page-two>; rel=\"next\"");
 		expectGet(ISSUES_URL + "23&state=closed")

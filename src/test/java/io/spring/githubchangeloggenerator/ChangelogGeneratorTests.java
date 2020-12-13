@@ -16,16 +16,17 @@
 
 package io.spring.githubchangeloggenerator;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import io.spring.githubchangeloggenerator.ApplicationProperties.Contributors;
@@ -41,10 +42,10 @@ import io.spring.githubchangeloggenerator.github.payload.PullRequest;
 import io.spring.githubchangeloggenerator.github.payload.User;
 import io.spring.githubchangeloggenerator.github.service.GitHubService;
 import io.spring.githubchangeloggenerator.github.service.Repository;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.assertj.core.api.PathAssert;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import org.springframework.util.FileCopyUtils;
 
@@ -58,50 +59,46 @@ import static org.mockito.Mockito.mock;
  * @author Madhura Bhave
  * @author Phillip Webb
  */
-public class ChangelogGeneratorTests {
+class ChangelogGeneratorTests {
 
 	private static final Repository REPO = Repository.of("org/name");
 
-	@Rule
-	public TemporaryFolder temporaryFolder = new TemporaryFolder();
+	@TempDir
+	Path tempDirectory;
 
 	private ChangelogGenerator generator;
 
 	private GitHubService service;
 
-	@Before
-	public void setup() {
+	@BeforeEach
+	void setup() {
 		this.service = mock(GitHubService.class);
 		setupGenerator(MilestoneReference.ID);
 	}
 
 	@Test
-	public void generateWhenNoPullRequests() throws Exception {
+	void generateWhenNoPullRequests() throws Exception {
 		List<Issue> issues = new ArrayList<>();
 		issues.add(newIssue("Bug 1", "1", "bug-1-url", Type.BUG));
 		issues.add(newIssue("Enhancement 1", "2", "enhancement-1-url", Type.ENHANCEMENT));
 		issues.add(newIssue("Enhancement 2", "4", "enhancement-2-url", Type.ENHANCEMENT));
 		issues.add(newIssue("Bug 3", "3", "bug-3-url", Type.BUG));
 		given(this.service.getIssuesForMilestone(23, REPO)).willReturn(issues);
-		File file = new File(this.temporaryFolder.getRoot().getPath() + "foo");
-		this.generator.generate("23", file.getPath());
-		assertThat(file).hasContent(from("output-with-no-prs"));
+		assertChangelog("23").hasContent(from("output-with-no-prs"));
 	}
 
 	@Test
-	public void generateWhenNoEnhancements() throws Exception {
+	void generateWhenNoEnhancements() throws Exception {
 		User contributor1 = createUser("contributor1", "contributor1-github-url");
 		List<Issue> issues = new ArrayList<>();
 		issues.add(newPullRequest("Bug 1", "1", Type.BUG, "bug-1-url", contributor1));
 		issues.add(newIssue("Bug 3", "3", "bug-3-url", Type.BUG));
 		given(this.service.getIssuesForMilestone(23, REPO)).willReturn(issues);
-		File file = new File(this.temporaryFolder.getRoot().getPath() + "foo");
-		this.generator.generate("23", file.getPath());
-		assertThat(file).hasContent(from("output-with-no-enhancements"));
+		assertChangelog("23").hasContent(from("output-with-no-enhancements"));
 	}
 
 	@Test
-	public void generateWhenNoBugFixes() throws Exception {
+	void generateWhenNoBugFixes() throws Exception {
 		User contributor1 = createUser("contributor1", "contributor1-github-url");
 		User contributor2 = createUser("contributor2", "contributor2-github-url");
 		List<Issue> issues = new ArrayList<>();
@@ -110,13 +107,11 @@ public class ChangelogGeneratorTests {
 		issues.add(newPullRequest("Enhancement 3", "5", Type.ENHANCEMENT, "enhancement-5-url", contributor1));
 		issues.add(newPullRequest("Enhancement 4", "6", Type.ENHANCEMENT, "enhancement-6-url", contributor2));
 		given(this.service.getIssuesForMilestone(23, REPO)).willReturn(issues);
-		File file = new File(this.temporaryFolder.getRoot().getPath() + "foo");
-		this.generator.generate("23", file.getPath());
-		assertThat(file).hasContent(from("output-with-no-bugs"));
+		assertChangelog("23").hasContent(from("output-with-no-bugs"));
 	}
 
 	@Test
-	public void generateWhenHasForwardAndBackPorts() throws Exception {
+	void generateWhenHasForwardAndBackPorts() throws Exception {
 		User contributor1 = createUser("contributor1", "contributor1-github-url");
 		User contributor2 = createUser("contributor2", "contributor2-github-url");
 		List<Issue> issues = new ArrayList<>();
@@ -132,45 +127,39 @@ public class ChangelogGeneratorTests {
 				newPortedIssue("Enhancement 11", "11", "Back port of issue #20", "enhancement-11-url", Type.BACK_PORT));
 		given(this.service.getIssue("20", REPO)).willReturn(
 				newPullRequest("Original Enhancement 20", "20", Type.ENHANCEMENT, "enhancement-20-url", contributor2));
-		File file = new File(this.temporaryFolder.getRoot().getPath() + "foo");
-		this.generator.generate("23", file.getPath());
-		assertThat(file).hasContent(from("output-with-no-bugs"));
+		assertChangelog("23").hasContent(from("output-with-no-bugs"));
 	}
 
 	@Test
-	public void generateWhenHasExcludedContributors() throws Exception {
+	void generateWhenHasExcludedContributors() throws Exception {
 		User contributor1 = createUser("contributor1", "contributor1-github-url");
 		User contributor2 = createUser("contributor2", "contributor2-github-url");
 		List<Issue> issues = new ArrayList<>();
 		issues.add(newPullRequest("Enhancement 1", "1", Type.ENHANCEMENT, "enhancement-1-url", contributor1));
 		issues.add(newPullRequest("Enhancement 2", "2", Type.ENHANCEMENT, "enhancement-2-url", contributor2));
 		given(this.service.getIssuesForMilestone(23, REPO)).willReturn(issues);
-		File file = new File(this.temporaryFolder.getRoot().getPath() + "foo");
 		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.ID, null, null,
 				new Contributors(null, new ContributorsExclude(Collections.singleton("contributor1"))));
 		this.generator = new ChangelogGenerator(this.service, properties);
-		this.generator.generate("23", file.getPath());
-		assertThat(file).hasContent(from("output-with-excluded-contributors"));
+		assertChangelog("23").hasContent(from("output-with-excluded-contributors"));
 	}
 
 	@Test
-	public void generateWhenHasAllContributorsExcluded() throws Exception {
+	void generateWhenHasAllContributorsExcluded() throws Exception {
 		User contributor1 = createUser("contributor1", "contributor1-github-url");
 		User contributor2 = createUser("contributor2", "contributor2-github-url");
 		List<Issue> issues = new ArrayList<>();
 		issues.add(newPullRequest("Enhancement 1", "1", Type.ENHANCEMENT, "enhancement-1-url", contributor1));
 		issues.add(newPullRequest("Enhancement 2", "2", Type.ENHANCEMENT, "enhancement-2-url", contributor2));
 		given(this.service.getIssuesForMilestone(23, REPO)).willReturn(issues);
-		File file = new File(this.temporaryFolder.getRoot().getPath() + "foo");
 		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.ID, null, null,
 				new Contributors(null, new ContributorsExclude(Collections.singleton("*"))));
 		this.generator = new ChangelogGenerator(this.service, properties);
-		this.generator.generate("23", file.getPath());
-		assertThat(file).hasContent(from("output-with-all-contributors-excluded"));
+		assertChangelog("23").hasContent(from("output-with-all-contributors-excluded"));
 	}
 
 	@Test
-	public void generateWhenDuplicateContributor() throws Exception {
+	void generateWhenDuplicateContributor() throws Exception {
 		User contributor1 = createUser("contributor1", "contributor1-github-url");
 		List<Issue> issues = new ArrayList<>();
 		issues.add(newIssue("Enhancement 1", "2", "enhancement-1-url", Type.ENHANCEMENT));
@@ -178,13 +167,11 @@ public class ChangelogGeneratorTests {
 		issues.add(newPullRequest("Enhancement 3", "5", Type.ENHANCEMENT, "enhancement-5-url", contributor1));
 		issues.add(newPullRequest("Enhancement 4", "6", Type.ENHANCEMENT, "enhancement-6-url", contributor1));
 		given(this.service.getIssuesForMilestone(23, REPO)).willReturn(issues);
-		File file = new File(this.temporaryFolder.getRoot().getPath() + "foo");
-		this.generator.generate("23", file.getPath());
-		assertThat(file).hasContent(from("output-with-duplicate-contributors"));
+		assertChangelog("23").hasContent(from("output-with-duplicate-contributors"));
 	}
 
 	@Test
-	public void generateWhenNoIgnoredLabels() throws Exception {
+	void generateWhenNoIgnoredLabels() throws Exception {
 		User contributor1 = createUser("contributor1", "contributor1-github-url");
 		List<Issue> issues = new ArrayList<>();
 		issues.add(newIssue("Bug 1", "1", "bug-1-url", Type.BUG));
@@ -192,13 +179,11 @@ public class ChangelogGeneratorTests {
 		issues.add(newPullRequest("PR 3", "3", Type.ENHANCEMENT, "pr-3-url", contributor1));
 		issues.add(newPullRequest("PR 4", "4", Type.ENHANCEMENT, "pr-4-url", contributor1, "duplicate"));
 		given(this.service.getIssuesForMilestone(23, REPO)).willReturn(issues);
-		File file = new File(this.temporaryFolder.getRoot().getPath() + "foo");
-		this.generator.generate("23", file.getPath());
-		assertThat(file).hasContent(from("output-with-ignored-labels"));
+		assertChangelog("23").hasContent(from("output-with-ignored-labels"));
 	}
 
 	@Test
-	public void generateWhenMilestoneIsNotNumberCallsGeneratorWithResolvedNumber() throws Exception {
+	void generateWhenMilestoneIsNotNumberCallsGeneratorWithResolvedNumber() throws Exception {
 		setupGenerator(MilestoneReference.TITLE);
 		List<Issue> issues = new ArrayList<>();
 		issues.add(newIssue("Bug 1", "1", "bug-1-url", Type.BUG));
@@ -207,37 +192,33 @@ public class ChangelogGeneratorTests {
 		issues.add(newIssue("Bug 3", "3", "bug-3-url", Type.BUG));
 		given(this.service.getMilestoneNumber("v2.3", REPO)).willReturn(23);
 		given(this.service.getIssuesForMilestone(23, REPO)).willReturn(issues);
-		File file = new File(this.temporaryFolder.getRoot().getPath() + "foo");
-		this.generator.generate("v2.3", file.getPath());
-		assertThat(file).hasContent(from("output-with-no-prs"));
+		assertChangelog("v2.3").hasContent(from("output-with-no-prs"));
 	}
 
 	@Test
-	public void generateWhenUserMentionIsInIssueTitleItIsEscaped() throws IOException {
+	void generateWhenUserMentionIsInIssueTitleItIsEscaped() throws IOException {
 		setupGenerator(MilestoneReference.TITLE);
 		List<Issue> issues = new ArrayList<>();
 		issues.add(newIssue("Bug 1 for @Value", "1", "bug-1-url", Type.BUG));
 		given(this.service.getMilestoneNumber("v2.3", REPO)).willReturn(23);
 		given(this.service.getIssuesForMilestone(23, REPO)).willReturn(issues);
-		File file = new File(this.temporaryFolder.getRoot().getPath() + "foo");
-		this.generator.generate("v2.3", file.getPath());
-		assertThat(new String(Files.readAllBytes(file.toPath()))).contains("Bug 1 for `@Value`");
+		Path file = generateChangelog("v2.3");
+		assertThat(new String(Files.readAllBytes(file))).contains("Bug 1 for `@Value`");
 	}
 
 	@Test
-	public void generateWhenEscapedUserMentionIsInIssueTitleItIsNotEscapedAgain() throws IOException {
+	void generateWhenEscapedUserMentionIsInIssueTitleItIsNotEscapedAgain() throws IOException {
 		setupGenerator(MilestoneReference.TITLE);
 		List<Issue> issues = new ArrayList<>();
 		issues.add(newIssue("Bug 1 for `@Value`", "1", "bug-1-url", Type.BUG));
 		given(this.service.getMilestoneNumber("v2.3", REPO)).willReturn(23);
 		given(this.service.getIssuesForMilestone(23, REPO)).willReturn(issues);
-		File file = new File(this.temporaryFolder.getRoot().getPath() + "foo");
-		this.generator.generate("v2.3", file.getPath());
-		assertThat(new String(Files.readAllBytes(file.toPath()))).contains("Bug 1 for `@Value`");
+		Path file = generateChangelog("v2.3");
+		assertThat(new String(Files.readAllBytes(file))).contains("Bug 1 for `@Value`");
 	}
 
 	@Test
-	public void generateWhenSectionSortedByTitle() throws Exception {
+	void generateWhenSectionSortedByTitle() throws Exception {
 		List<Section> sections = new ArrayList<>();
 		Set<String> labels = Collections.singleton("type: enhancement");
 		sections.add(new Section("Enhancements", null, IssueSort.TITLE, labels));
@@ -249,13 +230,11 @@ public class ChangelogGeneratorTests {
 		issues.add(newIssue("Enhancement z", "2", "enhancement-2-url", Type.ENHANCEMENT));
 		issues.add(newIssue("enHAncEMent a", "3", "enhancement-3-url", Type.ENHANCEMENT));
 		given(this.service.getIssuesForMilestone(23, REPO)).willReturn(issues);
-		File file = new File(this.temporaryFolder.getRoot().getPath() + "foo");
-		this.generator.generate("23", file.getPath());
-		assertThat(file).hasContent(from("output-with-title-sorted-issues"));
+		assertChangelog("23").hasContent(from("output-with-title-sorted-issues"));
 	}
 
 	@Test
-	public void generateWhenAllIssuesSortedByTitle() throws Exception {
+	void generateWhenAllIssuesSortedByTitle() throws Exception {
 		List<Section> sections = new ArrayList<>();
 		Set<String> labels = Collections.singleton("type: enhancement");
 		sections.add(new Section("Enhancements", null, null, labels));
@@ -267,23 +246,19 @@ public class ChangelogGeneratorTests {
 		issues.add(newIssue("Enhancement z", "2", "enhancement-2-url", Type.ENHANCEMENT));
 		issues.add(newIssue("enHAncEMent a", "3", "enhancement-3-url", Type.ENHANCEMENT));
 		given(this.service.getIssuesForMilestone(23, REPO)).willReturn(issues);
-		File file = new File(this.temporaryFolder.getRoot().getPath() + "foo");
-		this.generator.generate("23", file.getPath());
-		assertThat(file).hasContent(from("output-with-title-sorted-issues"));
+		assertChangelog("23").hasContent(from("output-with-title-sorted-issues"));
 	}
 
 	@Test
-	public void generateWhenHasCustomContributorsTitle() throws Exception {
+	void generateWhenHasCustomContributorsTitle() throws Exception {
 		User contributor1 = createUser("contributor1", "contributor1-github-url");
 		List<Issue> issues = new ArrayList<>();
 		issues.add(newPullRequest("Bug 1", "1", Type.BUG, "bug-1-url", contributor1));
 		given(this.service.getIssuesForMilestone(23, REPO)).willReturn(issues);
-		File file = new File(this.temporaryFolder.getRoot().getPath() + "foo");
 		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.ID, null, null,
 				new Contributors(":heart: Teamwork", null));
 		this.generator = new ChangelogGenerator(this.service, properties);
-		this.generator.generate("23", file.getPath());
-		assertThat(file).hasContent(from("output-with-custom-contributors-title"));
+		assertChangelog("23").hasContent(from("output-with-custom-contributors-title"));
 	}
 
 	private void setupGenerator(MilestoneReference id) {
@@ -294,6 +269,17 @@ public class ChangelogGeneratorTests {
 		ApplicationProperties properties = new ApplicationProperties(REPO, id, null,
 				new Issues(null, new IssuesExclude(labels), portedIssues), null);
 		this.generator = new ChangelogGenerator(this.service, properties);
+	}
+
+	private PathAssert assertChangelog(String milestone) throws IOException {
+		Path file = generateChangelog(milestone);
+		return new PathAssert(file);
+	}
+
+	private Path generateChangelog(String milestone) throws IOException {
+		Path file = this.tempDirectory.resolve(UUID.randomUUID().toString());
+		this.generator.generate(milestone, file.normalize().toString());
+		return file;
 	}
 
 	private User createUser(String contributor12, String s) {
@@ -345,7 +331,7 @@ public class ChangelogGeneratorTests {
 			this.labels = Arrays.stream(labels).map(Label::new).collect(Collectors.toList());
 		}
 
-		public List<Label> getLabels() {
+		List<Label> getLabels() {
 			return this.labels;
 		}
 
