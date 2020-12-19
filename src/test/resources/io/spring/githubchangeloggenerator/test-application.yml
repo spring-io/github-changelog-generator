@@ -15,3 +15,8 @@ changelog:
     title: "Nice one!"
     exclude:
       names: ["philwebb"]
+  external_links:
+  - name: "Release Notes 1"
+    location: "url1"
+  - name: "Release Notes 2"
+    location: "url2"
