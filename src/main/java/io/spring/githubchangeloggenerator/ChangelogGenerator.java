@@ -29,6 +29,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import io.spring.githubchangeloggenerator.ApplicationProperties.ExternalLink;
 import io.spring.githubchangeloggenerator.ApplicationProperties.IssueSort;
 import io.spring.githubchangeloggenerator.ApplicationProperties.PortedIssue;
 import io.spring.githubchangeloggenerator.github.payload.Issue;
@@ -73,6 +74,8 @@ public class ChangelogGenerator {
 
 	private final ChangelogSections sections;
 
+	private final List<ExternalLink> externalLinks;
+
 	public ChangelogGenerator(GitHubService service, ApplicationProperties properties) {
 		this.service = service;
 		this.repository = properties.getRepository();
@@ -83,6 +86,7 @@ public class ChangelogGenerator {
 		this.contributorsTitle = properties.getContributors().getTitle();
 		this.sections = new ChangelogSections(properties);
 		this.portedIssues = properties.getIssues().getPorts();
+		this.externalLinks = properties.getExternalLinks();
 	}
 
 	/**
@@ -130,6 +134,9 @@ public class ChangelogGenerator {
 		Set<User> contributors = getContributors(issues);
 		if (!contributors.isEmpty()) {
 			addContributorsContent(content, contributors);
+		}
+		if (!this.externalLinks.isEmpty()) {
+			addExternalLinksContent(content, this.externalLinks);
 		}
 		return content.toString();
 	}
@@ -199,6 +206,16 @@ public class ChangelogGenerator {
 
 	private String formatContributors(User c) {
 		return String.format("- [@%s](%s)%n", c.getName(), c.getUrl());
+	}
+
+	private void addExternalLinksContent(StringBuilder content, List<ExternalLink> externalLinks) {
+		content.append(String.format("## "));
+		content.append(String.format("External Links%n%n"));
+		externalLinks.stream().map(this::formatExternalLinks).forEach(content::append);
+	}
+
+	private String formatExternalLinks(ExternalLink externalLink) {
+		return String.format("- [%s](%s)%n", externalLink.getName(), externalLink.getLocation());
 	}
 
 	private void writeContentToFile(String content, String path) throws IOException {
