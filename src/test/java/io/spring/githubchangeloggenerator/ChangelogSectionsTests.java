@@ -46,7 +46,8 @@ class ChangelogSectionsTests {
 		Issue bug = createIssue("2", "bug");
 		Issue documentation = createIssue("3", "documentation");
 		Issue dependencyUpgrade = createIssue("4", "dependency-upgrade");
-		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.TITLE, null, null, null);
+		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.TITLE, null, null, null,
+				null);
 		ChangelogSections sections = new ChangelogSections(properties);
 		Map<ChangelogSection, List<Issue>> collated = sections
 				.collate(Arrays.asList(enhancement, bug, documentation, dependencyUpgrade));
@@ -67,7 +68,7 @@ class ChangelogSectionsTests {
 				Collections.singleton("bug"));
 		List<ApplicationProperties.Section> customSections = Arrays.asList(breaksPassivitySection, bugsSection);
 		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.TITLE, customSections,
-				null, null);
+				null, null, null);
 		ChangelogSections sections = new ChangelogSections(properties);
 		Issue bug = createIssue("1", "bug");
 		Issue nonPassive = createIssue("1", "breaks-passivity");
@@ -79,7 +80,8 @@ class ChangelogSectionsTests {
 	@Test
 	void collateWhenNoIssuesInSectionExcludesSection() {
 		Issue bug = createIssue("1", "bug");
-		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.TITLE, null, null, null);
+		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.TITLE, null, null, null,
+				null);
 		ChangelogSections sections = new ChangelogSections(properties);
 		Map<ChangelogSection, List<Issue>> collated = sections.collate(Collections.singletonList(bug));
 		Map<String, List<Issue>> bySection = getBySection(collated);
@@ -90,7 +92,8 @@ class ChangelogSectionsTests {
 	void collateWhenIssueDoesNotMatchAnySectionLabelThenExcludesIssue() {
 		Issue bug = createIssue("1", "bug");
 		Issue nonPassive = createIssue("2", "non-passive");
-		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.TITLE, null, null, null);
+		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.TITLE, null, null, null,
+				null);
 		ChangelogSections sections = new ChangelogSections(properties);
 		Map<ChangelogSection, List<Issue>> collated = sections.collate(Arrays.asList(bug, nonPassive));
 		Map<String, List<Issue>> bySection = getBySection(collated);
@@ -109,7 +112,7 @@ class ChangelogSectionsTests {
 				Collections.singleton("highlight"));
 		List<ApplicationProperties.Section> customSections = Arrays.asList(bugs, highlights);
 		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.TITLE, customSections,
-				null, null);
+				null, null, null);
 		ChangelogSections sections = new ChangelogSections(properties);
 		Map<ChangelogSection, List<Issue>> collated = sections.collate(Arrays.asList(bug, highlight, bugAndHighlight));
 		Map<String, List<Issue>> bySection = getBySection(collated);
@@ -129,7 +132,7 @@ class ChangelogSectionsTests {
 				Collections.singleton("highlight"));
 		List<ApplicationProperties.Section> customSections = Arrays.asList(bugs, highlights);
 		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.TITLE, customSections,
-				null, null);
+				null, null, null);
 		ChangelogSections sections = new ChangelogSections(properties);
 		Map<ChangelogSection, List<Issue>> collated = sections.collate(Arrays.asList(bug, highlight, bugAndHighlight));
 		Map<String, List<Issue>> bySection = getBySection(collated);
