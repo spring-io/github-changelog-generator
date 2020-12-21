@@ -73,6 +73,17 @@ changelog:
     title: "Contributors"
 ----
 
+You can add external links such as release notes for quick access using:
+
+[source,yaml]
+----
+changelog:
+  external_links:
+  - name: "Release Notes"
+    location: "https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-2.3-Release-Notes"
+----
+
+
 
 
 ==== Showing Issues in Multiple Sections

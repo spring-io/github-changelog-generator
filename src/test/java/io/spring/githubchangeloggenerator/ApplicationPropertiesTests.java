@@ -62,6 +62,10 @@ class ApplicationPropertiesTests {
 		assertThat(properties.getIssues().getSort()).isEqualTo(IssueSort.TITLE);
 		assertThat(properties.getContributors().getTitle()).isEqualTo("Nice one!");
 		assertThat(properties.getContributors().getExclude().getNames()).containsExactly("philwebb");
+		assertThat(properties.getExternalLinks().get(0).getName()).isEqualTo("Release Notes 1");
+		assertThat(properties.getExternalLinks().get(0).getLocation()).isEqualTo("url1");
+		assertThat(properties.getExternalLinks().get(1).getName()).isEqualTo("Release Notes 2");
+		assertThat(properties.getExternalLinks().get(1).getLocation()).isEqualTo("url2");
 	}
 
 }

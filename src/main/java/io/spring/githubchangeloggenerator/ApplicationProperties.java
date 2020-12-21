@@ -33,6 +33,7 @@ import org.springframework.util.Assert;
  *
  * @author Madhura Bhave
  * @author Phillip Webb
+ * @author Mahendra Bishnoi
  */
 @ConfigurationProperties(prefix = "changelog")
 @ConstructorBinding
@@ -63,14 +64,20 @@ public class ApplicationProperties {
 	 */
 	private final Contributors contributors;
 
+	/**
+	 * Settings specific to external links.
+	 */
+	private final List<ExternalLink> externalLinks;
+
 	public ApplicationProperties(Repository repository, @DefaultValue("title") MilestoneReference milestoneReference,
-			List<Section> sections, Issues issues, Contributors contributors) {
+			List<Section> sections, Issues issues, Contributors contributors, List<ExternalLink> externalLinks) {
 		Assert.notNull(repository, "Repository must not be null");
 		this.repository = repository;
 		this.milestoneReference = milestoneReference;
 		this.sections = (sections != null) ? sections : Collections.emptyList();
 		this.issues = (issues != null) ? issues : new Issues(null, null, null);
 		this.contributors = (contributors != null) ? contributors : new Contributors(null, null);
+		this.externalLinks = (externalLinks != null) ? externalLinks : Collections.emptyList();
 	}
 
 	public Repository getRepository() {
@@ -91,6 +98,10 @@ public class ApplicationProperties {
 
 	public Contributors getContributors() {
 		return this.contributors;
+	}
+
+	public List<ExternalLink> getExternalLinks() {
+		return this.externalLinks;
 	}
 
 	/**
@@ -281,6 +292,36 @@ public class ApplicationProperties {
 
 		public Set<String> getNames() {
 			return this.names;
+		}
+
+	}
+
+	/**
+	 * Properties for a single external link.
+	 */
+	public static class ExternalLink {
+
+		/**
+		 * Name to be shown for an external link.
+		 */
+		private final String name;
+
+		/**
+		 * URL for an external link.
+		 */
+		private final String location;
+
+		public ExternalLink(String name, String location) {
+			this.name = name;
+			this.location = location;
+		}
+
+		public String getName() {
+			return this.name;
+		}
+
+		public String getLocation() {
+			return this.location;
 		}
 
 	}
