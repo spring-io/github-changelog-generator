@@ -7,7 +7,7 @@ COPY ${jar} /github-changelog-generator.jar
 
 RUN export DEBIAN_FRONTEND=noninteractive
 RUN apt-get update
-RUN apt-get install --no-install-recommends -y tzdata ca-certificates curl
+RUN apt-get install --no-install-recommends -y tzdata ca-certificates curl jq
 RUN ln -fs /usr/share/zoneinfo/UTC /etc/localtime
 RUN dpkg-reconfigure --frontend noninteractive tzdata
 RUN rm -rf /var/lib/apt/lists/*
