@@ -50,6 +50,12 @@ public class ApplicationProperties {
 	private final MilestoneReference milestoneReference;
 
 	/**
+	 * The default prefix for headings and titles - typically this contains the header
+	 * markdown e.g., "## ".
+	 */
+	private final String defaultTitlePrefix;
+
+	/**
 	 * Section definitions in the order that they should appear.
 	 */
 	private final List<Section> sections;
@@ -70,10 +76,12 @@ public class ApplicationProperties {
 	private final List<ExternalLink> externalLinks;
 
 	public ApplicationProperties(Repository repository, @DefaultValue("title") MilestoneReference milestoneReference,
-			List<Section> sections, Issues issues, Contributors contributors, List<ExternalLink> externalLinks) {
+			@DefaultValue("## ") String defaultTitlePrefix, List<Section> sections, Issues issues,
+			Contributors contributors, List<ExternalLink> externalLinks) {
 		Assert.notNull(repository, "Repository must not be null");
 		this.repository = repository;
 		this.milestoneReference = milestoneReference;
+		this.defaultTitlePrefix = defaultTitlePrefix;
 		this.sections = (sections != null) ? sections : Collections.emptyList();
 		this.issues = (issues != null) ? issues : new Issues(null, null, null);
 		this.contributors = (contributors != null) ? contributors : new Contributors(null, null);
@@ -86,6 +94,10 @@ public class ApplicationProperties {
 
 	public MilestoneReference getMilestoneReference() {
 		return this.milestoneReference;
+	}
+
+	public String getDefaultTitlePrefix() {
+		return this.defaultTitlePrefix;
 	}
 
 	public List<Section> getSections() {
