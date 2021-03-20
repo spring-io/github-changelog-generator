@@ -210,7 +210,7 @@ public class ChangelogGenerator {
 	}
 
 	private void addExternalLinksContent(StringBuilder content, List<ExternalLink> externalLinks) {
-		content.append(String.format("## "));
+		content.append(String.format("%n## "));
 		content.append(String.format("External Links%n%n"));
 		externalLinks.stream().map(this::formatExternalLinks).forEach(content::append);
 	}
