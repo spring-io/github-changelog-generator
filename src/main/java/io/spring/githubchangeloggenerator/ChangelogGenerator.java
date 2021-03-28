@@ -63,6 +63,8 @@ public class ChangelogGenerator {
 
 	private final MilestoneReference milestoneReference;
 
+	private final String defaultTitlePrefix;
+
 	private final IssueSort sort;
 
 	private final Set<String> excludeLabels;
@@ -81,6 +83,7 @@ public class ChangelogGenerator {
 		this.service = service;
 		this.repository = properties.getRepository();
 		this.milestoneReference = properties.getMilestoneReference();
+		this.defaultTitlePrefix = properties.getDefaultTitlePrefix();
 		this.sort = properties.getIssues().getSort();
 		this.excludeLabels = properties.getIssues().getExcludes().getLabels();
 		this.excludeContributors = properties.getContributors().getExclude().getNames();
@@ -146,7 +149,7 @@ public class ChangelogGenerator {
 		sectionIssues.forEach((section, issues) -> {
 			sort(section.getSort(), issues);
 			content.append((content.length() != 0) ? String.format("%n") : "");
-			content.append("## ").append(section).append(String.format("%n%n"));
+			content.append(this.defaultTitlePrefix).append(section).append(String.format("%n%n"));
 			issues.stream().map(this::getFormattedIssue).forEach(content::append);
 		});
 	}
@@ -199,7 +202,7 @@ public class ChangelogGenerator {
 	}
 
 	private void addContributorsContent(StringBuilder content, Set<User> contributors) {
-		content.append(String.format("%n## "));
+		content.append(String.format("%n%s", this.defaultTitlePrefix));
 		content.append((this.contributorsTitle != null) ? this.contributorsTitle : ":heart: Contributors");
 		content.append(String.format("%n%nWe'd like to thank all the contributors who worked on this release!%n%n"));
 		contributors.stream().map(this::formatContributors).forEach(content::append);
@@ -210,7 +213,7 @@ public class ChangelogGenerator {
 	}
 
 	private void addExternalLinksContent(StringBuilder content, List<ExternalLink> externalLinks) {
-		content.append(String.format("## "));
+		content.append(this.defaultTitlePrefix);
 		content.append(String.format("External Links%n%n"));
 		externalLinks.stream().map(this::formatExternalLinks).forEach(content::append);
 	}

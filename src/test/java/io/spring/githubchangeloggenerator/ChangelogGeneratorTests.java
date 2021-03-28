@@ -140,7 +140,7 @@ class ChangelogGeneratorTests {
 		issues.add(newPullRequest("Enhancement 1", "1", Type.ENHANCEMENT, "enhancement-1-url", contributor1));
 		issues.add(newPullRequest("Enhancement 2", "2", Type.ENHANCEMENT, "enhancement-2-url", contributor2));
 		given(this.service.getIssuesForMilestone(23, REPO)).willReturn(issues);
-		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.ID, null, null,
+		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.ID, "## ", null, null,
 				new Contributors(null, new ContributorsExclude(Collections.singleton("contributor1"))), null);
 		this.generator = new ChangelogGenerator(this.service, properties);
 		assertChangelog("23").hasContent(from("output-with-excluded-contributors"));
@@ -154,7 +154,7 @@ class ChangelogGeneratorTests {
 		issues.add(newPullRequest("Enhancement 1", "1", Type.ENHANCEMENT, "enhancement-1-url", contributor1));
 		issues.add(newPullRequest("Enhancement 2", "2", Type.ENHANCEMENT, "enhancement-2-url", contributor2));
 		given(this.service.getIssuesForMilestone(23, REPO)).willReturn(issues);
-		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.ID, null, null,
+		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.ID, "## ", null, null,
 				new Contributors(null, new ContributorsExclude(Collections.singleton("*"))), null);
 		this.generator = new ChangelogGenerator(this.service, properties);
 		assertChangelog("23").hasContent(from("output-with-all-contributors-excluded"));
@@ -224,7 +224,7 @@ class ChangelogGeneratorTests {
 		List<Section> sections = new ArrayList<>();
 		Set<String> labels = Collections.singleton("type: enhancement");
 		sections.add(new Section("Enhancements", null, IssueSort.TITLE, labels));
-		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.ID, sections,
+		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.ID, "## ", sections,
 				new Issues(null, null, null), null, null);
 		this.generator = new ChangelogGenerator(this.service, properties);
 		List<Issue> issues = new ArrayList<>();
@@ -240,7 +240,7 @@ class ChangelogGeneratorTests {
 		List<Section> sections = new ArrayList<>();
 		Set<String> labels = Collections.singleton("type: enhancement");
 		sections.add(new Section("Enhancements", null, null, labels));
-		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.ID, sections,
+		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.ID, "## ", sections,
 				new Issues(IssueSort.TITLE, null, null), null, null);
 		this.generator = new ChangelogGenerator(this.service, properties);
 		List<Issue> issues = new ArrayList<>();
@@ -257,7 +257,7 @@ class ChangelogGeneratorTests {
 		List<Issue> issues = new ArrayList<>();
 		issues.add(newPullRequest("Bug 1", "1", Type.BUG, "bug-1-url", contributor1));
 		given(this.service.getIssuesForMilestone(23, REPO)).willReturn(issues);
-		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.ID, null, null,
+		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.ID, "## ", null, null,
 				new Contributors(":heart: Teamwork", null), null);
 		this.generator = new ChangelogGenerator(this.service, properties);
 		assertChangelog("23").hasContent(from("output-with-custom-contributors-title"));
@@ -267,8 +267,8 @@ class ChangelogGeneratorTests {
 	void generateWhenOneExternalLink() throws Exception {
 		List<ExternalLink> externalLinks = new ArrayList<>();
 		externalLinks.add(new ExternalLink("Release Notes Link 1", "url1"));
-		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.ID, null, null, null,
-				externalLinks);
+		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.ID, "## ", null, null,
+				null, externalLinks);
 		this.generator = new ChangelogGenerator(this.service, properties);
 		assertChangelog("23").hasContent(from("output-with-one-external-link"));
 	}
@@ -279,10 +279,39 @@ class ChangelogGeneratorTests {
 		externalLinks.add(new ExternalLink("Release Notes Link 1", "url1"));
 		externalLinks.add(new ExternalLink("Release Notes Link 2", "url2"));
 		externalLinks.add(new ExternalLink("Release Notes Link 3", "url3"));
-		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.ID, null, null, null,
-				externalLinks);
+		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.ID, "## ", null, null,
+				null, externalLinks);
 		this.generator = new ChangelogGenerator(this.service, properties);
 		assertChangelog("23").hasContent(from("output-with-multiple-external-link"));
+	}
+
+	@Test
+	void generateWithCustomDefaultTitlePrefix() throws Exception {
+		User contributor1 = createUser("contributor1", "contributor1-github-url");
+		User contributor2 = createUser("contributor2", "contributor2-github-url");
+
+		List<Issue> issues = new ArrayList<>();
+		issues.add(newPullRequest("Enhancement 1", "1", Type.ENHANCEMENT, "enhancement-1-url", contributor1));
+		issues.add(newPullRequest("Enhancement 2", "2", Type.ENHANCEMENT, "enhancement-2-url", contributor2));
+		issues.add(newIssue("Enhancement c", "1", "enhancement-1-url", Type.ENHANCEMENT));
+		issues.add(newIssue("Enhancement z", "2", "enhancement-2-url", Type.ENHANCEMENT));
+		issues.add(newIssue("enHAncEMent a", "3", "enhancement-3-url", Type.ENHANCEMENT));
+		given(this.service.getIssuesForMilestone(23, REPO)).willReturn(issues);
+
+		List<Section> sections = new ArrayList<>();
+		Set<String> labels = Collections.singleton("type: enhancement");
+		sections.add(new Section("Enhancements", null, IssueSort.TITLE, labels));
+
+		List<ExternalLink> externalLinks = new ArrayList<>();
+		externalLinks.add(new ExternalLink("Release Notes Link 1", "url1"));
+		externalLinks.add(new ExternalLink("Release Notes Link 2", "url2"));
+		externalLinks.add(new ExternalLink("Release Notes Link 3", "url3"));
+
+		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.ID, "== ", sections,
+				new Issues(IssueSort.TITLE, null, null), new Contributors(null, null), externalLinks);
+		this.generator = new ChangelogGenerator(this.service, properties);
+
+		assertChangelog("23").hasContent(from("output-with-custom-title-prefix"));
 	}
 
 	private void setupGenerator(MilestoneReference id) {
@@ -290,7 +319,7 @@ class ChangelogGeneratorTests {
 		PortedIssue forwardPort = new PortedIssue("status: forward-port", "Forward port of issue #(\\d+)");
 		PortedIssue cherryPick = new PortedIssue("status: back-port", "Back port of issue #(\\d+)");
 		Set<PortedIssue> portedIssues = new HashSet<>(Arrays.asList(forwardPort, cherryPick));
-		ApplicationProperties properties = new ApplicationProperties(REPO, id, null,
+		ApplicationProperties properties = new ApplicationProperties(REPO, id, "## ", null,
 				new Issues(null, new IssuesExclude(labels), portedIssues), null, null);
 		this.generator = new ChangelogGenerator(this.service, properties);
 	}
