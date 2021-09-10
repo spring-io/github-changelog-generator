@@ -41,7 +41,7 @@ By default the changelog will contain the following sections:
 |":star: New Features"
 |"enhancement"
 
-|":beetle: Bug Fixes"
+|":lady_beetle: Bug Fixes"
 |"regression" or "bug"
 
 |":notebook_with_decorative_cover: Documentation"

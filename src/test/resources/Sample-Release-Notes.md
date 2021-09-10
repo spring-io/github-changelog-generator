@@ -10,7 +10,7 @@
 
 * Avoid string copies in SpringBootBanner [#12591](https://api.github.com/repos/spring-projects/spring-boot/issues/12591)
 
-## :beetle:Bugs Fixed
+## :lady_beetle:Bugs Fixed
 
 * Apply MeterRegistryCustomizer to composites [#12762](https://api.github.com/repos/spring-projects/spring-boot/issues/12762)
 

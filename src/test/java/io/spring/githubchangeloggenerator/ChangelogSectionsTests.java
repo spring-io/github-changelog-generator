@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2020 the original author or authors.
+ * Copyright 2018-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,10 +52,10 @@ class ChangelogSectionsTests {
 		Map<ChangelogSection, List<Issue>> collated = sections
 				.collate(Arrays.asList(enhancement, bug, documentation, dependencyUpgrade));
 		Map<String, List<Issue>> bySection = getBySection(collated);
-		assertThat(bySection).containsOnlyKeys(":star: New Features", ":beetle: Bug Fixes",
+		assertThat(bySection).containsOnlyKeys(":star: New Features", ":lady_beetle: Bug Fixes",
 				":notebook_with_decorative_cover: Documentation", ":hammer: Dependency Upgrades");
 		assertThat(bySection.get(":star: New Features")).containsExactly(enhancement);
-		assertThat(bySection.get(":beetle: Bug Fixes")).containsExactly(bug);
+		assertThat(bySection.get(":lady_beetle: Bug Fixes")).containsExactly(bug);
 		assertThat(bySection.get(":notebook_with_decorative_cover: Documentation")).containsExactly(documentation);
 		assertThat(bySection.get(":hammer: Dependency Upgrades")).containsExactly(dependencyUpgrade);
 	}
@@ -64,8 +64,8 @@ class ChangelogSectionsTests {
 	void collateWhenHasCustomSectionsUsesDefinedSections() {
 		ApplicationProperties.Section breaksPassivitySection = new ApplicationProperties.Section(":rewind: Non-passive",
 				null, null, Collections.singleton("breaks-passivity"));
-		ApplicationProperties.Section bugsSection = new ApplicationProperties.Section(":beetle: Bug Fixes", null, null,
-				Collections.singleton("bug"));
+		ApplicationProperties.Section bugsSection = new ApplicationProperties.Section(":lady_beetle: Bug Fixes", null,
+				null, Collections.singleton("bug"));
 		List<ApplicationProperties.Section> customSections = Arrays.asList(breaksPassivitySection, bugsSection);
 		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.TITLE, customSections,
 				null, null, null);
@@ -74,7 +74,7 @@ class ChangelogSectionsTests {
 		Issue nonPassive = createIssue("1", "breaks-passivity");
 		Map<ChangelogSection, List<Issue>> collated = sections.collate(Arrays.asList(bug, nonPassive));
 		Map<String, List<Issue>> bySection = getBySection(collated);
-		assertThat(bySection).containsOnlyKeys(":beetle: Bug Fixes", ":rewind: Non-passive");
+		assertThat(bySection).containsOnlyKeys(":lady_beetle: Bug Fixes", ":rewind: Non-passive");
 	}
 
 	@Test
@@ -85,7 +85,7 @@ class ChangelogSectionsTests {
 		ChangelogSections sections = new ChangelogSections(properties);
 		Map<ChangelogSection, List<Issue>> collated = sections.collate(Collections.singletonList(bug));
 		Map<String, List<Issue>> bySection = getBySection(collated);
-		assertThat(bySection.keySet()).containsExactly(":beetle: Bug Fixes");
+		assertThat(bySection.keySet()).containsExactly(":lady_beetle: Bug Fixes");
 	}
 
 	@Test
@@ -97,8 +97,8 @@ class ChangelogSectionsTests {
 		ChangelogSections sections = new ChangelogSections(properties);
 		Map<ChangelogSection, List<Issue>> collated = sections.collate(Arrays.asList(bug, nonPassive));
 		Map<String, List<Issue>> bySection = getBySection(collated);
-		assertThat(bySection).containsOnlyKeys(":beetle: Bug Fixes");
-		assertThat(bySection.get(":beetle: Bug Fixes")).containsExactly(bug);
+		assertThat(bySection).containsOnlyKeys(":lady_beetle: Bug Fixes");
+		assertThat(bySection.get(":lady_beetle: Bug Fixes")).containsExactly(bug);
 	}
 
 	@Test
