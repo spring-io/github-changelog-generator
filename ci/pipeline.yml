@@ -5,7 +5,7 @@ resources:
   source:
     uri: https://github.com/spring-io/github-changelog-generator
     username: ((github-username))
-    password: ((github-password))
+    password: ((github-ci-release-token))
     branch: main
     ignore_paths: ["ci/images/*"]
 - name: ci-images-git-repo

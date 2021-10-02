@@ -13,8 +13,8 @@ nextVersion=$( bump_version_number "$snapshotVersion" )
 
 echo "Releasing $releaseVersion (next version will be $nextVersion)"
 set_revision_to_pom "$releaseVersion"
-git config user.name "Spring Buildmaster" > /dev/null
-git config user.email "buildmaster@springframework.org" > /dev/null
+git config user.name "Spring Builds" > /dev/null
+git config user.email "spring-builds@users.noreply.github.com" > /dev/null
 git add pom.xml > /dev/null
 git commit -m"Release v$releaseVersion" > /dev/null
 git tag -a "v$releaseVersion" -m"Release v$releaseVersion" > /dev/null
