@@ -1,4 +1,4 @@
-FROM ubuntu:focal-20200916
+FROM ubuntu:focal-20210827
 
 ARG root=.
 ARG jar=target/github-changelog-generator.jar
