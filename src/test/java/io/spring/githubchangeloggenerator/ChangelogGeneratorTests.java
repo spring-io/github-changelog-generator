@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2020 the original author or authors.
+ * Copyright 2018-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -91,7 +91,7 @@ class ChangelogGeneratorTests {
 
 	@Test
 	void generateWhenNoEnhancements() throws Exception {
-		User contributor1 = createUser("contributor1", "contributor1-github-url");
+		User contributor1 = createUser("contributor1");
 		List<Issue> issues = new ArrayList<>();
 		issues.add(newPullRequest("Bug 1", "1", Type.BUG, "bug-1-url", contributor1));
 		issues.add(newIssue("Bug 3", "3", "bug-3-url", Type.BUG));
@@ -101,8 +101,8 @@ class ChangelogGeneratorTests {
 
 	@Test
 	void generateWhenNoBugFixes() throws Exception {
-		User contributor1 = createUser("contributor1", "contributor1-github-url");
-		User contributor2 = createUser("contributor2", "contributor2-github-url");
+		User contributor1 = createUser("contributor1");
+		User contributor2 = createUser("contributor2");
 		List<Issue> issues = new ArrayList<>();
 		issues.add(newIssue("Enhancement 1", "2", "enhancement-1-url", Type.ENHANCEMENT));
 		issues.add(newIssue("Enhancement 2", "4", "enhancement-2-url", Type.ENHANCEMENT));
@@ -114,8 +114,8 @@ class ChangelogGeneratorTests {
 
 	@Test
 	void generateWhenHasForwardAndBackPorts() throws Exception {
-		User contributor1 = createUser("contributor1", "contributor1-github-url");
-		User contributor2 = createUser("contributor2", "contributor2-github-url");
+		User contributor1 = createUser("contributor1");
+		User contributor2 = createUser("contributor2");
 		List<Issue> issues = new ArrayList<>();
 		issues.add(newPortedIssue("Enhancement 1", "2", "Forward port of issue #10", "enhancement-1-url",
 				Type.FORWARD_PORT));
@@ -134,8 +134,8 @@ class ChangelogGeneratorTests {
 
 	@Test
 	void generateWhenHasExcludedContributors() throws Exception {
-		User contributor1 = createUser("contributor1", "contributor1-github-url");
-		User contributor2 = createUser("contributor2", "contributor2-github-url");
+		User contributor1 = createUser("contributor1");
+		User contributor2 = createUser("contributor2");
 		List<Issue> issues = new ArrayList<>();
 		issues.add(newPullRequest("Enhancement 1", "1", Type.ENHANCEMENT, "enhancement-1-url", contributor1));
 		issues.add(newPullRequest("Enhancement 2", "2", Type.ENHANCEMENT, "enhancement-2-url", contributor2));
@@ -148,8 +148,8 @@ class ChangelogGeneratorTests {
 
 	@Test
 	void generateWhenHasAllContributorsExcluded() throws Exception {
-		User contributor1 = createUser("contributor1", "contributor1-github-url");
-		User contributor2 = createUser("contributor2", "contributor2-github-url");
+		User contributor1 = createUser("contributor1");
+		User contributor2 = createUser("contributor2");
 		List<Issue> issues = new ArrayList<>();
 		issues.add(newPullRequest("Enhancement 1", "1", Type.ENHANCEMENT, "enhancement-1-url", contributor1));
 		issues.add(newPullRequest("Enhancement 2", "2", Type.ENHANCEMENT, "enhancement-2-url", contributor2));
@@ -162,7 +162,7 @@ class ChangelogGeneratorTests {
 
 	@Test
 	void generateWhenDuplicateContributor() throws Exception {
-		User contributor1 = createUser("contributor1", "contributor1-github-url");
+		User contributor1 = createUser("contributor1");
 		List<Issue> issues = new ArrayList<>();
 		issues.add(newIssue("Enhancement 1", "2", "enhancement-1-url", Type.ENHANCEMENT));
 		issues.add(newIssue("Enhancement 2", "4", "enhancement-2-url", Type.ENHANCEMENT));
@@ -173,8 +173,25 @@ class ChangelogGeneratorTests {
 	}
 
 	@Test
+	void generateWhenMoreThanTwoContributors() throws Exception {
+		User contributor1 = createUser("contributor1");
+		User contributor2 = createUser("contributor2");
+		User contributor3 = createUser("contributor3");
+		User contributor4 = createUser("contributor4");
+		List<Issue> issues = new ArrayList<>();
+		issues.add(newIssue("Enhancement 1", "2", "enhancement-1-url", Type.ENHANCEMENT));
+		issues.add(newIssue("Enhancement 2", "4", "enhancement-2-url", Type.ENHANCEMENT));
+		issues.add(newPullRequest("Enhancement 3", "5", Type.ENHANCEMENT, "enhancement-5-url", contributor1));
+		issues.add(newPullRequest("Enhancement 4", "6", Type.ENHANCEMENT, "enhancement-6-url", contributor2));
+		issues.add(newPullRequest("Enhancement 5", "7", Type.ENHANCEMENT, "enhancement-7-url", contributor3));
+		issues.add(newPullRequest("Enhancement 6", "8", Type.ENHANCEMENT, "enhancement-8-url", contributor4));
+		given(this.service.getIssuesForMilestone(23, REPO)).willReturn(issues);
+		assertChangelog("23").hasContent(from("output-with-more-than-two-contributors"));
+	}
+
+	@Test
 	void generateWhenNoIgnoredLabels() throws Exception {
-		User contributor1 = createUser("contributor1", "contributor1-github-url");
+		User contributor1 = createUser("contributor1");
 		List<Issue> issues = new ArrayList<>();
 		issues.add(newIssue("Bug 1", "1", "bug-1-url", Type.BUG));
 		issues.add(newIssue("Ignored bug 2", "2", "bug-2-url", Type.BUG, "wontfix"));
@@ -253,7 +270,7 @@ class ChangelogGeneratorTests {
 
 	@Test
 	void generateWhenHasCustomContributorsTitle() throws Exception {
-		User contributor1 = createUser("contributor1", "contributor1-github-url");
+		User contributor1 = createUser("contributor1");
 		List<Issue> issues = new ArrayList<>();
 		issues.add(newPullRequest("Bug 1", "1", Type.BUG, "bug-1-url", contributor1));
 		given(this.service.getIssuesForMilestone(23, REPO)).willReturn(issues);
@@ -306,8 +323,8 @@ class ChangelogGeneratorTests {
 		return file;
 	}
 
-	private User createUser(String contributor12, String s) {
-		return new User(contributor12, s);
+	private User createUser(String id) {
+		return new User(id);
 	}
 
 	private String from(String path) throws IOException {

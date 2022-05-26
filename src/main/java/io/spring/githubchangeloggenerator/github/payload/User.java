@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2020 the original author or authors.
+ * Copyright 2018-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,19 +29,12 @@ public class User {
 
 	private final String name;
 
-	private final String url;
-
-	public User(@JsonProperty("login") String name, @JsonProperty("html_url") String url) {
+	public User(@JsonProperty("login") String name) {
 		this.name = name;
-		this.url = url;
 	}
 
 	public String getName() {
 		return this.name;
-	}
-
-	public String getUrl() {
-		return this.url;
 	}
 
 	@Override
@@ -53,12 +46,12 @@ public class User {
 			return false;
 		}
 		User other = (User) o;
-		return Objects.equals(this.name, other.name) && Objects.equals(this.url, other.url);
+		return Objects.equals(this.name, other.name);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(this.name, this.url);
+		return Objects.hash(this.name);
 	}
 
 }

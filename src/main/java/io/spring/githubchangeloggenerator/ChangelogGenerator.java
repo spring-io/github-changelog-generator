@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2021 the original author or authors.
+ * Copyright 2018-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -201,12 +201,25 @@ public class ChangelogGenerator {
 	private void addContributorsContent(StringBuilder content, Set<User> contributors) {
 		content.append(String.format("%n## "));
 		content.append((this.contributorsTitle != null) ? this.contributorsTitle : ":heart: Contributors");
-		content.append(String.format("%n%nWe'd like to thank all the contributors who worked on this release!%n%n"));
-		contributors.stream().map(this::formatContributors).forEach(content::append);
+		content.append(String.format("%n%nThank you to all the contributors who worked on this release:%n%n"));
+		content.append(formatContributors(contributors));
 	}
 
-	private String formatContributors(User c) {
-		return String.format("- [@%s](%s)%n", c.getName(), c.getUrl());
+	private String formatContributors(Set<User> contributors) {
+		List<String> names = contributors.stream().map(User::getName).map((name) -> "@" + name).sorted()
+				.collect(Collectors.toList());
+		StringBuilder formatted = new StringBuilder();
+		String separator = (names.size() > 2) ? ", " : " ";
+		for (int i = 0; i < names.size(); i++) {
+			if (i > 0) {
+				formatted.append(separator);
+				if (i == names.size() - 1) {
+					formatted.append("and ");
+				}
+			}
+			formatted.append(names.get(i));
+		}
+		return formatted.toString();
 	}
 
 	private void addExternalLinksContent(StringBuilder content, List<ExternalLink> externalLinks) {
