@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2020 the original author or authors.
+ * Copyright 2018-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,12 +21,12 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import io.spring.githubchangeloggenerator.github.service.Repository;
-
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.ConstructorBinding;
 import org.springframework.boot.context.properties.bind.DefaultValue;
 import org.springframework.util.Assert;
+
+import io.spring.githubchangeloggenerator.github.service.Repository;
 
 /**
  * Configuration properties for the Github repo.

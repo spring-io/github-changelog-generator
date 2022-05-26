@@ -29,6 +29,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import org.springframework.stereotype.Component;
+import org.springframework.util.FileCopyUtils;
+
 import io.spring.githubchangeloggenerator.ApplicationProperties.ExternalLink;
 import io.spring.githubchangeloggenerator.ApplicationProperties.IssueSort;
 import io.spring.githubchangeloggenerator.ApplicationProperties.PortedIssue;
@@ -37,9 +40,6 @@ import io.spring.githubchangeloggenerator.github.payload.Label;
 import io.spring.githubchangeloggenerator.github.payload.User;
 import io.spring.githubchangeloggenerator.github.service.GitHubService;
 import io.spring.githubchangeloggenerator.github.service.Repository;
-
-import org.springframework.stereotype.Component;
-import org.springframework.util.FileCopyUtils;
 
 /**
  * Generates a changelog markdown file which includes bug fixes, enhancements and

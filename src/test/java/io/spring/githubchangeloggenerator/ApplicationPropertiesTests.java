@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2020 the original author or authors.
+ * Copyright 2018-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,16 +18,16 @@ package io.spring.githubchangeloggenerator;
 
 import java.util.List;
 
-import io.spring.githubchangeloggenerator.ApplicationProperties.IssueSort;
-import io.spring.githubchangeloggenerator.ApplicationProperties.Section;
-import io.spring.githubchangeloggenerator.github.service.Repository;
 import org.junit.jupiter.api.Test;
-
 import org.springframework.boot.context.properties.bind.Binder;
 import org.springframework.boot.context.properties.source.ConfigurationPropertySources;
 import org.springframework.boot.env.YamlPropertySourceLoader;
 import org.springframework.core.env.PropertySource;
 import org.springframework.core.io.ClassPathResource;
+
+import io.spring.githubchangeloggenerator.ApplicationProperties.IssueSort;
+import io.spring.githubchangeloggenerator.ApplicationProperties.Section;
+import io.spring.githubchangeloggenerator.github.service.Repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

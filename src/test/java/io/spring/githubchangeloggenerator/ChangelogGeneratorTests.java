@@ -29,6 +29,12 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.assertj.core.api.PathAssert;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+import org.springframework.util.FileCopyUtils;
+
 import io.spring.githubchangeloggenerator.ApplicationProperties.Contributors;
 import io.spring.githubchangeloggenerator.ApplicationProperties.ContributorsExclude;
 import io.spring.githubchangeloggenerator.ApplicationProperties.ExternalLink;
@@ -43,12 +49,6 @@ import io.spring.githubchangeloggenerator.github.payload.PullRequest;
 import io.spring.githubchangeloggenerator.github.payload.User;
 import io.spring.githubchangeloggenerator.github.service.GitHubService;
 import io.spring.githubchangeloggenerator.github.service.Repository;
-import org.assertj.core.api.PathAssert;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
-
-import org.springframework.util.FileCopyUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
