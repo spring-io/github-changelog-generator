@@ -120,12 +120,12 @@ public class ChangelogGenerator {
 
 	private int resolveMilestoneReference(String milestone) {
 		switch (this.milestoneReference) {
-		case TITLE:
-			return this.service.getMilestoneNumber(milestone, this.repository);
-		case ID:
-			return Integer.parseInt(milestone);
-		default:
-			throw new IllegalStateException("Unsupported milestone reference value " + this.milestoneReference);
+			case TITLE:
+				return this.service.getMilestoneNumber(milestone, this.repository);
+			case ID:
+				return Integer.parseInt(milestone);
+			default:
+				throw new IllegalStateException("Unsupported milestone reference value " + this.milestoneReference);
 		}
 	}
 
