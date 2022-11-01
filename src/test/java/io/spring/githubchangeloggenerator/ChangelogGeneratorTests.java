@@ -237,6 +237,32 @@ class ChangelogGeneratorTests {
 	}
 
 	@Test
+	void generateWhenHtmlTagIsInIssueTitleItIsEscaped() throws IOException {
+		setupGenerator(MilestoneReference.TITLE);
+		List<Issue> issues = new ArrayList<>();
+		issues.add(newIssue("Bug 1 for <td>", "1", "bug-1-url", Type.BUG));
+		issues.add(newIssue("Bug 2 for <td/>", "2", "bug-2-url", Type.BUG));
+		issues.add(newIssue("Bug 3 for <td></td>", "3", "bug-3-url", Type.BUG));
+		given(this.service.getMilestoneNumber("v2.3", REPO)).willReturn(23);
+		given(this.service.getIssuesForMilestone(23, REPO)).willReturn(issues);
+		Path file = generateChangelog("v2.3");
+		assertThat(new String(Files.readAllBytes(file))).contains("Bug 1 for `<td>`");
+		assertThat(new String(Files.readAllBytes(file))).contains("Bug 2 for `<td/>`");
+		assertThat(new String(Files.readAllBytes(file))).contains("Bug 3 for `<td></td>`");
+	}
+
+	@Test
+	void generateWhenEscapedHtmlTagIsInIssueTitleItIsNotEscapedAgain() throws IOException {
+		setupGenerator(MilestoneReference.TITLE);
+		List<Issue> issues = new ArrayList<>();
+		issues.add(newIssue("Bug 1 for `<td>`", "1", "bug-1-url", Type.BUG));
+		given(this.service.getMilestoneNumber("v2.3", REPO)).willReturn(23);
+		given(this.service.getIssuesForMilestone(23, REPO)).willReturn(issues);
+		Path file = generateChangelog("v2.3");
+		assertThat(new String(Files.readAllBytes(file))).contains("Bug 1 for `<td>`");
+	}
+
+	@Test
 	void generateWhenSectionSortedByTitle() throws Exception {
 		List<Section> sections = new ArrayList<>();
 		Set<String> labels = Collections.singleton("type: enhancement");

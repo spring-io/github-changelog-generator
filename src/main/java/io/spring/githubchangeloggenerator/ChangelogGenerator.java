@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -55,7 +56,7 @@ public class ChangelogGenerator {
 	private static final Comparator<Issue> TITLE_COMPARATOR = Comparator.comparing(Issue::getTitle,
 			String.CASE_INSENSITIVE_ORDER);
 
-	private static final Pattern ghUserMentionPattern = Pattern.compile("(^|[^\\w`])(@[\\w-]+)");
+	private static final List<Escape> escapes = Arrays.asList(gitHubUserMentions(), htmlTags());
 
 	private final GitHubService service;
 
@@ -160,7 +161,9 @@ public class ChangelogGenerator {
 
 	private String getFormattedIssue(Issue issue) {
 		String title = issue.getTitle();
-		title = ghUserMentionPattern.matcher(title).replaceAll("$1`$2`");
+		for (Escape escape : escapes) {
+			title = escape.apply(title);
+		}
 		return String.format("- %s %s%n", title, getLinkToIssue(issue));
 	}
 
@@ -234,6 +237,38 @@ public class ChangelogGenerator {
 
 	private void writeContentToFile(String content, String path) throws IOException {
 		FileCopyUtils.copy(content, new FileWriter(new File(path)));
+	}
+
+	private static Escape gitHubUserMentions() {
+		return new PatternEscape(Pattern.compile("(^|[^\\w`])(@[\\w-]+)"), "$1`$2`");
+	}
+
+	private static Escape htmlTags() {
+		return new PatternEscape(Pattern.compile("(^|[^\\w`])(<[\\w\\-/<>]+>)"), "$1`$2`");
+	}
+
+	private interface Escape {
+
+		String apply(String input);
+
+	}
+
+	private static final class PatternEscape implements Escape {
+
+		private final Pattern pattern;
+
+		private final String replacement;
+
+		private PatternEscape(Pattern pattern, String replacement) {
+			this.pattern = pattern;
+			this.replacement = replacement;
+		}
+
+		@Override
+		public String apply(String input) {
+			return this.pattern.matcher(input).replaceAll(this.replacement);
+		}
+
 	}
 
 }
