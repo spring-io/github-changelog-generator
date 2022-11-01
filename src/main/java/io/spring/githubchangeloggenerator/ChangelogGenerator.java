@@ -56,7 +56,7 @@ public class ChangelogGenerator {
 	private static final Comparator<Issue> TITLE_COMPARATOR = Comparator.comparing(Issue::getTitle,
 			String.CASE_INSENSITIVE_ORDER);
 
-	private static final List<Escape> escapes = Arrays.asList(gitHubUserMentions(), htmlTags());
+	private static final List<Escape> escapes = Arrays.asList(gitHubUserMentions(), htmlTags(), markdownStyling());
 
 	private final GitHubService service;
 
@@ -245,6 +245,21 @@ public class ChangelogGenerator {
 
 	private static Escape htmlTags() {
 		return new PatternEscape(Pattern.compile("(^|[^\\w`])(<[\\w\\-/<>]+>)"), "$1`$2`");
+	}
+
+	private static Escape markdownStyling() {
+		return (input) -> {
+			char previous = ' ';
+			StringBuilder result = new StringBuilder(input.length());
+			for (char c : input.toCharArray()) {
+				if (previous != '\\' && c == '*' || c == '_' || c == '~') {
+					result.append('\\');
+				}
+				result.append(c);
+				previous = c;
+			}
+			return result.toString();
+		};
 	}
 
 	private interface Escape {

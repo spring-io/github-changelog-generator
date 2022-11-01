@@ -263,6 +263,36 @@ class ChangelogGeneratorTests {
 	}
 
 	@Test
+	void generateWhenMarkdownStylingIsInIssueTitleItIsEscaped() throws IOException {
+		setupGenerator(MilestoneReference.TITLE);
+		List<Issue> issues = new ArrayList<>();
+		issues.add(newIssue("Bug 1 for *italic*", "1", "bug-1-url", Type.BUG));
+		issues.add(newIssue("Bug 2 for _italic_", "2", "bug-2-url", Type.BUG));
+		issues.add(newIssue("Bug 3 for **bold**", "3", "bug-3-url", Type.BUG));
+		issues.add(newIssue("Bug 4 for __bold__", "4", "bug-4-url", Type.BUG));
+		issues.add(newIssue("Bug 5 for ~strikethrough~", "4", "bug-4-url", Type.BUG));
+		given(this.service.getMilestoneNumber("v2.3", REPO)).willReturn(23);
+		given(this.service.getIssuesForMilestone(23, REPO)).willReturn(issues);
+		Path file = generateChangelog("v2.3");
+		assertThat(new String(Files.readAllBytes(file))).contains("Bug 1 for \\*italic\\*");
+		assertThat(new String(Files.readAllBytes(file))).contains("Bug 2 for \\_italic\\_");
+		assertThat(new String(Files.readAllBytes(file))).contains("Bug 3 for \\*\\*bold\\*\\*");
+		assertThat(new String(Files.readAllBytes(file))).contains("Bug 4 for \\_\\_bold\\_\\_");
+		assertThat(new String(Files.readAllBytes(file))).contains("Bug 5 for \\~strikethrough\\~");
+	}
+
+	@Test
+	void generateWhenEscapedMarkdownStylingIsInIssueTitleItIsNotEscapedAgain() throws IOException {
+		setupGenerator(MilestoneReference.TITLE);
+		List<Issue> issues = new ArrayList<>();
+		issues.add(newIssue("Bug 1 for `<td>`", "1", "bug-1-url", Type.BUG));
+		given(this.service.getMilestoneNumber("v2.3", REPO)).willReturn(23);
+		given(this.service.getIssuesForMilestone(23, REPO)).willReturn(issues);
+		Path file = generateChangelog("v2.3");
+		assertThat(new String(Files.readAllBytes(file))).contains("Bug 1 for `<td>`");
+	}
+
+	@Test
 	void generateWhenSectionSortedByTitle() throws Exception {
 		List<Section> sections = new ArrayList<>();
 		Set<String> labels = Collections.singleton("type: enhancement");
