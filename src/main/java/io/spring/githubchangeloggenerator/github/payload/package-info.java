@@ -17,4 +17,4 @@
 /**
  * Classes created from JSON payloads received from GitHub.
  */
-package io.spring.githubchangeloggenerator;
+package io.spring.githubchangeloggenerator.github.payload;

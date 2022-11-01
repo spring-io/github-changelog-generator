@@ -17,4 +17,4 @@
 /**
  * Classes for interacting with GitHub.
  */
-package io.spring.githubchangeloggenerator;
+package io.spring.githubchangeloggenerator.github.service;
