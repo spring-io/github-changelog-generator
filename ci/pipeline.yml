@@ -1,3 +1,9 @@
+resource_types:
+- name: github-release
+  type: registry-image
+  source:
+    repository: concourse/github-release-resource
+    tag: 1.7.2
 resources:
 - name: git-repo
   type: git
