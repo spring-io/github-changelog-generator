@@ -36,6 +36,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Eleftheria Stein
  * @author Phillip Webb
+ * @author Gary Russell
  */
 class ChangelogSectionsTests {
 
@@ -48,7 +49,7 @@ class ChangelogSectionsTests {
 		Issue documentation = createIssue("3", "documentation");
 		Issue dependencyUpgrade = createIssue("4", "dependency-upgrade");
 		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.TITLE, null, null, null,
-				null);
+				null, false);
 		ChangelogSections sections = new ChangelogSections(properties);
 		Map<ChangelogSection, List<Issue>> collated = sections
 				.collate(Arrays.asList(enhancement, bug, documentation, dependencyUpgrade));
@@ -69,7 +70,22 @@ class ChangelogSectionsTests {
 				null, Collections.singleton("bug"));
 		List<ApplicationProperties.Section> customSections = Arrays.asList(breaksPassivitySection, bugsSection);
 		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.TITLE, customSections,
-				null, null, null);
+				null, null, null, false);
+		ChangelogSections sections = new ChangelogSections(properties);
+		Issue bug = createIssue("1", "bug");
+		Issue nonPassive = createIssue("1", "breaks-passivity");
+		Map<ChangelogSection, List<Issue>> collated = sections.collate(Arrays.asList(bug, nonPassive));
+		Map<String, List<Issue>> bySection = getBySection(collated);
+		assertThat(bySection).containsOnlyKeys(":lady_beetle: Bug Fixes", ":rewind: Non-passive");
+	}
+
+	@Test
+	void collateWhenHasCustomSectionsUsesDefinedSectionsAndDefault() {
+		ApplicationProperties.Section breaksPassivitySection = new ApplicationProperties.Section(":rewind: Non-passive",
+				null, null, Collections.singleton("breaks-passivity"));
+		List<ApplicationProperties.Section> customSections = Arrays.asList(breaksPassivitySection);
+		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.TITLE, customSections,
+				null, null, null, true);
 		ChangelogSections sections = new ChangelogSections(properties);
 		Issue bug = createIssue("1", "bug");
 		Issue nonPassive = createIssue("1", "breaks-passivity");
@@ -82,7 +98,7 @@ class ChangelogSectionsTests {
 	void collateWhenNoIssuesInSectionExcludesSection() {
 		Issue bug = createIssue("1", "bug");
 		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.TITLE, null, null, null,
-				null);
+				null, false);
 		ChangelogSections sections = new ChangelogSections(properties);
 		Map<ChangelogSection, List<Issue>> collated = sections.collate(Collections.singletonList(bug));
 		Map<String, List<Issue>> bySection = getBySection(collated);
@@ -94,7 +110,7 @@ class ChangelogSectionsTests {
 		Issue bug = createIssue("1", "bug");
 		Issue nonPassive = createIssue("2", "non-passive");
 		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.TITLE, null, null, null,
-				null);
+				null, false);
 		ChangelogSections sections = new ChangelogSections(properties);
 		Map<ChangelogSection, List<Issue>> collated = sections.collate(Arrays.asList(bug, nonPassive));
 		Map<String, List<Issue>> bySection = getBySection(collated);
@@ -113,7 +129,7 @@ class ChangelogSectionsTests {
 				Collections.singleton("highlight"));
 		List<ApplicationProperties.Section> customSections = Arrays.asList(bugs, highlights);
 		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.TITLE, customSections,
-				null, null, null);
+				null, null, null, false);
 		ChangelogSections sections = new ChangelogSections(properties);
 		Map<ChangelogSection, List<Issue>> collated = sections.collate(Arrays.asList(bug, highlight, bugAndHighlight));
 		Map<String, List<Issue>> bySection = getBySection(collated);
@@ -133,7 +149,7 @@ class ChangelogSectionsTests {
 				Collections.singleton("highlight"));
 		List<ApplicationProperties.Section> customSections = Arrays.asList(bugs, highlights);
 		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.TITLE, customSections,
-				null, null, null);
+				null, null, null, false);
 		ChangelogSections sections = new ChangelogSections(properties);
 		Map<ChangelogSection, List<Issue>> collated = sections.collate(Arrays.asList(bug, highlight, bugAndHighlight));
 		Map<String, List<Issue>> bySection = getBySection(collated);

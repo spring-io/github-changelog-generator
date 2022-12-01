@@ -64,6 +64,14 @@ changelog:
     labels: ["fix"]
 ----
 
+By default, adding sections will replace the default sections; to add sections after the defaults:
+
+[source, yaml]
+----
+changelog:
+  add-sections: true
+----
+
 You can also customize the contributors title using:
 
 [source,yaml]
@@ -183,4 +191,3 @@ changelog:
 === License
 This project is Open Source software released under the
 https://www.apache.org/licenses/LICENSE-2.0.html[Apache 2.0 license].
-
