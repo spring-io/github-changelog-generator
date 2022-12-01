@@ -34,6 +34,7 @@ import io.spring.githubchangeloggenerator.github.service.Repository;
  * @author Madhura Bhave
  * @author Phillip Webb
  * @author Mahendra Bishnoi
+ * @author Gary Russell
  */
 @ConfigurationProperties(prefix = "changelog")
 @ConstructorBinding
@@ -69,8 +70,14 @@ public class ApplicationProperties {
 	 */
 	private final List<ExternalLink> externalLinks;
 
+	/**
+	 * True to add sections to default instead of replacing.
+	 */
+	private final boolean addSections;
+
 	public ApplicationProperties(Repository repository, @DefaultValue("title") MilestoneReference milestoneReference,
-			List<Section> sections, Issues issues, Contributors contributors, List<ExternalLink> externalLinks) {
+			List<Section> sections, Issues issues, Contributors contributors, List<ExternalLink> externalLinks,
+			@DefaultValue("false") boolean addSections) {
 		Assert.notNull(repository, "Repository must not be null");
 		this.repository = repository;
 		this.milestoneReference = milestoneReference;
@@ -78,6 +85,7 @@ public class ApplicationProperties {
 		this.issues = (issues != null) ? issues : new Issues(null, null, null);
 		this.contributors = (contributors != null) ? contributors : new Contributors(null, null);
 		this.externalLinks = (externalLinks != null) ? externalLinks : Collections.emptyList();
+		this.addSections = addSections;
 	}
 
 	public Repository getRepository() {
@@ -102,6 +110,10 @@ public class ApplicationProperties {
 
 	public List<ExternalLink> getExternalLinks() {
 		return this.externalLinks;
+	}
+
+	public boolean isAddSections() {
+		return this.addSections;
 	}
 
 	/**
