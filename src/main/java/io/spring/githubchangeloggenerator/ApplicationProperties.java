@@ -77,7 +77,7 @@ public class ApplicationProperties {
 
 	public ApplicationProperties(Repository repository, @DefaultValue("title") MilestoneReference milestoneReference,
 			List<Section> sections, Issues issues, Contributors contributors, List<ExternalLink> externalLinks,
-			Boolean addSections) {
+			@DefaultValue("false") boolean addSections) {
 		Assert.notNull(repository, "Repository must not be null");
 		this.repository = repository;
 		this.milestoneReference = milestoneReference;
@@ -85,7 +85,7 @@ public class ApplicationProperties {
 		this.issues = (issues != null) ? issues : new Issues(null, null, null);
 		this.contributors = (contributors != null) ? contributors : new Contributors(null, null);
 		this.externalLinks = (externalLinks != null) ? externalLinks : Collections.emptyList();
-		this.addSections = Boolean.TRUE.equals(addSections);
+		this.addSections = addSections;
 	}
 
 	public Repository getRepository() {
