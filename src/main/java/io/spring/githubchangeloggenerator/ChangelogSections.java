@@ -35,6 +35,7 @@ import io.spring.githubchangeloggenerator.github.payload.Issue;
  * Manages sections of the changelog report.
  *
  * @author Phillip Webb
+ * @author Gary Russell
  */
 class ChangelogSections {
 
@@ -55,14 +56,21 @@ class ChangelogSections {
 	private final List<ChangelogSection> sections;
 
 	ChangelogSections(ApplicationProperties properties) {
-		this.sections = adapt(properties.getSections());
+		this.sections = adapt(properties);
 	}
 
-	private List<ChangelogSection> adapt(List<ApplicationProperties.Section> propertySections) {
+	private List<ChangelogSection> adapt(ApplicationProperties properties) {
+		List<ApplicationProperties.Section> propertySections = properties.getSections();
 		if (CollectionUtils.isEmpty(propertySections)) {
 			return DEFAULT_SECTIONS;
 		}
-		return propertySections.stream().map(this::adapt).collect(Collectors.toList());
+		List<ChangelogSection> customSections = propertySections.stream().map(this::adapt).collect(Collectors.toList());
+		if (properties.isAddSections()) {
+			List<ChangelogSection> merged = new ArrayList<>(DEFAULT_SECTIONS);
+			merged.addAll(customSections);
+			return merged;
+		}
+		return customSections;
 	}
 
 	private ChangelogSection adapt(ApplicationProperties.Section propertySection) {
