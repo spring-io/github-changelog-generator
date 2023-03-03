@@ -4,6 +4,7 @@ changelog:
   - title: ":star: New Features"
     labels: ["enhancement"]
     sort: "created"
+    type: ISSUE
   - title: "Bugs"
     labels: ["bug"]
     group: "test"
