@@ -16,7 +16,7 @@
 	<properties>
 		<revision>0.0.9-SNAPSHOT</revision>
 		<java.version>1.8</java.version>
-		<spring-javaformat.version>0.0.35</spring-javaformat.version>
+		<spring-javaformat.version>0.0.40</spring-javaformat.version>
 	</properties>
 	<dependencies>
 		<dependency>

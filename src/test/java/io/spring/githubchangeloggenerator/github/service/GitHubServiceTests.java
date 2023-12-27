@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2022 the original author or authors.
+ * Copyright 2018-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -72,7 +72,7 @@ class GitHubServiceTests {
 	void getMilestoneNumberWhenNotFoundThrowsException() {
 		expectGet(MILESTONES_URL).andRespond(withJsonFrom("milestones.json"));
 		assertThatExceptionOfType(IllegalStateException.class)
-				.isThrownBy(() -> this.service.getMilestoneNumber("0.0.0", Repository.of("org/repo")));
+			.isThrownBy(() -> this.service.getMilestoneNumber("0.0.0", Repository.of("org/repo")));
 	}
 
 	@Test
@@ -108,7 +108,7 @@ class GitHubServiceTests {
 		HttpHeaders headers = new HttpHeaders();
 		headers.set("Link", "<page-two>; rel=\"next\"");
 		expectGet(ISSUES_URL + "23&state=closed")
-				.andRespond(withJsonFrom("closed-issues-for-milestone-page-1.json").headers(headers));
+			.andRespond(withJsonFrom("closed-issues-for-milestone-page-1.json").headers(headers));
 		expectGet("/page-two").andRespond(withJsonFrom("closed-issues-for-milestone-page-2.json"));
 		List<Issue> issues = this.service.getIssuesForMilestone(23, Repository.of("org/repo"));
 		assertThat(issues.size()).isEqualTo(60);

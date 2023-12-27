@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2022 the original author or authors.
+ * Copyright 2018-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -175,8 +175,12 @@ public class ChangelogGenerator {
 		if (this.excludeContributors.contains("*")) {
 			return Collections.emptySet();
 		}
-		return issues.stream().map(this::getPortedReferenceIssue).filter((issue) -> issue.getPullRequest() != null)
-				.map(Issue::getUser).filter(this::isIncludedContributor).collect(Collectors.toSet());
+		return issues.stream()
+			.map(this::getPortedReferenceIssue)
+			.filter((issue) -> issue.getPullRequest() != null)
+			.map(Issue::getUser)
+			.filter(this::isIncludedContributor)
+			.collect(Collectors.toSet());
 	}
 
 	private Issue getPortedReferenceIssue(Issue issue) {
@@ -209,8 +213,11 @@ public class ChangelogGenerator {
 	}
 
 	private String formatContributors(Set<User> contributors) {
-		List<String> names = contributors.stream().map(User::getName).map((name) -> "@" + name).sorted()
-				.collect(Collectors.toList());
+		List<String> names = contributors.stream()
+			.map(User::getName)
+			.map((name) -> "@" + name)
+			.sorted()
+			.collect(Collectors.toList());
 		StringBuilder formatted = new StringBuilder();
 		String separator = (names.size() > 2) ? ", " : " ";
 		for (int i = 0; i < names.size(); i++) {

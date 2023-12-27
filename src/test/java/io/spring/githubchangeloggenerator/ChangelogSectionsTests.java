@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2022 the original author or authors.
+ * Copyright 2018-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,7 +52,7 @@ class ChangelogSectionsTests {
 				null, false);
 		ChangelogSections sections = new ChangelogSections(properties);
 		Map<ChangelogSection, List<Issue>> collated = sections
-				.collate(Arrays.asList(enhancement, bug, documentation, dependencyUpgrade));
+			.collate(Arrays.asList(enhancement, bug, documentation, dependencyUpgrade));
 		Map<String, List<Issue>> bySection = getBySection(collated);
 		assertThat(bySection).containsOnlyKeys(":star: New Features", ":lady_beetle: Bug Fixes",
 				":notebook_with_decorative_cover: Documentation", ":hammer: Dependency Upgrades");
@@ -165,8 +165,9 @@ class ChangelogSectionsTests {
 	}
 
 	private Map<String, List<Issue>> getBySection(Map<ChangelogSection, List<Issue>> collatedIssues) {
-		return collatedIssues.entrySet().stream()
-				.collect(Collectors.toMap((entry) -> entry.getKey().toString(), Entry::getValue));
+		return collatedIssues.entrySet()
+			.stream()
+			.collect(Collectors.toMap((entry) -> entry.getKey().toString(), Entry::getValue));
 	}
 
 }
