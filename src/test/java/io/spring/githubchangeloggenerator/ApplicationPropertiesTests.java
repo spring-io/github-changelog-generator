@@ -26,6 +26,7 @@ import org.springframework.core.env.PropertySource;
 import org.springframework.core.io.ClassPathResource;
 
 import io.spring.githubchangeloggenerator.ApplicationProperties.IssueSort;
+import io.spring.githubchangeloggenerator.ApplicationProperties.IssueType;
 import io.spring.githubchangeloggenerator.ApplicationProperties.Section;
 import io.spring.githubchangeloggenerator.github.service.Repository;
 
@@ -35,6 +36,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Tests for {@link ApplicationProperties}.
  *
  * @author Phillip Webb
+ * @author Steven Sheehy
  */
 class ApplicationPropertiesTests {
 
@@ -54,10 +56,12 @@ class ApplicationPropertiesTests {
 		assertThat(sections.get(0).getLabels()).containsExactly("enhancement");
 		assertThat(sections.get(0).getGroup()).isEqualTo("default");
 		assertThat(sections.get(0).getSort()).isEqualTo(IssueSort.CREATED);
+		assertThat(sections.get(0).getType()).isEqualTo(IssueType.ISSUE);
 		assertThat(sections.get(1).getTitle()).isEqualTo("Bugs");
 		assertThat(sections.get(1).getLabels()).containsExactly("bug");
 		assertThat(sections.get(1).getGroup()).isEqualTo("test");
 		assertThat(sections.get(1).getSort()).isNull();
+		assertThat(sections.get(1).getType()).isEqualTo(IssueType.ANY);
 		assertThat(properties.getIssues().getExcludes().getLabels()).containsExactly("hide");
 		assertThat(properties.getIssues().getSort()).isEqualTo(IssueSort.TITLE);
 		assertThat(properties.getContributors().getTitle()).isEqualTo("Nice one!");

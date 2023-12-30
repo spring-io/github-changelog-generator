@@ -39,6 +39,7 @@ import io.spring.githubchangeloggenerator.ApplicationProperties.Contributors;
 import io.spring.githubchangeloggenerator.ApplicationProperties.ContributorsExclude;
 import io.spring.githubchangeloggenerator.ApplicationProperties.ExternalLink;
 import io.spring.githubchangeloggenerator.ApplicationProperties.IssueSort;
+import io.spring.githubchangeloggenerator.ApplicationProperties.IssueType;
 import io.spring.githubchangeloggenerator.ApplicationProperties.Issues;
 import io.spring.githubchangeloggenerator.ApplicationProperties.IssuesExclude;
 import io.spring.githubchangeloggenerator.ApplicationProperties.PortedIssue;
@@ -61,6 +62,7 @@ import static org.mockito.Mockito.mock;
  * @author Phillip Webb
  * @author Mahendra Bishnoi
  * @author Gary Russell
+ * @author Steven Sheehy
  */
 class ChangelogGeneratorTests {
 
@@ -297,7 +299,7 @@ class ChangelogGeneratorTests {
 	void generateWhenSectionSortedByTitle() throws Exception {
 		List<Section> sections = new ArrayList<>();
 		Set<String> labels = Collections.singleton("type: enhancement");
-		sections.add(new Section("Enhancements", null, IssueSort.TITLE, labels));
+		sections.add(new Section("Enhancements", null, IssueSort.TITLE, labels, IssueType.ANY));
 		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.ID, sections,
 				new Issues(null, null, null), null, null, false);
 		this.generator = new ChangelogGenerator(this.service, properties);
@@ -313,7 +315,7 @@ class ChangelogGeneratorTests {
 	void generateWhenAllIssuesSortedByTitle() throws Exception {
 		List<Section> sections = new ArrayList<>();
 		Set<String> labels = Collections.singleton("type: enhancement");
-		sections.add(new Section("Enhancements", null, null, labels));
+		sections.add(new Section("Enhancements", null, null, labels, IssueType.ANY));
 		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.ID, sections,
 				new Issues(IssueSort.TITLE, null, null), null, null, false);
 		this.generator = new ChangelogGenerator(this.service, properties);
@@ -357,6 +359,42 @@ class ChangelogGeneratorTests {
 				externalLinks, false);
 		this.generator = new ChangelogGenerator(this.service, properties);
 		assertChangelog("23").hasContent(from("output-with-multiple-external-link"));
+	}
+
+	@Test
+	void generateWhenIssuesOnly() throws Exception {
+		List<Section> sections = new ArrayList<>();
+		Set<String> labels = Collections.singleton("type: enhancement");
+		sections.add(new Section("Enhancements", null, IssueSort.TITLE, labels, IssueType.ISSUE));
+		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.ID, sections,
+				new Issues(null, null, null), null, null, false);
+		this.generator = new ChangelogGenerator(this.service, properties);
+		User contributor1 = createUser("contributor1");
+		List<Issue> issues = new ArrayList<>();
+		issues.add(newIssue("Issue 1", "1", "issue-1-url", Type.ENHANCEMENT));
+		issues.add(newIssue("Issue 2", "2", "issue-2-url", Type.ENHANCEMENT));
+		issues.add(newPullRequest("PR 3", "3", Type.ENHANCEMENT, "pr-3-url", contributor1));
+		issues.add(newPullRequest("PR 4", "4", Type.ENHANCEMENT, "pr-4-url", contributor1));
+		given(this.service.getIssuesForMilestone(23, REPO)).willReturn(issues);
+		assertChangelog("23").hasContent(from("output-with-issues-only"));
+	}
+
+	@Test
+	void generateWhenPullRequestsOnly() throws Exception {
+		List<Section> sections = new ArrayList<>();
+		Set<String> labels = Collections.singleton("type: enhancement");
+		sections.add(new Section("Enhancements", null, IssueSort.TITLE, labels, IssueType.PULL_REQUEST));
+		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.ID, sections,
+				new Issues(null, null, null), null, null, false);
+		this.generator = new ChangelogGenerator(this.service, properties);
+		User contributor1 = createUser("contributor1");
+		List<Issue> issues = new ArrayList<>();
+		issues.add(newIssue("Issue 1", "1", "issue-1-url", Type.ENHANCEMENT));
+		issues.add(newIssue("Issue 2", "2", "issue-2-url", Type.ENHANCEMENT));
+		issues.add(newPullRequest("PR 3", "3", Type.ENHANCEMENT, "pr-3-url", contributor1));
+		issues.add(newPullRequest("PR 4", "4", Type.ENHANCEMENT, "pr-4-url", contributor1));
+		given(this.service.getIssuesForMilestone(23, REPO)).willReturn(issues);
+		assertChangelog("23").hasContent(from("output-with-pull-requests-only"));
 	}
 
 	private void setupGenerator(MilestoneReference id) {

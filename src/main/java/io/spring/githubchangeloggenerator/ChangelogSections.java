@@ -36,6 +36,7 @@ import io.spring.githubchangeloggenerator.github.payload.Issue;
  *
  * @author Phillip Webb
  * @author Gary Russell
+ * @author Steven Sheehy
  */
 class ChangelogSections {
 
@@ -75,7 +76,7 @@ class ChangelogSections {
 
 	private ChangelogSection adapt(ApplicationProperties.Section propertySection) {
 		return new ChangelogSection(propertySection.getTitle(), propertySection.getGroup(), propertySection.getSort(),
-				propertySection.getLabels());
+				propertySection.getLabels(), propertySection.getType());
 	}
 
 	Map<ChangelogSection, List<Issue>> collate(List<Issue> issues) {
@@ -92,9 +93,9 @@ class ChangelogSections {
 
 	private List<ChangelogSection> getSections(Issue issue) {
 		List<ChangelogSection> result = new ArrayList<>();
-		Set<String> groupClaimes = new HashSet<>();
+		Set<String> groupClaims = new HashSet<>();
 		for (ChangelogSection section : this.sections) {
-			if (section.isMatchFor(issue) && groupClaimes.add(section.getGroup())) {
+			if (section.isMatchFor(issue) && groupClaims.add(section.getGroup())) {
 				result.add(section);
 			}
 		}

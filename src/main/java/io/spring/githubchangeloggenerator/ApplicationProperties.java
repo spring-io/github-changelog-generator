@@ -35,6 +35,7 @@ import io.spring.githubchangeloggenerator.github.service.Repository;
  * @author Phillip Webb
  * @author Mahendra Bishnoi
  * @author Gary Russell
+ * @author Steven Sheehy
  */
 @ConfigurationProperties(prefix = "changelog")
 @ConstructorBinding
@@ -142,11 +143,18 @@ public class ApplicationProperties {
 		 */
 		private final Set<String> labels;
 
-		public Section(String title, @DefaultValue("default") String group, IssueSort sort, Set<String> labels) {
+		/**
+		 * Whether issues, pull requests or both should be included in this section.
+		 */
+		private final IssueType type;
+
+		public Section(String title, @DefaultValue("default") String group, IssueSort sort, Set<String> labels,
+				@DefaultValue("ANY") IssueType type) {
 			this.title = title;
 			this.group = (group != null) ? group : "default";
 			this.sort = sort;
 			this.labels = labels;
+			this.type = type;
 		}
 
 		public String getTitle() {
@@ -163,6 +171,10 @@ public class ApplicationProperties {
 
 		public Set<String> getLabels() {
 			return this.labels;
+		}
+
+		public IssueType getType() {
+			return this.type;
 		}
 
 	}
@@ -349,6 +361,28 @@ public class ApplicationProperties {
 		 * Sort by the title.
 		 */
 		TITLE
+
+	}
+
+	/**
+	 * The type of changelog entry.
+	 */
+	public enum IssueType {
+
+		/**
+		 * Either issue or pull requests.
+		 */
+		ANY,
+
+		/**
+		 * GitHub issue.
+		 */
+		ISSUE,
+
+		/**
+		 * GitHub pull request.
+		 */
+		PULL_REQUEST
 
 	}
 
