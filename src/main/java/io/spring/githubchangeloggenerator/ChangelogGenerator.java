@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2023 the original author or authors.
+ * Copyright 2018-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -78,6 +78,8 @@ public class ChangelogGenerator {
 
 	private final List<ExternalLink> externalLinks;
 
+	private final boolean generateLinks;
+
 	public ChangelogGenerator(GitHubService service, ApplicationProperties properties) {
 		this.service = service;
 		this.repository = properties.getRepository();
@@ -89,6 +91,7 @@ public class ChangelogGenerator {
 		this.sections = new ChangelogSections(properties);
 		this.portedIssues = properties.getIssues().getPorts();
 		this.externalLinks = properties.getExternalLinks();
+		this.generateLinks = properties.getIssues().isGenerateLinks();
 	}
 
 	/**
@@ -164,7 +167,8 @@ public class ChangelogGenerator {
 		for (Escape escape : escapes) {
 			title = escape.apply(title);
 		}
-		return String.format("- %s %s%n", title, getLinkToIssue(issue));
+		return (this.generateLinks) ? String.format("- %s %s%n", title, getLinkToIssue(issue))
+				: String.format("- %s%n", title);
 	}
 
 	private String getLinkToIssue(Issue issue) {

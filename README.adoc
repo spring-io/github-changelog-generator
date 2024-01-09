@@ -188,6 +188,19 @@ changelog:
 
 
 
+=== Disabling Generation of Links to Each Issue
+By default, each entry in the changelog will include a link back to the issue or PR on GitHub.
+The generation of these links can be disabled:
+
+[source,yaml]
+----
+changelog:
+  issues:
+    generate_links: false
+----
+
+
+
 === License
 This project is Open Source software released under the
 https://www.apache.org/licenses/LICENSE-2.0.html[Apache 2.0 license].

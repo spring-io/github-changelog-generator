@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2022 the original author or authors.
+ * Copyright 2018-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -299,7 +299,7 @@ class ChangelogGeneratorTests {
 		Set<String> labels = Collections.singleton("type: enhancement");
 		sections.add(new Section("Enhancements", null, IssueSort.TITLE, labels));
 		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.ID, sections,
-				new Issues(null, null, null), null, null, false);
+				new Issues(null, null, null, true), null, null, false);
 		this.generator = new ChangelogGenerator(this.service, properties);
 		List<Issue> issues = new ArrayList<>();
 		issues.add(newIssue("Enhancement c", "1", "enhancement-1-url", Type.ENHANCEMENT));
@@ -315,7 +315,7 @@ class ChangelogGeneratorTests {
 		Set<String> labels = Collections.singleton("type: enhancement");
 		sections.add(new Section("Enhancements", null, null, labels));
 		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.ID, sections,
-				new Issues(IssueSort.TITLE, null, null), null, null, false);
+				new Issues(IssueSort.TITLE, null, null, true), null, null, false);
 		this.generator = new ChangelogGenerator(this.service, properties);
 		List<Issue> issues = new ArrayList<>();
 		issues.add(newIssue("Enhancement c", "1", "enhancement-1-url", Type.ENHANCEMENT));
@@ -359,13 +359,28 @@ class ChangelogGeneratorTests {
 		assertChangelog("23").hasContent(from("output-with-multiple-external-link"));
 	}
 
+	@Test
+	void generateWhenIssueLinksDisabled() throws Exception {
+		User contributor1 = createUser("contributor1");
+		List<Issue> issues = new ArrayList<>();
+		issues.add(newIssue("Bug 1", "1", "bug-1-url", Type.BUG));
+		issues.add(newIssue("Bug 2", "2", "bug-2-url", Type.BUG, "wontfix"));
+		issues.add(newPullRequest("PR 3", "3", Type.ENHANCEMENT, "pr-3-url", contributor1));
+		issues.add(newPullRequest("PR 4", "4", Type.ENHANCEMENT, "pr-4-url", contributor1));
+		given(this.service.getIssuesForMilestone(23, REPO)).willReturn(issues);
+		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.ID, null,
+				new Issues(null, null, null, false), null, null, false);
+		this.generator = new ChangelogGenerator(this.service, properties);
+		assertChangelog("23").hasContent(from("output-without-issue-links"));
+	}
+
 	private void setupGenerator(MilestoneReference id) {
 		Set<String> labels = new HashSet<>(Arrays.asList("duplicate", "wontfix"));
 		PortedIssue forwardPort = new PortedIssue("status: forward-port", "Forward port of issue #(\\d+)");
 		PortedIssue cherryPick = new PortedIssue("status: back-port", "Back port of issue #(\\d+)");
 		Set<PortedIssue> portedIssues = new HashSet<>(Arrays.asList(forwardPort, cherryPick));
 		ApplicationProperties properties = new ApplicationProperties(REPO, id, null,
-				new Issues(null, new IssuesExclude(labels), portedIssues), null, null, false);
+				new Issues(null, new IssuesExclude(labels), portedIssues, true), null, null, false);
 		this.generator = new ChangelogGenerator(this.service, properties);
 	}
 
