@@ -22,7 +22,6 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.context.properties.ConstructorBinding;
 import org.springframework.boot.context.properties.bind.DefaultValue;
 import org.springframework.util.Assert;
 
@@ -37,7 +36,6 @@ import io.spring.githubchangeloggenerator.github.service.Repository;
  * @author Gary Russell
  */
 @ConfigurationProperties(prefix = "changelog")
-@ConstructorBinding
 public class ApplicationProperties {
 
 	/**
