@@ -18,7 +18,7 @@ curl https://raw.githubusercontent.com/spring-io/concourse-java-scripts/v0.0.4/c
 ###########################################################
 # JAVA
 ###########################################################
-JDK_URL="https://github.com/bell-sw/Liberica/releases/download/8u392+9/bellsoft-jdk8u392+9-linux-amd64.tar.gz"
+JDK_URL="https://download.bell-sw.com/java/17.0.9+11/bellsoft-jdk17.0.9+11-linux-amd64.tar.gz"
 
 mkdir -p /opt/openjdk
 cd /opt/openjdk

@@ -16,4 +16,4 @@ ENV JAVA_HOME /opt/openjdk
 ENV PATH $JAVA_HOME/bin:$PATH
 RUN mkdir -p /opt/openjdk && \
     cd /opt/openjdk && \
-    curl -L "https://github.com/bell-sw/Liberica/releases/download/8u392+9/bellsoft-jdk8u392+9-linux-amd64.tar.gz" | tar xz --strip-components=1
+    curl -L "https://download.bell-sw.com/java/17.0.9+11/bellsoft-jdk17.0.9+11-linux-amd64.tar.gz" | tar xz --strip-components=1
