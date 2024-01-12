@@ -16,7 +16,6 @@
 
 package io.spring.githubchangeloggenerator;
 
-import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -123,14 +122,10 @@ public class ChangelogGenerator {
 	}
 
 	private int resolveMilestoneReference(String milestone) {
-		switch (this.milestoneReference) {
-			case TITLE:
-				return this.service.getMilestoneNumber(milestone, this.repository);
-			case ID:
-				return Integer.parseInt(milestone);
-			default:
-				throw new IllegalStateException("Unsupported milestone reference value " + this.milestoneReference);
-		}
+		return switch (this.milestoneReference) {
+			case TITLE -> this.service.getMilestoneNumber(milestone, this.repository);
+			case ID -> Integer.parseInt(milestone);
+		};
 	}
 
 	private String generateContent(List<Issue> issues) {
@@ -189,7 +184,7 @@ public class ChangelogGenerator {
 
 	private Issue getPortedReferenceIssue(Issue issue) {
 		for (PortedIssue portedIssue : this.portedIssues) {
-			List<String> labelNames = issue.getLabels().stream().map(Label::getName).collect(Collectors.toList());
+			List<String> labelNames = issue.getLabels().stream().map(Label::getName).toList();
 			if (labelNames.contains(portedIssue.getLabel())) {
 				Pattern pattern = portedIssue.getBodyExpression();
 				Matcher matcher = pattern.matcher(issue.getBody());
@@ -217,11 +212,7 @@ public class ChangelogGenerator {
 	}
 
 	private String formatContributors(Set<User> contributors) {
-		List<String> names = contributors.stream()
-			.map(User::getName)
-			.map((name) -> "@" + name)
-			.sorted()
-			.collect(Collectors.toList());
+		List<String> names = contributors.stream().map(User::getName).map((name) -> "@" + name).sorted().toList();
 		StringBuilder formatted = new StringBuilder();
 		String separator = (names.size() > 2) ? ", " : " ";
 		for (int i = 0; i < names.size(); i++) {
@@ -247,7 +238,7 @@ public class ChangelogGenerator {
 	}
 
 	private void writeContentToFile(String content, String path) throws IOException {
-		FileCopyUtils.copy(content, new FileWriter(new File(path)));
+		FileCopyUtils.copy(content, new FileWriter(path));
 	}
 
 	private static Escape gitHubUserMentions() {
