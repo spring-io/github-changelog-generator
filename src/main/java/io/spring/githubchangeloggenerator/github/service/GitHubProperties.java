@@ -21,7 +21,7 @@ import org.springframework.boot.context.properties.bind.DefaultValue;
 import org.springframework.util.StringUtils;
 
 /**
- * Github related properties.
+ * GitHub related properties.
  *
  * @author Phillip Webb
  * @author Madhura Bhave
@@ -35,12 +35,12 @@ public class GitHubProperties {
 	private final String apiUrl;
 
 	/**
-	 * The username for the github user.
+	 * The username for the GitHub user.
 	 */
 	private final String username;
 
 	/**
-	 * The password for the github user.
+	 * The password for the GitHub user.
 	 */
 	private final String password;
 

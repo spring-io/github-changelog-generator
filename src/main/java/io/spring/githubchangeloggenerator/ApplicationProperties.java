@@ -28,7 +28,7 @@ import org.springframework.util.Assert;
 import io.spring.githubchangeloggenerator.github.service.Repository;
 
 /**
- * Configuration properties for the Github repo.
+ * Configuration properties for the GitHub repo.
  *
  * @author Madhura Bhave
  * @author Phillip Webb

@@ -33,7 +33,7 @@ If you want to use milestone ID, you should set the `changelog.milestone-referen
 
 
 === Customizing Sections
-By default the changelog will contain the following sections:
+By default, the changelog will contain the following sections:
 
 |===
 |Title |Label Text
@@ -123,7 +123,7 @@ An issue labeled with `new` and `noteworthy` will appear in both the "Highlights
 
 
 === Excluding Issues
-Issues and pull requests can be excluded from the changlog by configuring exclusions.
+Issues and pull requests can be excluded from the changelog by configuring exclusions.
 You can ignore all items that have certain labels using `changelog.issues.exclude.labels`.
 For example:
 
@@ -153,7 +153,7 @@ You can also use `*` if you want to drop the contributors section entirely.
 
 
 === Sorting Issues
-By default issues are sorted by their "created" date.
+By default, issues are sorted by their "created" date.
 If you want to order them by title instead you can set `changelog.issues.sort` to `title`.
 It's also set the property on section configuration if you want ordering per section:
 
