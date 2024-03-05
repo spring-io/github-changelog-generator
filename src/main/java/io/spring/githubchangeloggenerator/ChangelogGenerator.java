@@ -16,7 +16,11 @@
 
 package io.spring.githubchangeloggenerator;
 
+import static io.spring.githubchangeloggenerator.ApplicationProperties.FormatPlaceholder.NUMBER;
+import static io.spring.githubchangeloggenerator.ApplicationProperties.FormatPlaceholder.TITLE;
+
 import io.spring.githubchangeloggenerator.ApplicationProperties.ExternalLink;
+import io.spring.githubchangeloggenerator.ApplicationProperties.FormatPlaceholder;
 import io.spring.githubchangeloggenerator.ApplicationProperties.IssueSort;
 import io.spring.githubchangeloggenerator.ApplicationProperties.PortedIssue;
 import io.spring.githubchangeloggenerator.github.payload.Issue;
@@ -165,12 +169,12 @@ public class ChangelogGenerator {
         String formattedIssueStr = "- " + format + "\n";
         String title = escape(issue.getTitle());
 
-        if (format.contains("${title}")) {
-            formattedIssueStr = formattedIssueStr.replace("${title}", title);
+        if (format.contains(TITLE.placeholder)) {
+            formattedIssueStr = formattedIssueStr.replace(TITLE.placeholder, title);
         }
 
-        if (format.contains("${number}")) {
-            formattedIssueStr = formattedIssueStr.replace("${number}", getLinkToIssue(issue));
+        if (format.contains(NUMBER.placeholder)) {
+            formattedIssueStr = formattedIssueStr.replace(NUMBER.placeholder, getLinkToIssue(issue));
         }
 
         return formattedIssueStr;
