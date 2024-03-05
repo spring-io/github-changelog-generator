@@ -16,16 +16,17 @@
 
 package io.spring.githubchangeloggenerator;
 
+import static io.spring.githubchangeloggenerator.ApplicationProperties.FormatPlaceholder.*;
+import static io.spring.githubchangeloggenerator.ApplicationProperties.FormatPlaceholder.TITLE;
+
+import io.spring.githubchangeloggenerator.github.service.Repository;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
-
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.bind.DefaultValue;
 import org.springframework.util.Assert;
-
-import io.spring.githubchangeloggenerator.github.service.Repository;
 
 /**
  * Configuration properties for the GitHub repo.
@@ -34,6 +35,7 @@ import io.spring.githubchangeloggenerator.github.service.Repository;
  * @author Phillip Webb
  * @author Mahendra Bishnoi
  * @author Gary Russell
+ * @author Dinar Shagaliev
  */
 @ConfigurationProperties(prefix = "changelog")
 public class ApplicationProperties {
@@ -75,12 +77,13 @@ public class ApplicationProperties {
 
 	public ApplicationProperties(Repository repository, @DefaultValue("title") MilestoneReference milestoneReference,
 			List<Section> sections, Issues issues, Contributors contributors, List<ExternalLink> externalLinks,
-			@DefaultValue("false") boolean addSections) {
+            @DefaultValue("false") boolean addSections) {
+
 		Assert.notNull(repository, "Repository must not be null");
 		this.repository = repository;
 		this.milestoneReference = milestoneReference;
 		this.sections = (sections != null) ? sections : Collections.emptyList();
-		this.issues = (issues != null) ? issues : new Issues(null, null, null, true);
+		this.issues = (issues != null) ? issues : new Issues(null, null, null, null);
 		this.contributors = (contributors != null) ? contributors : new Contributors(null, null);
 		this.externalLinks = (externalLinks != null) ? externalLinks : Collections.emptyList();
 		this.addSections = addSections;
@@ -140,11 +143,18 @@ public class ApplicationProperties {
 		 */
 		private final Set<String> labels;
 
-		public Section(String title, @DefaultValue("default") String group, IssueSort sort, Set<String> labels) {
+		/**
+		 * Format used to customize an output of issues in the section.
+		 */
+		private final String format;
+
+		public Section(String title, @DefaultValue("default") String group, IssueSort sort,
+                String format, Set<String> labels) {
 			this.title = title;
-			this.group = (group != null) ? group : "default";
+			this.group = group;
 			this.sort = sort;
-			this.labels = labels;
+            this.format = format;
+            this.labels = labels;
 		}
 
 		public String getTitle() {
@@ -158,6 +168,10 @@ public class ApplicationProperties {
 		public IssueSort getSort() {
 			return this.sort;
 		}
+
+        public String getFormat() {
+            return format;
+        }
 
 		public Set<String> getLabels() {
 			return this.labels;
@@ -185,17 +199,18 @@ public class ApplicationProperties {
 		 */
 		private final Set<PortedIssue> ports;
 
-		/**
-		 * Whether to generate a link to each issue in the changelog.
-		 */
-		private final boolean generateLinks;
+        /**
+         * Default format used to customize an output of issues in the section.
+         */
+		private final String defaultFormat;
 
-		public Issues(IssueSort sort, IssuesExclude exclude, Set<PortedIssue> ports,
-				@DefaultValue("true") boolean generateLinks) {
+		public Issues(IssueSort sort, IssuesExclude exclude, Set<PortedIssue> ports, String defaultFormat) {
 			this.sort = sort;
 			this.exclude = (exclude != null) ? exclude : new IssuesExclude(null);
 			this.ports = (ports != null) ? ports : Collections.emptySet();
-			this.generateLinks = generateLinks;
+			this.defaultFormat = (defaultFormat != null)
+                    ? defaultFormat
+                    : String.format("%s %s", TITLE.placeholder, NUMBER.placeholder);
 		}
 
 		public IssueSort getSort() {
@@ -210,11 +225,11 @@ public class ApplicationProperties {
 			return this.ports;
 		}
 
-		public boolean isGenerateLinks() {
-			return this.generateLinks;
-		}
+        public String getDefaultFormat() {
+            return defaultFormat;
+        }
 
-	}
+    }
 
 	/**
 	 * Issues exclude.
@@ -360,5 +375,18 @@ public class ApplicationProperties {
 		TITLE
 
 	}
+
+    public enum FormatPlaceholder {
+
+        TITLE("${title}"),
+        NUMBER("${number}");
+
+        public final String placeholder;
+
+        FormatPlaceholder(String placeholder) {
+            this.placeholder = placeholder;
+        }
+
+    }
 
 }

@@ -31,6 +31,7 @@ import io.spring.githubchangeloggenerator.github.payload.Label;
  * A single section of a changelog report.
  *
  * @author Phillip Webb
+ * @author Dinar Shagaliev
  */
 class ChangelogSection {
 
@@ -42,17 +43,20 @@ class ChangelogSection {
 
 	private final Set<String> labels;
 
-	ChangelogSection(String title, String group, IssueSort sort, String... labels) {
-		this(title, group, sort, new LinkedHashSet<>(Arrays.asList(labels)));
+	private final String format;
+
+	ChangelogSection(String title, String group, IssueSort sort, String format, String... labels) {
+		this(title, group, sort, format, new LinkedHashSet<>(Arrays.asList(labels)));
 	}
 
-	ChangelogSection(String title, String group, IssueSort sort, Set<String> labels) {
+	ChangelogSection(String title, String group, IssueSort sort, String format, Set<String> labels) {
 		Assert.hasText(title, "Title must not be empty");
 		Assert.isTrue(!CollectionUtils.isEmpty(labels), "Labels must not be empty");
 		this.title = title;
 		this.group = group;
 		this.sort = sort;
 		this.labels = labels;
+		this.format = format;
 	}
 
 	String getGroup() {
@@ -77,6 +81,10 @@ class ChangelogSection {
 	@Override
 	public String toString() {
 		return this.title;
+	}
+
+	public String getFormat() {
+		return format;
 	}
 
 }

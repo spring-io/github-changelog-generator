@@ -37,6 +37,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Eleftheria Stein
  * @author Phillip Webb
  * @author Gary Russell
+ * @author Dinar Shagaliev
  */
 class ChangelogSectionsTests {
 
@@ -65,9 +66,9 @@ class ChangelogSectionsTests {
 	@Test
 	void collateWhenHasCustomSectionsUsesDefinedSections() {
 		ApplicationProperties.Section breaksPassivitySection = new ApplicationProperties.Section(":rewind: Non-passive",
-				null, null, Collections.singleton("breaks-passivity"));
+				null, null, null, Collections.singleton("breaks-passivity"));
 		ApplicationProperties.Section bugsSection = new ApplicationProperties.Section(":lady_beetle: Bug Fixes", null,
-				null, Collections.singleton("bug"));
+				null, null, Collections.singleton("bug"));
 		List<ApplicationProperties.Section> customSections = Arrays.asList(breaksPassivitySection, bugsSection);
 		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.TITLE, customSections,
 				null, null, null, false);
@@ -82,7 +83,7 @@ class ChangelogSectionsTests {
 	@Test
 	void collateWhenHasCustomSectionsUsesDefinedSectionsAndDefault() {
 		ApplicationProperties.Section breaksPassivitySection = new ApplicationProperties.Section(":rewind: Non-passive",
-				null, null, Collections.singleton("breaks-passivity"));
+				null, null, null, Collections.singleton("breaks-passivity"));
 		List<ApplicationProperties.Section> customSections = List.of(breaksPassivitySection);
 		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.TITLE, customSections,
 				null, null, null, true);
@@ -124,9 +125,9 @@ class ChangelogSectionsTests {
 		Issue highlight = createIssue("2", "highlight");
 		Issue bugAndHighlight = createIssue("3", "bug", "highlight");
 		ApplicationProperties.Section bugs = new ApplicationProperties.Section("Bugs", null, null,
-				Collections.singleton("bug"));
+                null, Collections.singleton("bug"));
 		ApplicationProperties.Section highlights = new ApplicationProperties.Section("Highlights", null, null,
-				Collections.singleton("highlight"));
+                null, Collections.singleton("highlight"));
 		List<ApplicationProperties.Section> customSections = Arrays.asList(bugs, highlights);
 		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.TITLE, customSections,
 				null, null, null, false);
@@ -144,9 +145,9 @@ class ChangelogSectionsTests {
 		Issue highlight = createIssue("2", "highlight");
 		Issue bugAndHighlight = createIssue("3", "bug", "highlight");
 		ApplicationProperties.Section bugs = new ApplicationProperties.Section("Bugs", null, null,
-				Collections.singleton("bug"));
+                null, Collections.singleton("bug"));
 		ApplicationProperties.Section highlights = new ApplicationProperties.Section("Highlights", "highlights", null,
-				Collections.singleton("highlight"));
+                null, Collections.singleton("highlight"));
 		List<ApplicationProperties.Section> customSections = Arrays.asList(bugs, highlights);
 		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.TITLE, customSections,
 				null, null, null, false);

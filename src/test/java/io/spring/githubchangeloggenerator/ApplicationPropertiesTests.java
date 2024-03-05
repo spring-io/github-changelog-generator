@@ -35,6 +35,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Tests for {@link ApplicationProperties}.
  *
  * @author Phillip Webb
+ * @author Dinar Shagaliev
  */
 class ApplicationPropertiesTests {
 
@@ -49,7 +50,7 @@ class ApplicationPropertiesTests {
 		assertThat(repository.getOwner()).isEqualTo("testorg");
 		assertThat(repository.getName()).isEqualTo("testrepo");
 		List<Section> sections = properties.getSections();
-		assertThat(sections).hasSize(2);
+		assertThat(sections).hasSize(3);
 		assertThat(sections.get(0).getTitle()).isEqualTo(":star: New Features");
 		assertThat(sections.get(0).getLabels()).containsExactly("enhancement");
 		assertThat(sections.get(0).getGroup()).isEqualTo("default");
@@ -58,8 +59,12 @@ class ApplicationPropertiesTests {
 		assertThat(sections.get(1).getLabels()).containsExactly("bug");
 		assertThat(sections.get(1).getGroup()).isEqualTo("test");
 		assertThat(sections.get(1).getSort()).isNull();
+        assertThat(sections.get(2).getTitle()).isEqualTo("Experimental");
+        assertThat(sections.get(2).getLabels()).containsExactly("experimental");
+        assertThat(sections.get(2).getFormat()).isEqualTo("Experimental feature: ${number}: ${title}");
 		assertThat(properties.getIssues().getExcludes().getLabels()).containsExactly("hide");
 		assertThat(properties.getIssues().getSort()).isEqualTo(IssueSort.TITLE);
+		assertThat(properties.getIssues().getDefaultFormat()).isEqualTo("${number}: ${title}");
 		assertThat(properties.getContributors().getTitle()).isEqualTo("Nice one!");
 		assertThat(properties.getContributors().getExclude().getNames()).containsExactly("philwebb");
 		assertThat(properties.getExternalLinks().get(0).getName()).isEqualTo("Release Notes 1");

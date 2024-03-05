@@ -16,6 +16,14 @@
 
 package io.spring.githubchangeloggenerator;
 
+import io.spring.githubchangeloggenerator.ApplicationProperties.ExternalLink;
+import io.spring.githubchangeloggenerator.ApplicationProperties.IssueSort;
+import io.spring.githubchangeloggenerator.ApplicationProperties.PortedIssue;
+import io.spring.githubchangeloggenerator.github.payload.Issue;
+import io.spring.githubchangeloggenerator.github.payload.Label;
+import io.spring.githubchangeloggenerator.github.payload.User;
+import io.spring.githubchangeloggenerator.github.service.GitHubService;
+import io.spring.githubchangeloggenerator.github.service.Repository;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -28,18 +36,8 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
 import org.springframework.stereotype.Component;
 import org.springframework.util.FileCopyUtils;
-
-import io.spring.githubchangeloggenerator.ApplicationProperties.ExternalLink;
-import io.spring.githubchangeloggenerator.ApplicationProperties.IssueSort;
-import io.spring.githubchangeloggenerator.ApplicationProperties.PortedIssue;
-import io.spring.githubchangeloggenerator.github.payload.Issue;
-import io.spring.githubchangeloggenerator.github.payload.Label;
-import io.spring.githubchangeloggenerator.github.payload.User;
-import io.spring.githubchangeloggenerator.github.service.GitHubService;
-import io.spring.githubchangeloggenerator.github.service.Repository;
 
 /**
  * Generates a changelog markdown file which includes bug fixes, enhancements and
@@ -48,6 +46,7 @@ import io.spring.githubchangeloggenerator.github.service.Repository;
  * @author Madhura Bhave
  * @author Phillip Webb
  * @author Mahendra Bishnoi
+ * @author Dinar Shagaliev
  */
 @Component
 public class ChangelogGenerator {
@@ -77,7 +76,7 @@ public class ChangelogGenerator {
 
 	private final List<ExternalLink> externalLinks;
 
-	private final boolean generateLinks;
+	private final String defaultFormat;
 
 	public ChangelogGenerator(GitHubService service, ApplicationProperties properties) {
 		this.service = service;
@@ -90,7 +89,7 @@ public class ChangelogGenerator {
 		this.sections = new ChangelogSections(properties);
 		this.portedIssues = properties.getIssues().getPorts();
 		this.externalLinks = properties.getExternalLinks();
-		this.generateLinks = properties.getIssues().isGenerateLinks();
+		this.defaultFormat = properties.getIssues().getDefaultFormat();
 	}
 
 	/**
@@ -141,14 +140,17 @@ public class ChangelogGenerator {
 		return content.toString();
 	}
 
-	private void addSectionContent(StringBuilder content, Map<ChangelogSection, List<Issue>> sectionIssues) {
-		sectionIssues.forEach((section, issues) -> {
-			sort(section.getSort(), issues);
-			content.append((content.length() != 0) ? String.format("%n") : "");
-			content.append("## ").append(section).append(String.format("%n%n"));
-			issues.stream().map(this::getFormattedIssue).forEach(content::append);
-		});
-	}
+    private void addSectionContent(StringBuilder content,
+            Map<ChangelogSection, List<Issue>> sectionIssues) {
+        sectionIssues.forEach((section, issues) -> {
+            sort(section.getSort(), issues);
+            content.append((!content.isEmpty()) ? String.format("%n") : "");
+            content.append("## ").append(section).append(String.format("%n%n"));
+
+            issues.stream().map(issue -> this.getFormattedIssue(issue, section.getFormat()))
+                    .forEach(content::append);
+        });
+    }
 
 	private void sort(IssueSort sort, List<Issue> issues) {
 		sort = (sort != null) ? sort : this.sort;
@@ -157,14 +159,31 @@ public class ChangelogGenerator {
 		}
 	}
 
-	private String getFormattedIssue(Issue issue) {
-		String title = issue.getTitle();
-		for (Escape escape : escapes) {
-			title = escape.apply(title);
-		}
-		return (this.generateLinks) ? String.format("- %s %s%n", title, getLinkToIssue(issue))
-				: String.format("- %s%n", title);
-	}
+    private String getFormattedIssue(Issue issue, String format) {
+        format = (format != null) ? format : defaultFormat;
+
+        String formattedIssueStr = "- " + format + "\n";
+        String title = escape(issue.getTitle());
+
+        if (format.contains("${title}")) {
+            formattedIssueStr = formattedIssueStr.replace("${title}", title);
+        }
+
+        if (format.contains("${number}")) {
+            formattedIssueStr = formattedIssueStr.replace("${number}", getLinkToIssue(issue));
+        }
+
+        return formattedIssueStr;
+    }
+
+    private String escape(String text) {
+        String escaped = text;
+        for (Escape escape : escapes) {
+            escaped = escape.apply(escaped);
+        }
+
+        return escaped;
+    }
 
 	private String getLinkToIssue(Issue issue) {
 		return "[#" + issue.getNumber() + "]" + "(" + issue.getUrl() + ")";

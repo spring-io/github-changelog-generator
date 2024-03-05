@@ -61,6 +61,7 @@ import static org.mockito.Mockito.mock;
  * @author Phillip Webb
  * @author Mahendra Bishnoi
  * @author Gary Russell
+ * @author Dinar Shagaliev
  */
 class ChangelogGeneratorTests {
 
@@ -297,9 +298,9 @@ class ChangelogGeneratorTests {
 	void generateWhenSectionSortedByTitle() throws Exception {
 		List<Section> sections = new ArrayList<>();
 		Set<String> labels = Collections.singleton("type: enhancement");
-		sections.add(new Section("Enhancements", null, IssueSort.TITLE, labels));
+		sections.add(new Section("Enhancements", null, IssueSort.TITLE, null, labels));
 		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.ID, sections,
-				new Issues(null, null, null, true), null, null, false);
+				new Issues(null, null, null, null), null, null, false);
 		this.generator = new ChangelogGenerator(this.service, properties);
 		List<Issue> issues = new ArrayList<>();
 		issues.add(newIssue("Enhancement c", "1", "enhancement-1-url", Type.ENHANCEMENT));
@@ -313,9 +314,9 @@ class ChangelogGeneratorTests {
 	void generateWhenAllIssuesSortedByTitle() throws Exception {
 		List<Section> sections = new ArrayList<>();
 		Set<String> labels = Collections.singleton("type: enhancement");
-		sections.add(new Section("Enhancements", null, null, labels));
+		sections.add(new Section("Enhancements", null, null, null, labels));
 		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.ID, sections,
-				new Issues(IssueSort.TITLE, null, null, true), null, null, false);
+				new Issues(IssueSort.TITLE, null, null, null), null, null, false);
 		this.generator = new ChangelogGenerator(this.service, properties);
 		List<Issue> issues = new ArrayList<>();
 		issues.add(newIssue("Enhancement c", "1", "enhancement-1-url", Type.ENHANCEMENT));
@@ -359,28 +360,32 @@ class ChangelogGeneratorTests {
 		assertChangelog("23").hasContent(from("output-with-multiple-external-link"));
 	}
 
-	@Test
-	void generateWhenIssueLinksDisabled() throws Exception {
-		User contributor1 = createUser("contributor1");
-		List<Issue> issues = new ArrayList<>();
-		issues.add(newIssue("Bug 1", "1", "bug-1-url", Type.BUG));
-		issues.add(newIssue("Bug 2", "2", "bug-2-url", Type.BUG, "wontfix"));
-		issues.add(newPullRequest("PR 3", "3", Type.ENHANCEMENT, "pr-3-url", contributor1));
-		issues.add(newPullRequest("PR 4", "4", Type.ENHANCEMENT, "pr-4-url", contributor1));
-		given(this.service.getIssuesForMilestone(23, REPO)).willReturn(issues);
-		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.ID, null,
-				new Issues(null, null, null, false), null, null, false);
-		this.generator = new ChangelogGenerator(this.service, properties);
-		assertChangelog("23").hasContent(from("output-without-issue-links"));
-	}
+    @Test
+    void generateWhenFormatSpecified() throws Exception {
+        User contributor1 = createUser("contributor1");
+        List<Issue> issues = new ArrayList<>();
+        issues.add(newIssue("Bug 1", "1", "bug-1-url", Type.BUG));
+        issues.add(newIssue("Bug 2", "2", "bug-2-url", Type.BUG, "wontfix"));
+        issues.add(newPullRequest("PR 3", "3", Type.ENHANCEMENT, "pr-3-url", contributor1));
+        issues.add(newPullRequest("PR 4", "4", Type.ENHANCEMENT, "pr-4-url", contributor1));
+        List<Section> sections = new ArrayList<>();
+        sections.add(newSection(":star: Fixed bugs", null, null,
+                "Bug number: ${number} - ${title}", "bug"));
+        sections.add(newSection(":star: New Features", null, null,null, "enhancement"));
+        given(this.service.getIssuesForMilestone(23, REPO)).willReturn(issues);
+        ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.ID, sections,
+                new Issues(null, null, null, "${title}"), null, null, false);
+        this.generator = new ChangelogGenerator(this.service, properties);
+        assertChangelog("23").hasContent(from("output-with-formatted-issue-output"));
+    }
 
-	private void setupGenerator(MilestoneReference id) {
+    private void setupGenerator(MilestoneReference id) {
 		Set<String> labels = new HashSet<>(Arrays.asList("duplicate", "wontfix"));
 		PortedIssue forwardPort = new PortedIssue("status: forward-port", "Forward port of issue #(\\d+)");
 		PortedIssue cherryPick = new PortedIssue("status: back-port", "Back port of issue #(\\d+)");
 		Set<PortedIssue> portedIssues = new HashSet<>(Arrays.asList(forwardPort, cherryPick));
 		ApplicationProperties properties = new ApplicationProperties(REPO, id, null,
-				new Issues(null, new IssuesExclude(labels), portedIssues, true), null, null, false);
+				new Issues(null, new IssuesExclude(labels), portedIssues, null), null, null, false);
 		this.generator = new ChangelogGenerator(this.service, properties);
 	}
 
@@ -427,6 +432,10 @@ class ChangelogGeneratorTests {
 		Arrays.stream(extraLabels).map(Label::new).forEach(labels::add);
 		return new Issue(number, title, user, labels, url, new PullRequest("https://example.com"), null);
 	}
+
+    private static Section newSection(String title, String group, IssueSort sort, String format, String... labels) {
+        return new Section(title, group, sort, format, Set.of(labels));
+    }
 
 	private enum Type {
 
