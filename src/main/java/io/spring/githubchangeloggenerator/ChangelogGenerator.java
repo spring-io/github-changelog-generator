@@ -169,13 +169,8 @@ public class ChangelogGenerator {
         String formattedIssueStr = "- " + format + "\n";
         String title = escape(issue.getTitle());
 
-        if (format.contains(TITLE.placeholder)) {
-            formattedIssueStr = formattedIssueStr.replace(TITLE.placeholder, title);
-        }
-
-        if (format.contains(NUMBER.placeholder)) {
-            formattedIssueStr = formattedIssueStr.replace(NUMBER.placeholder, getLinkToIssue(issue));
-        }
+        formattedIssueStr = formattedIssueStr.replace(TITLE.placeholder, title);
+        formattedIssueStr = formattedIssueStr.replace(NUMBER.placeholder, getLinkToIssue(issue));
 
         return formattedIssueStr;
     }
