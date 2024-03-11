@@ -11,6 +11,7 @@ changelog:
     labels: [ "experimental" ]
     format: "Experimental feature: ${number}: ${title}"
   issues:
+    generate-links: true
     sort: title
     exclude:
       labels: ["hide"]

@@ -83,7 +83,7 @@ public class ApplicationProperties {
 		this.repository = repository;
 		this.milestoneReference = milestoneReference;
 		this.sections = (sections != null) ? sections : Collections.emptyList();
-		this.issues = (issues != null) ? issues : new Issues(null, null, null, null);
+		this.issues = (issues != null) ? issues : new Issues(null, null, null, true, null);
 		this.contributors = (contributors != null) ? contributors : new Contributors(null, null);
 		this.externalLinks = (externalLinks != null) ? externalLinks : Collections.emptyList();
 		this.addSections = addSections;
@@ -143,16 +143,23 @@ public class ApplicationProperties {
 		 */
 		private final Set<String> labels;
 
+
+		/**
+		 * Whether to generate a link to each issue in the changelog.
+		 */
+		private final boolean generateLinks;
+
 		/**
 		 * Format used to customize an output of issues in the section.
 		 */
 		private final String format;
 
 		public Section(String title, @DefaultValue("default") String group, IssueSort sort,
-                String format, Set<String> labels) {
+                boolean generateLinks, String format, Set<String> labels) {
 			this.title = title;
 			this.group = group;
 			this.sort = sort;
+			this.generateLinks = generateLinks;
             this.format = format;
             this.labels = labels;
 		}
@@ -172,6 +179,10 @@ public class ApplicationProperties {
         public String getFormat() {
             return format;
         }
+
+		public boolean isGenerateLinks() {
+			return generateLinks;
+		}
 
 		public Set<String> getLabels() {
 			return this.labels;
@@ -199,18 +210,25 @@ public class ApplicationProperties {
 		 */
 		private final Set<PortedIssue> ports;
 
-        /**
-         * Default format used to customize an output of issues in the section.
-         */
+		/**
+		 * Whether to generate a link to each issue in the changelog.
+		 */
+		private final boolean generateLinks;
+
+		/**
+		 * Default format used to customize an output of issues in the section.
+		 */
 		private final String defaultFormat;
 
-		public Issues(IssueSort sort, IssuesExclude exclude, Set<PortedIssue> ports, String defaultFormat) {
+		public Issues(IssueSort sort, IssuesExclude exclude, Set<PortedIssue> ports,
+				@DefaultValue("true") Boolean generateLinks, String defaultFormat) {
 			this.sort = sort;
 			this.exclude = (exclude != null) ? exclude : new IssuesExclude(null);
 			this.ports = (ports != null) ? ports : Collections.emptySet();
-			this.defaultFormat = (defaultFormat != null)
-                    ? defaultFormat
-                    : String.format("%s %s", TITLE.placeholder, NUMBER.placeholder);
+			this.generateLinks = (defaultFormat != null) || generateLinks;
+			this.defaultFormat = (defaultFormat != null) ? defaultFormat
+					: String.format("%s [#%s](%s)", TITLE.placeholder, NUMBER.placeholder,
+							URL.placeholder);
 		}
 
 		public IssueSort getSort() {
@@ -223,6 +241,10 @@ public class ApplicationProperties {
 
 		public Set<PortedIssue> getPorts() {
 			return this.ports;
+		}
+
+		public boolean isGenerateLinks() {
+			return generateLinks;
 		}
 
         public String getDefaultFormat() {
@@ -378,8 +400,9 @@ public class ApplicationProperties {
 
     public enum FormatPlaceholder {
 
-        TITLE("${title}"),
-        NUMBER("${number}");
+		TITLE("${title}"),
+		URL("${url}"),
+		NUMBER("${number}");
 
         public final String placeholder;
 

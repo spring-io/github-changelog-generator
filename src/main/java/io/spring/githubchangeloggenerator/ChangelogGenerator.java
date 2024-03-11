@@ -18,9 +18,9 @@ package io.spring.githubchangeloggenerator;
 
 import static io.spring.githubchangeloggenerator.ApplicationProperties.FormatPlaceholder.NUMBER;
 import static io.spring.githubchangeloggenerator.ApplicationProperties.FormatPlaceholder.TITLE;
+import static io.spring.githubchangeloggenerator.ApplicationProperties.FormatPlaceholder.URL;
 
 import io.spring.githubchangeloggenerator.ApplicationProperties.ExternalLink;
-import io.spring.githubchangeloggenerator.ApplicationProperties.FormatPlaceholder;
 import io.spring.githubchangeloggenerator.ApplicationProperties.IssueSort;
 import io.spring.githubchangeloggenerator.ApplicationProperties.PortedIssue;
 import io.spring.githubchangeloggenerator.github.payload.Issue;
@@ -80,6 +80,8 @@ public class ChangelogGenerator {
 
 	private final List<ExternalLink> externalLinks;
 
+	private final boolean generateLinks;
+
 	private final String defaultFormat;
 
 	public ChangelogGenerator(GitHubService service, ApplicationProperties properties) {
@@ -93,6 +95,7 @@ public class ChangelogGenerator {
 		this.sections = new ChangelogSections(properties);
 		this.portedIssues = properties.getIssues().getPorts();
 		this.externalLinks = properties.getExternalLinks();
+		this.generateLinks = properties.getIssues().isGenerateLinks();
 		this.defaultFormat = properties.getIssues().getDefaultFormat();
 	}
 
@@ -151,7 +154,7 @@ public class ChangelogGenerator {
             content.append((!content.isEmpty()) ? String.format("%n") : "");
             content.append("## ").append(section).append(String.format("%n%n"));
 
-            issues.stream().map(issue -> this.getFormattedIssue(issue, section.getFormat()))
+            issues.stream().map(issue -> this.getFormattedIssue(issue, section))
                     .forEach(content::append);
         });
     }
@@ -163,19 +166,29 @@ public class ChangelogGenerator {
 		}
 	}
 
-    private String getFormattedIssue(Issue issue, String format) {
-        format = (format != null) ? format : defaultFormat;
+    private String getFormattedIssue(Issue issue, ChangelogSection section) {
+        String format = getFormat(section);
 
         String formattedIssueStr = "- " + format + "\n";
         String title = escape(issue.getTitle());
 
         formattedIssueStr = formattedIssueStr.replace(TITLE.placeholder, title);
-        formattedIssueStr = formattedIssueStr.replace(NUMBER.placeholder, getLinkToIssue(issue));
+		formattedIssueStr = formattedIssueStr.replace(NUMBER.placeholder, issue.getNumber());
+		formattedIssueStr = formattedIssueStr.replace(URL.placeholder, issue.getUrl());
 
         return formattedIssueStr;
     }
 
-    private String escape(String text) {
+	private String getFormat(ChangelogSection section) {
+		if (section.getFormat() != null) {
+			return section.getFormat();
+		} else if (!generateLinks) {
+			return "${title}";
+		}
+		return defaultFormat;
+	}
+
+	private String escape(String text) {
         String escaped = text;
         for (Escape escape : escapes) {
             escaped = escape.apply(escaped);
@@ -183,10 +196,6 @@ public class ChangelogGenerator {
 
         return escaped;
     }
-
-	private String getLinkToIssue(Issue issue) {
-		return "[#" + issue.getNumber() + "]" + "(" + issue.getUrl() + ")";
-	}
 
 	private Set<User> getContributors(List<Issue> issues) {
 		if (this.excludeContributors.contains("*")) {

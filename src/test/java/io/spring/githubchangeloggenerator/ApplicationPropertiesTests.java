@@ -65,6 +65,7 @@ class ApplicationPropertiesTests {
 		assertThat(properties.getIssues().getExcludes().getLabels()).containsExactly("hide");
 		assertThat(properties.getIssues().getSort()).isEqualTo(IssueSort.TITLE);
 		assertThat(properties.getIssues().getDefaultFormat()).isEqualTo("${number}: ${title}");
+		assertThat(properties.getIssues().isGenerateLinks()).isTrue();
 		assertThat(properties.getContributors().getTitle()).isEqualTo("Nice one!");
 		assertThat(properties.getContributors().getExclude().getNames()).containsExactly("philwebb");
 		assertThat(properties.getExternalLinks().get(0).getName()).isEqualTo("Release Notes 1");
