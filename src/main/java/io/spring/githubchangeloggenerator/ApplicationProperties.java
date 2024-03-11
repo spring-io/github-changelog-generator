@@ -244,11 +244,11 @@ public class ApplicationProperties {
 		}
 
 		public boolean isGenerateLinks() {
-			return generateLinks;
+			return this.generateLinks;
 		}
 
         public String getDefaultFormat() {
-            return defaultFormat;
+            return this.defaultFormat;
         }
 
     }

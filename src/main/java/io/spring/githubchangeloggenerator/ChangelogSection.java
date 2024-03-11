@@ -84,7 +84,7 @@ class ChangelogSection {
 	}
 
 	public String getFormat() {
-		return format;
+		return this.format;
 	}
 
 }
