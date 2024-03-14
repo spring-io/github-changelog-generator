@@ -1,0 +1,28 @@
+name: 'GitHub Changelog Generator'
+description: 'Generates a changelog from the closed issues in a GitHub milestone'
+inputs:
+  repository:
+    description: 'Repository for which a changelog should be generated'
+    required: false
+    default: ${{ github.repository}}
+  milestone:
+    description: 'Milestone for which the changelog should be generated'
+    required: true
+  token:
+    description: 'Optional token for authentication with GitHub. Authenticating increases GitHub rate limits'
+    required: false
+  config-file:
+    description: 'Path to a changelog generator configuration file, relative to GITHUB_WORKSPACE'
+    required: false
+  changelog-file:
+    description: 'Path of the file to which the changelog should be written'
+    default: changelog.md
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
+  args:
+    - ${{ inputs.milestone }}
+    - ${{ inputs.changelog-file }}
+    - --changelog.repository=${{ inputs.repository }}
+    - --github.token=${{ inputs.token }}
+    - ${{ inputs.config-file != null && format('--spring.config.location=file:/github/workspace/{0}', inputs.config-file) || '' }}

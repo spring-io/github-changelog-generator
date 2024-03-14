@@ -23,12 +23,16 @@ jobs:
           cache-read-only: false
       - name: Build
         run: ./gradlew build
-      - name: Generate changelog
+      - name: Get milestone from tag
+        id: milestone-from-tag
         run: |
           milestone=$(echo ${{ github.ref_name }} | cut -c 2-)
-          java -jar build/libs/github-changelog-generator.jar --changelog.repository=${{ github.repository }} $milestone changelog.md
+          echo "milestone=$milestone" >> $GITHUB_OUTPUT
+      - name: Generate changelog
+        uses: ./
+        with:
+          milestone: ${{ steps.milestone-from-tag.milestone }}
       - name: Release
         env:
           GITHUB_TOKEN: ${{ secrets.GH_ACTIONS_REPO_TOKEN }}
-        run: |
-          gh release create ${{ github.ref_name }} --notes-file=changelog.md build/libs/github-changelog-generator.jar
+        run: gh release create ${{ github.ref_name }} --notes-file=changelog.md build/libs/github-changelog-generator.jar
