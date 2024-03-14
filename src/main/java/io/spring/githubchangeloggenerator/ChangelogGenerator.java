@@ -239,8 +239,11 @@ public class ChangelogGenerator {
 	}
 
 	private void writeContentToFile(String content, String path) throws IOException {
-		File file = new File(path);
-		file.getParentFile().mkdirs();
+		File file = new File(path).getAbsoluteFile();
+		File parent = file.getParentFile();
+		if (parent != null) {
+			parent.mkdirs();
+		}
 		FileCopyUtils.copy(content, new FileWriter(file));
 	}
 
