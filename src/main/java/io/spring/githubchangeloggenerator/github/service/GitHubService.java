@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2022 the original author or authors.
+ * Copyright 2018-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,10 +55,9 @@ public class GitHubService {
 	private final RestTemplate restTemplate;
 
 	public GitHubService(RestTemplateBuilder builder, GitHubProperties properties) {
-		String username = properties.getUsername();
-		String password = properties.getPassword();
-		if (StringUtils.hasLength(username)) {
-			builder = builder.basicAuthentication(username, password);
+		String token = properties.getToken();
+		if (StringUtils.hasLength(token)) {
+			builder = builder.defaultHeader(HttpHeaders.AUTHORIZATION, "Bearer " + token);
 		}
 		builder = builder.rootUri(properties.getApiUrl());
 		this.restTemplate = builder.build();

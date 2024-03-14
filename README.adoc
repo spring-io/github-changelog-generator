@@ -10,12 +10,11 @@ To generate a markdown changelog that comprise the list of bugs and issues in a 
 changelog:
   repository: owner/name
 github:
-  username:
-  password:
+  token:
 ----
 
-NOTE: When generating a changelog for a public repository, the `username` and `password` properties are optional.
-However, specifying them ensures that you don't hit https://developer.github.com/v3/?#rate-limiting[GitHub's rate limit] easily.
+NOTE: When generating a changelog for a public repository, the `token` property is optional.
+However, specifying it ensures that you don't hit https://developer.github.com/v3/?#rate-limiting[GitHub's rate limit] easily.
 
 If you're using GitHub enterprise, the base url can be set using `github.api-url`.
 
