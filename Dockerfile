@@ -1,7 +1,7 @@
 FROM ubuntu:focal-20231211
 
 ARG root=.
-ARG jar=target/github-changelog-generator.jar
+ARG jar=build/libs/github-changelog-generator.jar
 
 COPY ${jar} /github-changelog-generator.jar
 

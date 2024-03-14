@@ -8,5 +8,5 @@ version=$( get_revision_from_pom )
 build
 popd > /dev/null
 
-cp git-repo/target/github-changelog-generator.jar built-artifact/
+cp git-repo/build/libs/github-changelog-generator.jar built-artifact/
 echo $version > built-artifact/version
