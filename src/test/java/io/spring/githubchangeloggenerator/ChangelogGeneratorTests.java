@@ -390,7 +390,7 @@ class ChangelogGeneratorTests {
 	}
 
 	private Path generateChangelog(String milestone) throws IOException {
-		Path file = this.tempDirectory.resolve(UUID.randomUUID().toString());
+		Path file = this.tempDirectory.resolve(Path.of(UUID.randomUUID().toString(), "changelog.md"));
 		this.generator.generate(milestone, file.normalize().toString());
 		return file;
 	}

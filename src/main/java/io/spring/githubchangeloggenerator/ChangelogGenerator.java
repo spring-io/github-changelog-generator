@@ -16,6 +16,7 @@
 
 package io.spring.githubchangeloggenerator;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -238,7 +239,9 @@ public class ChangelogGenerator {
 	}
 
 	private void writeContentToFile(String content, String path) throws IOException {
-		FileCopyUtils.copy(content, new FileWriter(path));
+		File file = new File(path);
+		file.getParentFile().mkdirs();
+		FileCopyUtils.copy(content, new FileWriter(file));
 	}
 
 	private static Escape gitHubUserMentions() {
