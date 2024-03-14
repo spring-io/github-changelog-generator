@@ -29,13 +29,6 @@ resources:
     username: ((docker-hub-username))
     password: ((docker-hub-password))
     tag: main
-- name: github-changelog-generator-image
-  type: docker-image
-  icon: docker
-  source:
-    repository: springio/github-changelog-generator
-    username: ((docker-hub-username))
-    password: ((docker-hub-password))
 - name: github-release
   type: github-release
   icon: briefcase-download
@@ -62,14 +55,6 @@ jobs:
     - task: build
       image: ci-image
       file: git-repo/ci/tasks/build.yml
-  - put: github-changelog-generator-image
-    params:
-      build: .
-      dockerfile: git-repo/Dockerfile
-      tag: built-artifact/version
-      build_args:
-        root: git-repo
-        jar:  built-artifact/github-changelog-generator.jar
 - name: release
   plan:
   - get: ci-image
@@ -86,14 +71,6 @@ jobs:
   - put: git-repo
     params:
       repository: release-git-repo
-  - put: github-changelog-generator-image
-    params:
-      build: .
-      dockerfile: git-repo/Dockerfile
-      tag: built-artifact/version
-      build_args:
-        root: git-repo
-        jar:  built-artifact/github-changelog-generator.jar
   - put: github-release
     params:
       name: built-artifact/tag

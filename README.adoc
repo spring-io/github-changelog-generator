@@ -2,7 +2,7 @@
 
 To generate a markdown changelog that comprise the list of bugs and issues in a GitHub milestone follow these steps:
 
-- Download a https://github.com/spring-io/github-changelog-generator/releases[release JAR] or use the https://hub.docker.com/r/springio/github-changelog-generator/[Docker image].
+- Download a https://github.com/spring-io/github-changelog-generator/releases[release JAR].
 - Configure the application with the following properties:
 
 [source,yaml]
