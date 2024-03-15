@@ -29,8 +29,7 @@ added after the original pull request but before a merge.
 * We use the https://github.com/spring-io/spring-javaformat/[Spring JavaFormat] project
   to apply code formatting conventions.
 * The build includes checkstyle rules for many of our code conventions. Run
-  `./mvnw verify` if you want to check you changes are
-  compliant.
+  `./gradlew check` if you want to check you changes are compliant.
 * Make sure all new `.java` files to have a simple Javadoc class comment with at least an
   `@author` tag identifying you, and preferably at least a paragraph on what the class is
   for.

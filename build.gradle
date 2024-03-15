@@ -1,0 +1,54 @@
+plugins {
+	id "checkstyle"
+	id "java"
+	id "org.springframework.boot" version "3.2.1"
+	id "io.spring.javaformat" version "$javaFormatVersion"
+}
+
+java {
+	sourceCompatibility "17"
+	targetCompatibility "17"
+}
+
+repositories {
+	mavenCentral()
+}
+
+configurations {
+	checkstyle {
+		resolutionStrategy.capabilitiesResolution.withCapability("com.google.collections:google-collections") {
+			select("com.google.guava:guava:0")
+		}
+	}
+}
+
+checkstyle {
+	toolVersion = "10.12.7"
+}
+
+dependencies {
+	annotationProcessor(platform(org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES))
+	annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
+
+	checkstyle("com.puppycrawl.tools:checkstyle:${checkstyle.toolVersion}")
+	checkstyle("io.spring.javaformat:spring-javaformat-checkstyle:$javaFormatVersion")
+
+	implementation(platform(org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES))
+	implementation("org.springframework:spring-web")
+	implementation("org.springframework.boot:spring-boot-starter-json")
+
+	testImplementation("org.springframework.boot:spring-boot-starter-test")
+	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+}
+
+tasks.named("test") {
+	useJUnitPlatform()
+}
+
+tasks.named("jar") {
+	enabled = false
+}
+
+tasks.named("bootJar") {
+	archiveVersion = ""
+}

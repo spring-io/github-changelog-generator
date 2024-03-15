@@ -1,38 +1,67 @@
-== Generate a Changelog for a GitHub Milestone
+= GitHub Changelog Generator
 
-To generate a markdown changelog that comprise the list of bugs and issues in a GitHub milestone follow these steps:
+A changelog generator for GitHub Issues, available as a https://github.com/spring-io/github-changelog-generator/releases[release jar] or for use as a GitHub Action.
 
-- Download a https://github.com/spring-io/github-changelog-generator/releases[release JAR] or use the https://hub.docker.com/r/springio/github-changelog-generator/[Docker image].
-- Configure the application with the following properties:
 
-[source,yaml]
+
+== Running as a Release Jar
+
+The changelog generator requires Java 17 or later.
+To generate a markdown changelog using a https://github.com/spring-io/github-changelog-generator/releases[release jar], follow these steps:
+
+- Download a https://github.com/spring-io/github-changelog-generator/releases[release jar].
+- Run `java -jar github-changelog-generator.jar <milestone-title> <changelog-file> --changelog.repository=<org>/<name>`
+
+To increase https://developer.github.com/v3/?#rate-limiting[GitHub's rate limits], you can also use `--github-token=<token>` to provide an access token that is used for authentication.
+
+For more advanced configuration options, <<Advanced Configuration,see below>>.
+
+== Using as a GitHub Action
+
+
+
+=== Configuration
+
+
+
+==== Required Inputs
+
+- `milestone`: Milestone for which the changelog should be generated
+
+
+
+=== Optional Inputs
+
+- `changelog-file`: Path of the file to which the changelog should be written.
+   Defaults to `changelog.md`
+- `config-file`: Path to a changelog generator configuration file, relative to `GITHUB_WORKSPACE`.
+  <<Advanced Configuration,See below>> for details of the advanced options that can be configured using this file.
+- `repository`: Repository for which a changelog should be generated. Defaults to the workflow's repository.
+- `token`: Token for authentication with GitHub.
+  Authenticating increases GitHub rate limits.
+
+
+=== Minimal Example
+
+[source,yaml,indent=0]
 ----
-changelog:
-  repository: owner/name
-github:
-  username:
-  password:
+steps:
+  - name: Generate Changelog
+    uses: spring-io/github-changelog-generator@<version-or-sha>
+    with:
+      milestone: '1.0.0'
 ----
 
-NOTE: When generating a changelog for a public repository, the `username` and `password` properties are optional.
-However, specifying them ensures that you don't hit https://developer.github.com/v3/?#rate-limiting[GitHub's rate limit] easily.
 
-If you're using GitHub enterprise, the base url can be set using `github.api-url`.
 
-TIP: If you are only configuring a few properties you can alternatively use application arguments such as `--changelog.repository=...`.
+== Advanced Configuration
 
-- Run the following commands:
-
-----
-$ java -jar github-changelog-generator.jar <milestone> <path_to_generate_file>
-----
-
-NOTE: By default `<milestone>` refers to the milestone title.
-If you want to use milestone ID, you should set the `changelog.milestone-reference` property to `id`.
+A YAML configuration file can be used to provide more complex configuration, either when running as a release jar or as a GitHub action.
 
 
 
 === Customizing Sections
+
 By default, the changelog will contain the following sections:
 
 |===
@@ -64,7 +93,8 @@ changelog:
     labels: ["fix"]
 ----
 
-By default, adding sections will replace the default sections; to add sections after the defaults:
+By default, adding sections will replace the default sections.
+To add sections after the defaults, add the following configuration:
 
 [source, yaml]
 ----
@@ -72,7 +102,7 @@ changelog:
   add-sections: true
 ----
 
-You can also customize the contributors title using:
+You can also customize the contributors title using the following:
 
 [source,yaml]
 ----
@@ -81,7 +111,7 @@ changelog:
     title: "Contributors"
 ----
 
-You can add external links such as release notes for quick access using:
+You can add external links such as release notes for quick access using the following:
 
 [source,yaml]
 ----
@@ -93,12 +123,12 @@ changelog:
 
 
 
-
 ==== Showing Issues in Multiple Sections
+
 Unless otherwise configured, issues will only appear in the first matching section.
 For example, if you have an issue labeled with `enhancement` and `documentation` then it will only appear in the "New Features" section.
 
-If you want an issue to appear in multiple sections, you can use the `group` property.
+If you want an issue to appear in multiple sections, use the `group` property.
 Groups allow you to create logical groupings of related sections.
 An issue may only appear once in any given group.
 
@@ -123,6 +153,7 @@ An issue labeled with `new` and `noteworthy` will appear in both the "Highlights
 
 
 === Excluding Issues
+
 Issues and pull requests can be excluded from the changelog by configuring exclusions.
 You can ignore all items that have certain labels using `changelog.issues.exclude.labels`.
 For example:
@@ -138,6 +169,7 @@ changelog:
 
 
 === Excluding Contributors
+
 If you have contributors that you don't want to thank (perhaps core team members or bots), you can set the following:
 
 [source,yaml]
@@ -153,6 +185,7 @@ You can also use `*` if you want to drop the contributors section entirely.
 
 
 === Sorting Issues
+
 By default, issues are sorted by their "created" date.
 If you want to order them by title instead you can set `changelog.issues.sort` to `title`.
 It's also set the property on section configuration if you want ordering per section:
@@ -171,6 +204,7 @@ changelog:
 
 
 === Following Ported Issues
+
 If an issue is forward-ported or backward-ported between milestones, you might have separate issues in each milestone that reference the original issue.
 To credit a contributor in the changelog for every milestone that includes a forward or backward port of the issue that was resolved, configure the labels that are used to identify ported issues.
 The body of a ported issue should contain a comment with a reference to the original issue, which is extracted using a regular expression with exactly one capture group for the original issue number.
@@ -189,6 +223,7 @@ changelog:
 
 
 === Disabling Generation of Links to Each Issue
+
 By default, each entry in the changelog will include a link back to the issue or PR on GitHub.
 The generation of these links can be disabled:
 
@@ -201,6 +236,7 @@ changelog:
 
 
 
-=== License
+== License
+
 This project is Open Source software released under the
 https://www.apache.org/licenses/LICENSE-2.0.html[Apache 2.0 license].
