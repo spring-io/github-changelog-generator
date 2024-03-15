@@ -31,8 +31,8 @@ jobs:
       - name: Generate changelog
         uses: ./
         with:
-          milestone: ${{ steps.milestone-from-tag.milestone }}
+          milestone: ${{ steps.milestone-from-tag.outputs.milestone }}
       - name: Release
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_ACTIONS_REPO_TOKEN }}
+          GITHUB_TOKEN: ${{ github.token }}
         run: gh release create ${{ github.ref_name }} --notes-file=changelog.md build/libs/github-changelog-generator.jar
