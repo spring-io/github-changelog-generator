@@ -7,10 +7,15 @@ changelog:
   - title: "Bugs"
     labels: ["bug"]
     group: "test"
+  - title: "Experimental"
+    labels: [ "experimental" ]
+    format: "Experimental feature: ${number}: ${title}"
   issues:
+    generate-links: true
     sort: title
     exclude:
       labels: ["hide"]
+    default-format: "${number}: ${title}"
   contributors:
     title: "Nice one!"
     exclude:
