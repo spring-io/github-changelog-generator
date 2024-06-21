@@ -258,13 +258,17 @@ public class ChangelogGenerator {
 
 	private static Escape markdownStyling() {
 		return (input) -> {
+			boolean withinBackticks = false;
 			char previous = ' ';
 			StringBuilder result = new StringBuilder(input.length());
 			for (char c : input.toCharArray()) {
-				if (previous != '\\' && c == '*' || c == '_' || c == '~') {
+				if (!withinBackticks && previous != '\\' && (c == '*' || c == '_' || c == '~')) {
 					result.append('\\');
 				}
 				result.append(c);
+				if (c == '`') {
+					withinBackticks = !withinBackticks;
+				}
 				previous = c;
 			}
 			return result.toString();

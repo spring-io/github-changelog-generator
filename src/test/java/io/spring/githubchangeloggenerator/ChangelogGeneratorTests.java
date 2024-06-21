@@ -296,6 +296,18 @@ class ChangelogGeneratorTests {
 	}
 
 	@Test
+	void generateWhenMarkdownStylingWithinBackTicksIsInIssueTitleItIsNotEscaped() throws IOException {
+		setupGenerator(MilestoneReference.TITLE);
+		List<Issue> issues = new ArrayList<>();
+		issues.add(newIssue("Clarify `FactoryBean.OBJECT_TYPE_ATTRIBUTE` supported types", "1", "bug-1-url", Type.BUG));
+		given(this.service.getMilestoneNumber("v2.3", REPO)).willReturn(23);
+		given(this.service.getIssuesForMilestone(23, REPO)).willReturn(issues);
+		Path file = generateChangelog("v2.3");
+		assertThat(new String(Files.readAllBytes(file)))
+			.contains("Clarify `FactoryBean.OBJECT_TYPE_ATTRIBUTE` supported types");
+	}
+
+	@Test
 	void generateWhenEscapedMarkdownStylingIsInIssueTitleItIsNotEscapedAgain() throws IOException {
 		setupGenerator(MilestoneReference.TITLE);
 		List<Issue> issues = new ArrayList<>();
