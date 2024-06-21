@@ -170,14 +170,15 @@ changelog:
 
 === Excluding Contributors
 
-If you have contributors that you don't want to thank (perhaps core team members or bots), you can set the following:
+Contributors whose username ends with `[bot]`, such as `dependabot[bot]` and `github-actions[bot]`, are automatically excluded.
+If you have other contributors that you want to be excluded (perhaps core team members), you can set the following:
 
 [source,yaml]
 ----
 changelog:
   contributors:
     exclude:
-      names: ["dependabot"]
+      names: ["coremember"]
 ----
 
 You can also use `*` if you want to drop the contributors section entirely.

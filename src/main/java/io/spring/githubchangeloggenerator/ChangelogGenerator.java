@@ -202,7 +202,8 @@ public class ChangelogGenerator {
 	}
 
 	private boolean isIncludedContributor(User user) {
-		return !this.excludeContributors.contains(user.getName());
+		String name = user.getName();
+		return !this.excludeContributors.contains(name) && !name.endsWith("[bot]");
 	}
 
 	private void addContributorsContent(StringBuilder content, Set<User> contributors) {

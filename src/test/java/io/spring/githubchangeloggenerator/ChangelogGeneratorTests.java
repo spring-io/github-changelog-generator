@@ -191,6 +191,19 @@ class ChangelogGeneratorTests {
 	}
 
 	@Test
+	void generateWhenHasBotContributors() throws Exception {
+		User contributor1 = createUser("dependabot[bot]");
+		User contributor2 = createUser("github-actions[bot]");
+		User contributor3 = createUser("contributor");
+		List<Issue> issues = new ArrayList<>();
+		issues.add(newPullRequest("Enhancement 1", "1", Type.ENHANCEMENT, "enhancement-1-url", contributor1));
+		issues.add(newPullRequest("Enhancement 2", "2", Type.ENHANCEMENT, "enhancement-2-url", contributor2));
+		issues.add(newPullRequest("Enhancement 3", "3", Type.ENHANCEMENT, "enhancement-3-url", contributor3));
+		given(this.service.getIssuesForMilestone(23, REPO)).willReturn(issues);
+		assertChangelog("23").hasContent(from("output-with-bot-contributors"));
+	}
+
+	@Test
 	void generateWhenNoIgnoredLabels() throws Exception {
 		User contributor1 = createUser("contributor1");
 		List<Issue> issues = new ArrayList<>();
