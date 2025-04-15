@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2024 the original author or authors.
+ * Copyright 2018-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -107,10 +107,10 @@ class GitHubServiceTests {
 	@Test
 	void getIssuesWhenMultiplePagesOfIssuesPresent() {
 		HttpHeaders headers = new HttpHeaders();
-		headers.set("Link", "<page-two>; rel=\"next\"");
+		headers.set("Link", "</page-two%3D>; rel=\"next\"");
 		expectGet(ISSUES_URL + "23&state=closed")
 			.andRespond(withJsonFrom("closed-issues-for-milestone-page-1.json").headers(headers));
-		expectGet("/page-two").andRespond(withJsonFrom("closed-issues-for-milestone-page-2.json"));
+		expectGet("/page-two%3D").andRespond(withJsonFrom("closed-issues-for-milestone-page-2.json"));
 		List<Issue> issues = this.service.getIssuesForMilestone(23, Repository.of("org/repo"));
 		assertThat(issues.size()).isEqualTo(60);
 	}

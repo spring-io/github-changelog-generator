@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2024 the original author or authors.
+ * Copyright 2018-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package io.spring.githubchangeloggenerator.github.service;
 
 import java.lang.reflect.Array;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -103,7 +104,17 @@ public class GitHubService {
 		if (!StringUtils.hasText(url)) {
 			return null;
 		}
-		ResponseEntity<T[]> response = this.restTemplate.getForEntity(url, arrayType(type), uriVariables);
+		return pageFrom(this.restTemplate.getForEntity(url, arrayType(type), uriVariables), type);
+	}
+
+	private <T> Page<T> getPage(Class<T> type, URI uri) {
+		if (uri == null) {
+			return null;
+		}
+		return pageFrom(this.restTemplate.getForEntity(uri, arrayType(type)), type);
+	}
+
+	private <T> Page<T> pageFrom(ResponseEntity<T[]> response, Class<T> type) {
 		return new Page<>(Arrays.asList(response.getBody()), () -> getPage(type, getNextUrl(response.getHeaders())));
 	}
 
@@ -112,12 +123,12 @@ public class GitHubService {
 		return (Class<T[]>) Array.newInstance(elementType, 0).getClass();
 	}
 
-	private String getNextUrl(HttpHeaders headers) {
+	private URI getNextUrl(HttpHeaders headers) {
 		String links = headers.getFirst("Link");
 		for (String link : StringUtils.commaDelimitedListToStringArray(links)) {
 			Matcher matcher = LINK_PATTERN.matcher(link.trim());
 			if (matcher.matches() && "next".equals(matcher.group(2))) {
-				return matcher.group(1);
+				return URI.create(matcher.group(1));
 			}
 		}
 		return null;
