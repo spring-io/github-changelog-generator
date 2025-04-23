@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2022 the original author or authors.
+ * Copyright 2018-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -193,6 +193,19 @@ class ChangelogGeneratorTests {
 	}
 
 	@Test
+	void generateWhenHasBotContributors() throws Exception {
+		User contributor1 = createUser("dependabot[bot]");
+		User contributor2 = createUser("github-actions[bot]");
+		User contributor3 = createUser("contributor");
+		List<Issue> issues = new ArrayList<>();
+		issues.add(newPullRequest("Enhancement 1", "1", Type.ENHANCEMENT, "enhancement-1-url", contributor1));
+		issues.add(newPullRequest("Enhancement 2", "2", Type.ENHANCEMENT, "enhancement-2-url", contributor2));
+		issues.add(newPullRequest("Enhancement 3", "3", Type.ENHANCEMENT, "enhancement-3-url", contributor3));
+		given(this.service.getIssuesForMilestone(23, REPO)).willReturn(issues);
+		assertChangelog("23").hasContent(from("output-with-bot-contributors"));
+	}
+
+	@Test
 	void generateWhenNoIgnoredLabels() throws Exception {
 		User contributor1 = createUser("contributor1");
 		List<Issue> issues = new ArrayList<>();
@@ -285,6 +298,18 @@ class ChangelogGeneratorTests {
 	}
 
 	@Test
+	void generateWhenMarkdownStylingWithinBackTicksIsInIssueTitleItIsNotEscaped() throws IOException {
+		setupGenerator(MilestoneReference.TITLE);
+		List<Issue> issues = new ArrayList<>();
+		issues.add(newIssue("Clarify `FactoryBean.OBJECT_TYPE_ATTRIBUTE` supported types", "1", "bug-1-url", Type.BUG));
+		given(this.service.getMilestoneNumber("v2.3", REPO)).willReturn(23);
+		given(this.service.getIssuesForMilestone(23, REPO)).willReturn(issues);
+		Path file = generateChangelog("v2.3");
+		assertThat(new String(Files.readAllBytes(file)))
+			.contains("Clarify `FactoryBean.OBJECT_TYPE_ATTRIBUTE` supported types");
+	}
+
+	@Test
 	void generateWhenEscapedMarkdownStylingIsInIssueTitleItIsNotEscapedAgain() throws IOException {
 		setupGenerator(MilestoneReference.TITLE);
 		List<Issue> issues = new ArrayList<>();
@@ -301,7 +326,7 @@ class ChangelogGeneratorTests {
 		Set<String> labels = Collections.singleton("type: enhancement");
 		sections.add(new Section("Enhancements", null, IssueSort.TITLE, labels, IssueType.ANY));
 		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.ID, sections,
-				new Issues(null, null, null), null, null, false);
+				new Issues(null, null, null, true), null, null, false);
 		this.generator = new ChangelogGenerator(this.service, properties);
 		List<Issue> issues = new ArrayList<>();
 		issues.add(newIssue("Enhancement c", "1", "enhancement-1-url", Type.ENHANCEMENT));
@@ -317,7 +342,7 @@ class ChangelogGeneratorTests {
 		Set<String> labels = Collections.singleton("type: enhancement");
 		sections.add(new Section("Enhancements", null, null, labels, IssueType.ANY));
 		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.ID, sections,
-				new Issues(IssueSort.TITLE, null, null), null, null, false);
+				new Issues(IssueSort.TITLE, null, null, true), null, null, false);
 		this.generator = new ChangelogGenerator(this.service, properties);
 		List<Issue> issues = new ArrayList<>();
 		issues.add(newIssue("Enhancement c", "1", "enhancement-1-url", Type.ENHANCEMENT));
@@ -367,7 +392,7 @@ class ChangelogGeneratorTests {
 		Set<String> labels = Collections.singleton("type: enhancement");
 		sections.add(new Section("Enhancements", null, IssueSort.TITLE, labels, IssueType.ISSUE));
 		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.ID, sections,
-				new Issues(null, null, null), null, null, false);
+				new Issues(null, null, null, true), null, null, false);
 		this.generator = new ChangelogGenerator(this.service, properties);
 		User contributor1 = createUser("contributor1");
 		List<Issue> issues = new ArrayList<>();
@@ -385,7 +410,7 @@ class ChangelogGeneratorTests {
 		Set<String> labels = Collections.singleton("type: enhancement");
 		sections.add(new Section("Enhancements", null, IssueSort.TITLE, labels, IssueType.PULL_REQUEST));
 		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.ID, sections,
-				new Issues(null, null, null), null, null, false);
+				new Issues(null, null, null, true), null, null, false);
 		this.generator = new ChangelogGenerator(this.service, properties);
 		User contributor1 = createUser("contributor1");
 		List<Issue> issues = new ArrayList<>();
@@ -397,13 +422,28 @@ class ChangelogGeneratorTests {
 		assertChangelog("23").hasContent(from("output-with-pull-requests-only"));
 	}
 
+	@Test
+	void generateWhenIssueLinksDisabled() throws Exception {
+		User contributor1 = createUser("contributor1");
+		List<Issue> issues = new ArrayList<>();
+		issues.add(newIssue("Bug 1", "1", "bug-1-url", Type.BUG));
+		issues.add(newIssue("Bug 2", "2", "bug-2-url", Type.BUG, "wontfix"));
+		issues.add(newPullRequest("PR 3", "3", Type.ENHANCEMENT, "pr-3-url", contributor1));
+		issues.add(newPullRequest("PR 4", "4", Type.ENHANCEMENT, "pr-4-url", contributor1));
+		given(this.service.getIssuesForMilestone(23, REPO)).willReturn(issues);
+		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.ID, null,
+				new Issues(null, null, null, false), null, null, false);
+		this.generator = new ChangelogGenerator(this.service, properties);
+		assertChangelog("23").hasContent(from("output-without-issue-links"));
+	}
+
 	private void setupGenerator(MilestoneReference id) {
 		Set<String> labels = new HashSet<>(Arrays.asList("duplicate", "wontfix"));
 		PortedIssue forwardPort = new PortedIssue("status: forward-port", "Forward port of issue #(\\d+)");
 		PortedIssue cherryPick = new PortedIssue("status: back-port", "Back port of issue #(\\d+)");
 		Set<PortedIssue> portedIssues = new HashSet<>(Arrays.asList(forwardPort, cherryPick));
 		ApplicationProperties properties = new ApplicationProperties(REPO, id, null,
-				new Issues(null, new IssuesExclude(labels), portedIssues), null, null, false);
+				new Issues(null, new IssuesExclude(labels), portedIssues, true), null, null, false);
 		this.generator = new ChangelogGenerator(this.service, properties);
 	}
 
@@ -413,7 +453,7 @@ class ChangelogGeneratorTests {
 	}
 
 	private Path generateChangelog(String milestone) throws IOException {
-		Path file = this.tempDirectory.resolve(UUID.randomUUID().toString());
+		Path file = this.tempDirectory.resolve(Path.of(UUID.randomUUID().toString(), "changelog.md"));
 		this.generator.generate(milestone, file.normalize().toString());
 		return file;
 	}

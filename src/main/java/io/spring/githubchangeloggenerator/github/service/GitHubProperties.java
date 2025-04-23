@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2020 the original author or authors.
+ * Copyright 2018-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,18 +17,15 @@
 package io.spring.githubchangeloggenerator.github.service;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.context.properties.ConstructorBinding;
 import org.springframework.boot.context.properties.bind.DefaultValue;
-import org.springframework.util.StringUtils;
 
 /**
- * Github related properties.
+ * GitHub related properties.
  *
  * @author Phillip Webb
  * @author Madhura Bhave
  */
 @ConfigurationProperties("github")
-@ConstructorBinding
 public class GitHubProperties {
 
 	/**
@@ -37,32 +34,21 @@ public class GitHubProperties {
 	private final String apiUrl;
 
 	/**
-	 * The username for the github user.
+	 * Token used for authentication.
 	 */
-	private final String username;
+	private final String token;
 
-	/**
-	 * The password for the github user.
-	 */
-	private final String password;
-
-	public GitHubProperties(@DefaultValue("https://api.github.com") String apiUrl, String username, String password,
-			String token) {
+	public GitHubProperties(@DefaultValue("https://api.github.com") String apiUrl, String token) {
 		this.apiUrl = apiUrl;
-		this.username = username;
-		this.password = StringUtils.hasText(token) ? token : password;
+		this.token = token;
 	}
 
 	public String getApiUrl() {
 		return this.apiUrl;
 	}
 
-	public String getUsername() {
-		return this.username;
-	}
-
-	public String getPassword() {
-		return this.password;
+	public String getToken() {
+		return this.token;
 	}
 
 }

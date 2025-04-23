@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2022 the original author or authors.
+ * Copyright 2018-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,8 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.client.RestClientTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -35,6 +36,7 @@ import io.spring.githubchangeloggenerator.github.payload.Issue;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.header;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
@@ -46,7 +48,6 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
  * @author Madhura Bhave
  */
 @RestClientTest(GitHubService.class)
-@MockBean(GitHubProperties.class)
 class GitHubServiceTests {
 
 	private static final String MILESTONES_URL = "/repos/org/repo/milestones?state=all&sort=due_on&direction=desc&per_page=50";
@@ -72,7 +73,7 @@ class GitHubServiceTests {
 	void getMilestoneNumberWhenNotFoundThrowsException() {
 		expectGet(MILESTONES_URL).andRespond(withJsonFrom("milestones.json"));
 		assertThatExceptionOfType(IllegalStateException.class)
-				.isThrownBy(() -> this.service.getMilestoneNumber("0.0.0", Repository.of("org/repo")));
+			.isThrownBy(() -> this.service.getMilestoneNumber("0.0.0", Repository.of("org/repo")));
 	}
 
 	@Test
@@ -106,16 +107,18 @@ class GitHubServiceTests {
 	@Test
 	void getIssuesWhenMultiplePagesOfIssuesPresent() {
 		HttpHeaders headers = new HttpHeaders();
-		headers.set("Link", "<page-two>; rel=\"next\"");
+		headers.set("Link", "</page-two%3D>; rel=\"next\"");
 		expectGet(ISSUES_URL + "23&state=closed")
-				.andRespond(withJsonFrom("closed-issues-for-milestone-page-1.json").headers(headers));
-		expectGet("/page-two").andRespond(withJsonFrom("closed-issues-for-milestone-page-2.json"));
+			.andRespond(withJsonFrom("closed-issues-for-milestone-page-1.json").headers(headers));
+		expectGet("/page-two%3D").andRespond(withJsonFrom("closed-issues-for-milestone-page-2.json"));
 		List<Issue> issues = this.service.getIssuesForMilestone(23, Repository.of("org/repo"));
 		assertThat(issues.size()).isEqualTo(60);
 	}
 
 	private ResponseActions expectGet(String expectedUri) {
-		return this.server.expect(requestTo(expectedUri)).andExpect(method(HttpMethod.GET));
+		return this.server.expect(requestTo(expectedUri))
+			.andExpect(method(HttpMethod.GET))
+			.andExpect(header(HttpHeaders.AUTHORIZATION, "Bearer the-bearer-token"));
 	}
 
 	private DefaultResponseCreator withJsonFrom(String path) {
@@ -128,6 +131,16 @@ class GitHubServiceTests {
 
 	private ClassPathResource getClassPathResource(String path) {
 		return new ClassPathResource(path, getClass());
+	}
+
+	@TestConfiguration
+	static class GitHubPropertiesConfiguration {
+
+		@Bean
+		GitHubProperties gitHubProperties() {
+			return new GitHubProperties("https://api.github.com", "the-bearer-token");
+		}
+
 	}
 
 }
