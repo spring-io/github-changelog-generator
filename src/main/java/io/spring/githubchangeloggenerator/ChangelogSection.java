@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2022 the original author or authors.
+ * Copyright 2018-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,21 +16,18 @@
 
 package io.spring.githubchangeloggenerator;
 
-import java.util.Arrays;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.function.Predicate;
 
 import org.springframework.util.Assert;
-import org.springframework.util.CollectionUtils;
 
 import io.spring.githubchangeloggenerator.ApplicationProperties.IssueSort;
 import io.spring.githubchangeloggenerator.github.payload.Issue;
-import io.spring.githubchangeloggenerator.github.payload.Label;
 
 /**
  * A single section of a changelog report.
  *
  * @author Phillip Webb
+ * @author Steven Sheehy
  */
 class ChangelogSection {
 
@@ -40,19 +37,15 @@ class ChangelogSection {
 
 	private final IssueSort sort;
 
-	private final Set<String> labels;
+	private Predicate<Issue> filter;
 
-	ChangelogSection(String title, String group, IssueSort sort, String... labels) {
-		this(title, group, sort, new LinkedHashSet<>(Arrays.asList(labels)));
-	}
-
-	ChangelogSection(String title, String group, IssueSort sort, Set<String> labels) {
+	ChangelogSection(String title, String group, IssueSort sort, Predicate<Issue> filter) {
 		Assert.hasText(title, "Title must not be empty");
-		Assert.isTrue(!CollectionUtils.isEmpty(labels), "Labels must not be empty");
+		Assert.notNull(filter, "Filter must not be null");
 		this.title = title;
 		this.group = group;
 		this.sort = sort;
-		this.labels = labels;
+		this.filter = filter;
 	}
 
 	String getGroup() {
@@ -63,20 +56,13 @@ class ChangelogSection {
 		return this.sort;
 	}
 
-	boolean isMatchFor(Issue issue) {
-		for (String candidate : this.labels) {
-			for (Label label : issue.getLabels()) {
-				if (label.getName().contains(candidate)) {
-					return true;
-				}
-			}
-		}
-		return false;
-	}
-
 	@Override
 	public String toString() {
 		return this.title;
+	}
+
+	boolean isMatchFor(Issue issue) {
+		return this.filter.test(issue);
 	}
 
 }
