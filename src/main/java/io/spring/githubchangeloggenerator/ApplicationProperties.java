@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2024 the original author or authors.
+ * Copyright 2018-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -147,7 +147,7 @@ public class ApplicationProperties {
 		private final IssueType type;
 
 		public Section(String title, @DefaultValue("default") String group, IssueSort sort, Set<String> labels,
-				@DefaultValue("ANY") IssueType type) {
+				@DefaultValue("any") IssueType type) {
 			this.title = title;
 			this.group = (group != null) ? group : "default";
 			this.sort = sort;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2022 the original author or authors.
+ * Copyright 2018-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.springframework.util.CollectionUtils;
@@ -50,8 +51,8 @@ class ChangelogSections {
 		DEFAULT_SECTIONS = Collections.unmodifiableList(sections);
 	}
 
-	private static void add(List<ChangelogSection> sections, String title, String... labels) {
-		sections.add(new ChangelogSection(title, null, null, labels));
+	private static void add(List<ChangelogSection> sections, String title, String... labelNameContent) {
+		sections.add(new ChangelogSection(title, null, null, SelectIssues.withLabelNamesContaining(labelNameContent)));
 	}
 
 	private final List<ChangelogSection> sections;
@@ -74,9 +75,10 @@ class ChangelogSections {
 		return customSections;
 	}
 
-	private ChangelogSection adapt(ApplicationProperties.Section propertySection) {
-		return new ChangelogSection(propertySection.getTitle(), propertySection.getGroup(), propertySection.getSort(),
-				propertySection.getLabels(), propertySection.getType());
+	private ChangelogSection adapt(ApplicationProperties.Section section) {
+		Predicate<Issue> filter = SelectIssues.withLabelNamesContaining(section.getLabels());
+		filter = filter.and(SelectIssues.withType(section.getType()));
+		return new ChangelogSection(section.getTitle(), section.getGroup(), section.getSort(), filter);
 	}
 
 	Map<ChangelogSection, List<Issue>> collate(List<Issue> issues) {
