@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2024 the original author or authors.
+ * Copyright 2018-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,6 +32,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
 import org.springframework.util.FileCopyUtils;
+import org.springframework.util.StringUtils;
 
 import io.spring.githubchangeloggenerator.ApplicationProperties.ExternalLink;
 import io.spring.githubchangeloggenerator.ApplicationProperties.IssueSort;
@@ -184,6 +185,9 @@ public class ChangelogGenerator {
 	}
 
 	private Issue getPortedReferenceIssue(Issue issue) {
+		if (!StringUtils.hasText(issue.getBody())) {
+			return issue;
+		}
 		for (PortedIssue portedIssue : this.portedIssues) {
 			List<String> labelNames = issue.getLabels().stream().map(Label::getName).toList();
 			if (labelNames.contains(portedIssue.getLabel())) {

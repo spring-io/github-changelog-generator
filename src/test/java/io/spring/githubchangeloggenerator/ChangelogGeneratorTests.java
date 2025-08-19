@@ -136,6 +136,15 @@ class ChangelogGeneratorTests {
 	}
 
 	@Test
+	void generateWhenHasPortedIssuesWithNoBody() throws Exception {
+		List<Issue> issues = new ArrayList<>();
+		issues.add(newPortedIssue("Enhancement 1", "2", null, "enhancement-1-url", Type.FORWARD_PORT));
+		issues.add(newPortedIssue("Enhancement 2", "4", null, "enhancement-2-url", Type.BACK_PORT));
+		given(this.service.getIssuesForMilestone(23, REPO)).willReturn(issues);
+		assertChangelog("23").content().isEqualTo(from("output-with-ported-issues-without-a-body"));
+	}
+
+	@Test
 	void generateWhenHasExcludedContributors() throws Exception {
 		User contributor1 = createUser("contributor1");
 		User contributor2 = createUser("contributor2");
