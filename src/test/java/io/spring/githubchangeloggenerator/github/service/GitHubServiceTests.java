@@ -32,6 +32,7 @@ import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.test.web.client.ResponseActions;
 import org.springframework.test.web.client.response.DefaultResponseCreator;
 
+import io.spring.githubchangeloggenerator.github.payload.Comment;
 import io.spring.githubchangeloggenerator.github.payload.Issue;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -113,6 +114,31 @@ class GitHubServiceTests {
 		expectGet("/page-two%3D").andRespond(withJsonFrom("closed-issues-for-milestone-page-2.json"));
 		List<Issue> issues = this.service.getIssuesForMilestone(23, Repository.of("org/repo"));
 		assertThat(issues.size()).isEqualTo(60);
+	}
+
+	@Test
+	void getCommentsWhenNoComments() {
+		expectGet(ISSUE_URL + "/23/comments").andRespond(withJsonOf("[]"));
+		List<Comment> comments = this.service.getCommentsForIssue(23, Repository.of("org/repo"));
+		assertThat(comments.size()).isEqualTo(0);
+	}
+
+	@Test
+	void getCommentsWhenSinglePageOfCommentsPresent() {
+		expectGet(ISSUE_URL + "/23/comments").andRespond(withJsonFrom("comments-for-issue-page-1.json"));
+		List<Comment> comments = this.service.getCommentsForIssue(23, Repository.of("org/repo"));
+		assertThat(comments.size()).isEqualTo(30);
+	}
+
+	@Test
+	void getCommentsWhenMultiplePagesOfCommentsPresent() {
+		HttpHeaders headers = new HttpHeaders();
+		headers.set("Link", "</page-two%3D>; rel=\"next\"");
+		expectGet(ISSUE_URL + "/23/comments")
+			.andRespond(withJsonFrom("comments-for-issue-page-1.json").headers(headers));
+		expectGet("/page-two%3D").andRespond(withJsonFrom("comments-for-issue-page-2.json"));
+		List<Comment> comments = this.service.getCommentsForIssue(23, Repository.of("org/repo"));
+		assertThat(comments.size()).isEqualTo(60);
 	}
 
 	private ResponseActions expectGet(String expectedUri) {

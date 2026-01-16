@@ -26,11 +26,15 @@ import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 
 import io.spring.githubchangeloggenerator.ApplicationProperties.IssueType;
+import io.spring.githubchangeloggenerator.ApplicationProperties.Summary;
+import io.spring.githubchangeloggenerator.ApplicationProperties.SummaryMode;
 import io.spring.githubchangeloggenerator.github.payload.Issue;
 import io.spring.githubchangeloggenerator.github.payload.Label;
+import io.spring.githubchangeloggenerator.github.service.GitHubService;
 import io.spring.githubchangeloggenerator.github.service.Repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 /**
  * Tests for {@link ChangelogSections}.
@@ -44,6 +48,8 @@ class ChangelogSectionsTests {
 
 	private static final Repository REPO = Repository.of("org/name");
 
+	private GitHubService github = mock(GitHubService.class);
+
 	@Test
 	void collateWhenNoCustomSectionsUsesDefaultSections() {
 		Issue enhancement = createIssue("1", "enhancement");
@@ -52,7 +58,7 @@ class ChangelogSectionsTests {
 		Issue dependencyUpgrade = createIssue("4", "dependency-upgrade");
 		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.TITLE, null, null, null,
 				null, false);
-		ChangelogSections sections = new ChangelogSections(properties);
+		ChangelogSections sections = new ChangelogSections(properties, this.github);
 		Map<ChangelogSection, List<Issue>> collated = sections
 			.collate(Arrays.asList(enhancement, bug, documentation, dependencyUpgrade));
 		Map<String, List<Issue>> bySection = getBySection(collated);
@@ -67,13 +73,15 @@ class ChangelogSectionsTests {
 	@Test
 	void collateWhenHasCustomSectionsUsesDefinedSections() {
 		ApplicationProperties.Section breaksPassivitySection = new ApplicationProperties.Section(":rewind: Non-passive",
-				null, null, Collections.singleton("breaks-passivity"), IssueType.ANY);
+				null, null, Collections.singleton("breaks-passivity"), IssueType.ANY,
+				new Summary(SummaryMode.TITLE, Collections.emptyMap()));
 		ApplicationProperties.Section bugsSection = new ApplicationProperties.Section(":lady_beetle: Bug Fixes", null,
-				null, Collections.singleton("bug"), IssueType.ANY);
+				null, Collections.singleton("bug"), IssueType.ANY,
+				new Summary(SummaryMode.TITLE, Collections.emptyMap()));
 		List<ApplicationProperties.Section> customSections = Arrays.asList(breaksPassivitySection, bugsSection);
 		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.TITLE, customSections,
 				null, null, null, false);
-		ChangelogSections sections = new ChangelogSections(properties);
+		ChangelogSections sections = new ChangelogSections(properties, this.github);
 		Issue bug = createIssue("1", "bug");
 		Issue nonPassive = createIssue("1", "breaks-passivity");
 		Map<ChangelogSection, List<Issue>> collated = sections.collate(Arrays.asList(bug, nonPassive));
@@ -84,11 +92,12 @@ class ChangelogSectionsTests {
 	@Test
 	void collateWhenHasCustomSectionsUsesDefinedSectionsAndDefault() {
 		ApplicationProperties.Section breaksPassivitySection = new ApplicationProperties.Section(":rewind: Non-passive",
-				null, null, Collections.singleton("breaks-passivity"), IssueType.ANY);
+				null, null, Collections.singleton("breaks-passivity"), IssueType.ANY,
+				new Summary(SummaryMode.TITLE, Collections.emptyMap()));
 		List<ApplicationProperties.Section> customSections = List.of(breaksPassivitySection);
 		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.TITLE, customSections,
 				null, null, null, true);
-		ChangelogSections sections = new ChangelogSections(properties);
+		ChangelogSections sections = new ChangelogSections(properties, this.github);
 		Issue bug = createIssue("1", "bug");
 		Issue nonPassive = createIssue("1", "breaks-passivity");
 		Map<ChangelogSection, List<Issue>> collated = sections.collate(Arrays.asList(bug, nonPassive));
@@ -101,7 +110,7 @@ class ChangelogSectionsTests {
 		Issue bug = createIssue("1", "bug");
 		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.TITLE, null, null, null,
 				null, false);
-		ChangelogSections sections = new ChangelogSections(properties);
+		ChangelogSections sections = new ChangelogSections(properties, this.github);
 		Map<ChangelogSection, List<Issue>> collated = sections.collate(Collections.singletonList(bug));
 		Map<String, List<Issue>> bySection = getBySection(collated);
 		assertThat(bySection.keySet()).containsExactly(":lady_beetle: Bug Fixes");
@@ -113,7 +122,7 @@ class ChangelogSectionsTests {
 		Issue nonPassive = createIssue("2", "non-passive");
 		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.TITLE, null, null, null,
 				null, false);
-		ChangelogSections sections = new ChangelogSections(properties);
+		ChangelogSections sections = new ChangelogSections(properties, this.github);
 		Map<ChangelogSection, List<Issue>> collated = sections.collate(Arrays.asList(bug, nonPassive));
 		Map<String, List<Issue>> bySection = getBySection(collated);
 		assertThat(bySection).containsOnlyKeys(":lady_beetle: Bug Fixes");
@@ -126,13 +135,14 @@ class ChangelogSectionsTests {
 		Issue highlight = createIssue("2", "highlight");
 		Issue bugAndHighlight = createIssue("3", "bug", "highlight");
 		ApplicationProperties.Section bugs = new ApplicationProperties.Section("Bugs", null, null,
-				Collections.singleton("bug"), IssueType.ANY);
+				Collections.singleton("bug"), IssueType.ANY, new Summary(SummaryMode.TITLE, Collections.emptyMap()));
 		ApplicationProperties.Section highlights = new ApplicationProperties.Section("Highlights", null, null,
-				Collections.singleton("highlight"), IssueType.ANY);
+				Collections.singleton("highlight"), IssueType.ANY,
+				new Summary(SummaryMode.TITLE, Collections.emptyMap()));
 		List<ApplicationProperties.Section> customSections = Arrays.asList(bugs, highlights);
 		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.TITLE, customSections,
 				null, null, null, false);
-		ChangelogSections sections = new ChangelogSections(properties);
+		ChangelogSections sections = new ChangelogSections(properties, this.github);
 		Map<ChangelogSection, List<Issue>> collated = sections.collate(Arrays.asList(bug, highlight, bugAndHighlight));
 		Map<String, List<Issue>> bySection = getBySection(collated);
 		assertThat(bySection).containsOnlyKeys("Bugs", "Highlights");
@@ -146,13 +156,14 @@ class ChangelogSectionsTests {
 		Issue highlight = createIssue("2", "highlight");
 		Issue bugAndHighlight = createIssue("3", "bug", "highlight");
 		ApplicationProperties.Section bugs = new ApplicationProperties.Section("Bugs", null, null,
-				Collections.singleton("bug"), IssueType.ANY);
+				Collections.singleton("bug"), IssueType.ANY, new Summary(SummaryMode.TITLE, Collections.emptyMap()));
 		ApplicationProperties.Section highlights = new ApplicationProperties.Section("Highlights", "highlights", null,
-				Collections.singleton("highlight"), IssueType.ANY);
+				Collections.singleton("highlight"), IssueType.ANY,
+				new Summary(SummaryMode.TITLE, Collections.emptyMap()));
 		List<ApplicationProperties.Section> customSections = Arrays.asList(bugs, highlights);
 		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.TITLE, customSections,
 				null, null, null, false);
-		ChangelogSections sections = new ChangelogSections(properties);
+		ChangelogSections sections = new ChangelogSections(properties, this.github);
 		Map<ChangelogSection, List<Issue>> collated = sections.collate(Arrays.asList(bug, highlight, bugAndHighlight));
 		Map<String, List<Issue>> bySection = getBySection(collated);
 		assertThat(bySection).containsOnlyKeys("Bugs", "Highlights");

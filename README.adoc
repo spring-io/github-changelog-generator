@@ -152,6 +152,35 @@ An issue labeled with `new` and `noteworthy` will appear in both the "Highlights
 
 
 
+==== Custom Summaries
+
+By default, an issue's entry in the changelog summarizes the issue using its title.
+Alternatively, the summary can be taken from an issue comment made by a member of the issue's owning organization.
+To be used as the summary, a comment must begin with a configured prefix.
+The prefix is not included in the summary.
+When no such comment is found on the issue, its title is used as a fallback.
+
+For example, you might define the following:
+
+[source,yaml]
+----
+changelog:
+  sections:
+    - title: "Noteworthy Changes"
+      labels:
+        - "status: noteworthy"
+      summary:
+        mode: "member-comment"
+        config:
+          prefix: "Noteworthy change:"
+----
+
+This will create a section entitled "Noteworthy Changes" that will include one entry for each issue labelled with "status: noteworthy".
+Each entry will use the text from the first member's comment that begins "Noteworthy change:" to summarize the issue.
+If no such comment is found, the issue's title is used.
+
+
+
 === Excluding Issues
 
 Issues and pull requests can be excluded from the changelog by configuring exclusions.

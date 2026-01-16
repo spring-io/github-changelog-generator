@@ -30,7 +30,12 @@ import java.util.stream.Collectors;
 
 import org.springframework.util.CollectionUtils;
 
+import io.spring.githubchangeloggenerator.ApplicationProperties.Summary;
+import io.spring.githubchangeloggenerator.github.payload.Comment;
+import io.spring.githubchangeloggenerator.github.payload.Comment.AuthorAssociation;
 import io.spring.githubchangeloggenerator.github.payload.Issue;
+import io.spring.githubchangeloggenerator.github.service.GitHubService;
+import io.spring.githubchangeloggenerator.github.service.Repository;
 
 /**
  * Manages sections of the changelog report.
@@ -55,9 +60,15 @@ class ChangelogSections {
 		sections.add(new ChangelogSection(title, null, null, SelectIssues.withLabelNamesContaining(labelNameContent)));
 	}
 
+	private final GitHubService gitHub;
+
+	private final Repository repository;
+
 	private final List<ChangelogSection> sections;
 
-	ChangelogSections(ApplicationProperties properties) {
+	ChangelogSections(ApplicationProperties properties, GitHubService gitHub) {
+		this.gitHub = gitHub;
+		this.repository = properties.getRepository();
 		this.sections = adapt(properties);
 	}
 
@@ -78,7 +89,17 @@ class ChangelogSections {
 	private ChangelogSection adapt(ApplicationProperties.Section section) {
 		Predicate<Issue> filter = SelectIssues.withLabelNamesContaining(section.getLabels());
 		filter = filter.and(SelectIssues.withType(section.getType()));
-		return new ChangelogSection(section.getTitle(), section.getGroup(), section.getSort(), filter);
+		return new ChangelogSection(section.getTitle(), section.getGroup(), section.getSort(), filter,
+				issueSummarizer(section.getSummary()));
+	}
+
+	private IssueSummarizer issueSummarizer(Summary summary) {
+		IssueSummarizer titleIssueSummarizer = Issue::getTitle;
+		return switch (summary.getMode()) {
+			case MEMBER_COMMENT -> new MemberCommentIssueSummarizer(summary.getConfig(), this.gitHub, this.repository,
+					titleIssueSummarizer);
+			case TITLE -> titleIssueSummarizer;
+		};
 	}
 
 	Map<ChangelogSection, List<Issue>> collate(List<Issue> issues) {
@@ -102,6 +123,41 @@ class ChangelogSections {
 			}
 		}
 		return result;
+	}
+
+	private static final class MemberCommentIssueSummarizer implements IssueSummarizer {
+
+		private final String prefix;
+
+		private final GitHubService gitHub;
+
+		private final Repository repository;
+
+		private final IssueSummarizer fallback;
+
+		private MemberCommentIssueSummarizer(Map<String, String> config, GitHubService gitHub, Repository repository,
+				IssueSummarizer fallback) {
+			this.prefix = config.get("prefix");
+			this.gitHub = gitHub;
+			this.repository = repository;
+			this.fallback = fallback;
+		}
+
+		@Override
+		public String summarize(Issue issue) {
+			List<Comment> comments = this.gitHub.getCommentsForIssue(Integer.parseInt(issue.getNumber()),
+					this.repository);
+			for (Comment comment : comments) {
+				if (AuthorAssociation.MEMBER == comment.getAuthorAssociation()) {
+					String body = comment.getBody();
+					if (body != null && body.startsWith(this.prefix)) {
+						return body.substring(this.prefix.length()).trim();
+					}
+				}
+			}
+			return this.fallback.summarize(issue);
+		}
+
 	}
 
 }

@@ -39,13 +39,21 @@ class ChangelogSection {
 
 	private Predicate<Issue> filter;
 
+	private IssueSummarizer summarizer;
+
 	ChangelogSection(String title, String group, IssueSort sort, Predicate<Issue> filter) {
+		this(title, group, sort, filter, Issue::getTitle);
+	}
+
+	ChangelogSection(String title, String group, IssueSort sort, Predicate<Issue> filter, IssueSummarizer summarizer) {
 		Assert.hasText(title, "Title must not be empty");
 		Assert.notNull(filter, "Filter must not be null");
+		Assert.notNull(summarizer, "Summarizer must not be null");
 		this.title = title;
 		this.group = group;
 		this.sort = sort;
 		this.filter = filter;
+		this.summarizer = summarizer;
 	}
 
 	String getGroup() {
@@ -63,6 +71,10 @@ class ChangelogSection {
 
 	boolean isMatchFor(Issue issue) {
 		return this.filter.test(issue);
+	}
+
+	String summarize(Issue issue) {
+		return this.summarizer.summarize(issue);
 	}
 
 }

@@ -89,7 +89,7 @@ public class ChangelogGenerator {
 		this.excludeLabels = properties.getIssues().getExcludes().getLabels();
 		this.excludeContributors = properties.getContributors().getExclude().getNames();
 		this.contributorsTitle = properties.getContributors().getTitle();
-		this.sections = new ChangelogSections(properties);
+		this.sections = new ChangelogSections(properties, service);
 		this.portedIssues = properties.getIssues().getPorts();
 		this.externalLinks = properties.getExternalLinks();
 		this.generateLinks = properties.getIssues().isGenerateLinks();
@@ -148,7 +148,7 @@ public class ChangelogGenerator {
 			sort(section.getSort(), issues);
 			content.append((content.length() != 0) ? String.format("%n") : "");
 			content.append("## ").append(section).append(String.format("%n%n"));
-			issues.stream().map(this::getFormattedIssue).forEach(content::append);
+			issues.stream().map((issue) -> getFormattedIssue(issue, section)).forEach(content::append);
 		});
 	}
 
@@ -159,8 +159,8 @@ public class ChangelogGenerator {
 		}
 	}
 
-	private String getFormattedIssue(Issue issue) {
-		String title = issue.getTitle();
+	private String getFormattedIssue(Issue issue, ChangelogSection section) {
+		String title = section.summarize(issue);
 		for (Escape escape : escapes) {
 			title = escape.apply(title);
 		}

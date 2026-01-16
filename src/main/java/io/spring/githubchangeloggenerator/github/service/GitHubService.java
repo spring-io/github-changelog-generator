@@ -33,6 +33,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
+import io.spring.githubchangeloggenerator.github.payload.Comment;
 import io.spring.githubchangeloggenerator.github.payload.Issue;
 import io.spring.githubchangeloggenerator.github.payload.Milestone;
 
@@ -52,6 +53,8 @@ public class GitHubService {
 	private static final String ISSUES_URI = "/repos/{owner}/{name}/issues?milestone={milestone}&state=closed";
 
 	private static final String ISSUE_URI = "/repos/{owner}/{name}/issues/{issueNumber}";
+
+	private static final String COMMENTS_URI = "/repos/{owner}/{name}/issues/{issueNumber}/comments";
 
 	private final RestTemplate restTemplate;
 
@@ -88,6 +91,10 @@ public class GitHubService {
 
 	public List<Issue> getIssuesForMilestone(int milestoneNumber, Repository repository) {
 		return getAll(Issue.class, ISSUES_URI, repository.getOwner(), repository.getName(), milestoneNumber);
+	}
+
+	public List<Comment> getCommentsForIssue(int issueNumber, Repository repository) {
+		return getAll(Comment.class, COMMENTS_URI, repository.getOwner(), repository.getName(), issueNumber);
 	}
 
 	private <T> List<T> getAll(Class<T> type, String url, Object... uriVariables) {

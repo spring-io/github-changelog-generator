@@ -25,6 +25,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -44,6 +45,10 @@ import io.spring.githubchangeloggenerator.ApplicationProperties.Issues;
 import io.spring.githubchangeloggenerator.ApplicationProperties.IssuesExclude;
 import io.spring.githubchangeloggenerator.ApplicationProperties.PortedIssue;
 import io.spring.githubchangeloggenerator.ApplicationProperties.Section;
+import io.spring.githubchangeloggenerator.ApplicationProperties.Summary;
+import io.spring.githubchangeloggenerator.ApplicationProperties.SummaryMode;
+import io.spring.githubchangeloggenerator.github.payload.Comment;
+import io.spring.githubchangeloggenerator.github.payload.Comment.AuthorAssociation;
 import io.spring.githubchangeloggenerator.github.payload.Issue;
 import io.spring.githubchangeloggenerator.github.payload.Label;
 import io.spring.githubchangeloggenerator.github.payload.PullRequest;
@@ -333,7 +338,8 @@ class ChangelogGeneratorTests {
 	void generateWhenSectionSortedByTitle() throws Exception {
 		List<Section> sections = new ArrayList<>();
 		Set<String> labels = Collections.singleton("type: enhancement");
-		sections.add(new Section("Enhancements", null, IssueSort.TITLE, labels, IssueType.ANY));
+		sections.add(new Section("Enhancements", null, IssueSort.TITLE, labels, IssueType.ANY,
+				new Summary(SummaryMode.TITLE, Collections.emptyMap())));
 		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.ID, sections,
 				new Issues(null, null, null, true), null, null, false);
 		this.generator = new ChangelogGenerator(this.service, properties);
@@ -346,10 +352,34 @@ class ChangelogGeneratorTests {
 	}
 
 	@Test
+	void generateWhenSectionUsesMemberCommentSummaries() throws Exception {
+		List<Section> sections = new ArrayList<>();
+		Set<String> labels = Collections.singleton("status: noteworthy");
+		sections.add(new Section("Noteworthy Changes", null, IssueSort.TITLE, labels, IssueType.ANY,
+				new Summary(SummaryMode.MEMBER_COMMENT, Map.of("prefix", "Noteworthy change: "))));
+		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.ID, sections,
+				new Issues(null, null, null, true), null, null, false);
+		this.generator = new ChangelogGenerator(this.service, properties);
+		List<Issue> issues = new ArrayList<>();
+		issues.add(newIssue("Bug one", "1", "bug-1-url", Type.BUG, "status: noteworthy"));
+		issues.add(newIssue("Bug two", "2", "bug-2-url", Type.BUG));
+		issues.add(newIssue("Noteworthy change", "3", "bug-3-url", Type.BUG, "status: noteworthy"));
+		given(this.service.getIssuesForMilestone(23, REPO)).willReturn(issues);
+		List<Comment> comments = new ArrayList<>();
+		comments.add(new Comment("Community comment", AuthorAssociation.NONE));
+		comments.add(new Comment("Member comment", AuthorAssociation.MEMBER));
+		comments.add(new Comment("Noteworthy change: should be ignored", AuthorAssociation.CONTRIBUTOR));
+		comments.add(new Comment("Noteworthy change: Description of the change", AuthorAssociation.MEMBER));
+		given(this.service.getCommentsForIssue(3, REPO)).willReturn(comments);
+		assertChangelog("23").hasContent(from("output-with-noteworthy-changes"));
+	}
+
+	@Test
 	void generateWhenAllIssuesSortedByTitle() throws Exception {
 		List<Section> sections = new ArrayList<>();
 		Set<String> labels = Collections.singleton("type: enhancement");
-		sections.add(new Section("Enhancements", null, null, labels, IssueType.ANY));
+		sections.add(new Section("Enhancements", null, null, labels, IssueType.ANY,
+				new Summary(SummaryMode.TITLE, Collections.emptyMap())));
 		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.ID, sections,
 				new Issues(IssueSort.TITLE, null, null, true), null, null, false);
 		this.generator = new ChangelogGenerator(this.service, properties);
@@ -414,7 +444,8 @@ class ChangelogGeneratorTests {
 	void generateWhenIssuesOnly() throws Exception {
 		List<Section> sections = new ArrayList<>();
 		Set<String> labels = Collections.singleton("type: enhancement");
-		sections.add(new Section("Enhancements", null, IssueSort.TITLE, labels, IssueType.ISSUE));
+		sections.add(new Section("Enhancements", null, IssueSort.TITLE, labels, IssueType.ISSUE,
+				new Summary(SummaryMode.TITLE, Collections.emptyMap())));
 		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.ID, sections,
 				new Issues(null, null, null, true), null, null, false);
 		this.generator = new ChangelogGenerator(this.service, properties);
@@ -432,7 +463,8 @@ class ChangelogGeneratorTests {
 	void generateWhenPullRequestsOnly() throws Exception {
 		List<Section> sections = new ArrayList<>();
 		Set<String> labels = Collections.singleton("type: enhancement");
-		sections.add(new Section("Enhancements", null, IssueSort.TITLE, labels, IssueType.PULL_REQUEST));
+		sections.add(new Section("Enhancements", null, IssueSort.TITLE, labels, IssueType.PULL_REQUEST,
+				new Summary(SummaryMode.TITLE, Collections.emptyMap())));
 		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.ID, sections,
 				new Issues(null, null, null, true), null, null, false);
 		this.generator = new ChangelogGenerator(this.service, properties);

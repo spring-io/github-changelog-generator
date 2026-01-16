@@ -18,6 +18,7 @@ package io.spring.githubchangeloggenerator;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -146,13 +147,16 @@ public class ApplicationProperties {
 		 */
 		private final IssueType type;
 
+		private final Summary summary;
+
 		public Section(String title, @DefaultValue("default") String group, IssueSort sort, Set<String> labels,
-				@DefaultValue("any") IssueType type) {
+				@DefaultValue("any") IssueType type, @DefaultValue Summary summary) {
 			this.title = title;
 			this.group = (group != null) ? group : "default";
 			this.sort = sort;
 			this.labels = labels;
 			this.type = type;
+			this.summary = summary;
 		}
 
 		public String getTitle() {
@@ -173,6 +177,10 @@ public class ApplicationProperties {
 
 		public IssueType getType() {
 			return this.type;
+		}
+
+		public Summary getSummary() {
+			return this.summary;
 		}
 
 	}
@@ -392,6 +400,41 @@ public class ApplicationProperties {
 		 * GitHub pull request.
 		 */
 		PULL_REQUEST
+
+	}
+
+	public static class Summary {
+
+		private final SummaryMode mode;
+
+		private Map<String, String> config;
+
+		public Summary(@DefaultValue("title") SummaryMode mode, @DefaultValue Map<String, String> config) {
+			this.mode = mode;
+			this.config = config;
+		}
+
+		public SummaryMode getMode() {
+			return this.mode;
+		}
+
+		public Map<String, String> getConfig() {
+			return this.config;
+		}
+
+	}
+
+	public enum SummaryMode {
+
+		/**
+		 * Summarize the entry using a comment from a member of the organization.
+		 */
+		MEMBER_COMMENT,
+
+		/**
+		 * Summarize the entry using its title.
+		 */
+		TITLE
 
 	}
 
