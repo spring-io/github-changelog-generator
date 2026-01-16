@@ -14,16 +14,8 @@ repositories {
 	mavenCentral()
 }
 
-configurations {
-	checkstyle {
-		resolutionStrategy.capabilitiesResolution.withCapability("com.google.collections:google-collections") {
-			select("com.google.guava:guava:0")
-		}
-	}
-}
-
 checkstyle {
-	toolVersion = "10.12.7"
+	toolVersion = "12.3.1"
 }
 
 dependencies {
