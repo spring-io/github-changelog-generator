@@ -61,7 +61,7 @@ public class Comment {
 		 * The user who authored the comment has no association with the issue's
 		 * repository.
 		 */
-		NONE;
+		NONE
 
 	}
 
