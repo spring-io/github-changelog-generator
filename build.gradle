@@ -1,7 +1,7 @@
 plugins {
 	id "checkstyle"
 	id "java"
-	id "org.springframework.boot" version "3.4.4"
+	id "org.springframework.boot" version "4.0.1"
 	id "io.spring.javaformat" version "$javaFormatVersion"
 }
 
@@ -34,10 +34,10 @@ dependencies {
 	checkstyle("io.spring.javaformat:spring-javaformat-checkstyle:$javaFormatVersion")
 
 	implementation(platform(org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES))
-	implementation("org.springframework:spring-web")
+	implementation("org.springframework.boot:spring-boot-starter-restclient")
 	implementation("org.springframework.boot:spring-boot-starter-json")
 
-	testImplementation("org.springframework.boot:spring-boot-starter-test")
+	testImplementation("org.springframework.boot:spring-boot-starter-restclient-test")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
