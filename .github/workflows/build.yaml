@@ -23,6 +23,8 @@ jobs:
         uses: gradle/actions/setup-gradle@417ae3ccd767c252f5661f1ace9f835f9654f2b5 # 3.1.0
         with:
           cache-read-only: false
-      - name: Build
+      - name: Build App
         id: build
         run: ./gradlew build
+      - name: Build Docker Image
+        run: docker build .
