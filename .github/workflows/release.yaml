@@ -36,5 +36,5 @@ jobs:
           milestone: ${{ steps.milestone-from-tag.outputs.milestone }}
       - name: Release
         env:
-          GITHUB_TOKEN: ${{ github.token }}
+          GITHUB_TOKEN: ${{ secrets.GH_ACTIONS_REPO_TOKEN }}
         run: gh release create ${{ github.ref_name }} --notes-file=changelog.md build/libs/github-changelog-generator.jar
