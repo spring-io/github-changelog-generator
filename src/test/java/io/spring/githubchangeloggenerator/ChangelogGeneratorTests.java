@@ -386,6 +386,25 @@ class ChangelogGeneratorTests {
 	}
 
 	@Test
+	void generateWhenSectionUsesBodyRegexSummaries() throws Exception {
+		List<Section> sections = new ArrayList<>();
+		Set<String> labels = Collections.singleton("type: dependency-upgrade");
+		sections.add(new Section("Dependency Upgrades", null, IssueSort.TITLE, labels, IssueType.ANY,
+				new Summary(SummaryMode.BODY_REGEX, Map.of("expression", "(Upgrade to \\[.*\\]\\(.*\\)).*"))));
+		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.ID, sections,
+				new Issues(null, null, null, true), null, null, false);
+		this.generator = new ChangelogGenerator(this.service, properties);
+		List<Issue> issues = new ArrayList<>();
+		issues.add(newIssue("Upgrade one", "1", "issue-1-url",
+				"Upgrade to [Spring Framework 7.0.6](https://github.com/spring-projects/spring-framework/releases/tag/v7.0.6).",
+				Type.DEPENDENCY_UPGRADE));
+		issues.add(newIssue("Upgrade two", "2", "issue-2-url", "Upgrade to Example Library 1.2.3.",
+				Type.DEPENDENCY_UPGRADE));
+		given(this.service.getIssuesForMilestone(23, REPO)).willReturn(issues);
+		assertChangelog("23").hasContent(from("output-with-body-regex-summaries"));
+	}
+
+	@Test
 	void generateWhenAllIssuesSortedByTitle() throws Exception {
 		List<Section> sections = new ArrayList<>();
 		Set<String> labels = Collections.singleton("type: enhancement");
@@ -522,6 +541,10 @@ class ChangelogGeneratorTests {
 		return new Issue(number, title, null, type.getLabels(), url, null, null, AuthorAssociation.NONE);
 	}
 
+	private Issue newIssue(String title, String number, String url, String body, Type type) {
+		return new Issue(number, title, null, type.getLabels(), url, null, body, AuthorAssociation.NONE);
+	}
+
 	private Issue newIssue(String title, String number, String url, Type type, String... extraLabels) {
 		List<Label> labels = new ArrayList<>(type.getLabels());
 		Arrays.stream(extraLabels).map(Label::new).forEach(labels::add);
@@ -555,6 +578,8 @@ class ChangelogGeneratorTests {
 	private enum Type {
 
 		BUG("type: bug"),
+
+		DEPENDENCY_UPGRADE("type: dependency-upgrade"),
 
 		ENHANCEMENT("type: enhancement"),
 

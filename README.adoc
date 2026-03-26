@@ -155,7 +155,12 @@ An issue labeled with `new` and `noteworthy` will appear in both the "Highlights
 ==== Custom Summaries
 
 By default, an issue's entry in the changelog summarizes the issue using its title.
-Alternatively, the summary can be taken from an issue comment made by a member of the issue's owning organization.
+Alternatively, summaries can be derived from a comment made by a member of the issue's owning organization or by applying a regular expression to its body.
+
+
+
+===== Member Comment
+
 To be used as the summary, a comment must begin with a configured prefix.
 The prefix is not included in the summary.
 When no such comment is found on the issue, the chain of <<_following_ported_issues,ported issues>> is checked and the first matching comment in the chain is used.
@@ -179,6 +184,33 @@ changelog:
 This will create a section entitled "Noteworthy Changes" that will include one entry for each issue labelled with "status: noteworthy".
 Each entry will use the text from the first member's comment that begins "Noteworthy change:" to summarize the issue.
 If no such comment is found, the issue's title is used.
+
+
+
+===== Body Regex
+
+A summary can be extracted by applying a regex to the body of the issue.
+If the regex matches, the issue is summarized using its first group.
+If the regex does not match, the issue's title is used.
+
+For example, you might define the following:
+
+[source,yaml]
+----
+changelog:
+  sections:
+    - title: "Dependency Upgrades"
+      sort: "title"
+      labels:
+        - "type: dependency-upgrade"
+      summary:
+        mode: "body-regex"
+        config:
+          expression: '(Upgrade to \[.*\]\(.*\)).*'
+----
+
+This will create a section entitled "Dependency Upgrades" that will use the regex `(Upgrade to \[.*\]\(.*\)).*` to summarize the issue.
+If the body does not match the regex, the issue's title is used.
 
 
 

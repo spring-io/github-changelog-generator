@@ -26,6 +26,8 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.function.Predicate;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.springframework.util.CollectionUtils;
@@ -102,6 +104,7 @@ class ChangelogSections {
 			case MEMBER_COMMENT -> new MemberCommentIssueSummarizer(summary.getConfig(), this.gitHub, this.repository,
 					this.issueChain, titleIssueSummarizer);
 			case TITLE -> titleIssueSummarizer;
+			case BODY_REGEX -> new BodyRegexIssueSummarizer(summary.getConfig(), titleIssueSummarizer);
 		};
 	}
 
@@ -185,6 +188,28 @@ class ChangelogSections {
 				}
 			}
 			return null;
+		}
+
+	}
+
+	static class BodyRegexIssueSummarizer implements IssueSummarizer {
+
+		private final Pattern pattern;
+
+		private final IssueSummarizer fallback;
+
+		BodyRegexIssueSummarizer(Map<String, String> config, IssueSummarizer fallback) {
+			this.pattern = Pattern.compile(config.get("expression"));
+			this.fallback = fallback;
+		}
+
+		@Override
+		public String summarize(Issue issue) {
+			Matcher matcher = this.pattern.matcher(issue.getBody());
+			if (matcher.matches()) {
+				return matcher.group(1);
+			}
+			return this.fallback.summarize(issue);
 		}
 
 	}

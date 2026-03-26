@@ -432,6 +432,11 @@ public class ApplicationProperties {
 		MEMBER_COMMENT,
 
 		/**
+		 * Summarize the entry by applying a regular expression to the issue's body.
+		 */
+		BODY_REGEX,
+
+		/**
 		 * Summarize the entry using its title.
 		 */
 		TITLE
