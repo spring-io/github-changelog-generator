@@ -26,17 +26,14 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
 import org.springframework.util.FileCopyUtils;
-import org.springframework.util.StringUtils;
 
 import io.spring.githubchangeloggenerator.ApplicationProperties.ExternalLink;
 import io.spring.githubchangeloggenerator.ApplicationProperties.IssueSort;
-import io.spring.githubchangeloggenerator.ApplicationProperties.PortedIssue;
 import io.spring.githubchangeloggenerator.github.payload.Issue;
 import io.spring.githubchangeloggenerator.github.payload.Label;
 import io.spring.githubchangeloggenerator.github.payload.User;
@@ -69,8 +66,6 @@ public class ChangelogGenerator {
 
 	private final Set<String> excludeLabels;
 
-	private final Set<PortedIssue> portedIssues;
-
 	private final Set<String> excludeContributors;
 
 	private final String contributorsTitle;
@@ -81,6 +76,8 @@ public class ChangelogGenerator {
 
 	private final boolean generateLinks;
 
+	private final IssueChain issueChain;
+
 	public ChangelogGenerator(GitHubService service, ApplicationProperties properties) {
 		this.service = service;
 		this.repository = properties.getRepository();
@@ -89,10 +86,10 @@ public class ChangelogGenerator {
 		this.excludeLabels = properties.getIssues().getExcludes().getLabels();
 		this.excludeContributors = properties.getContributors().getExclude().getNames();
 		this.contributorsTitle = properties.getContributors().getTitle();
-		this.sections = new ChangelogSections(properties, service);
-		this.portedIssues = properties.getIssues().getPorts();
 		this.externalLinks = properties.getExternalLinks();
 		this.generateLinks = properties.getIssues().isGenerateLinks();
+		this.issueChain = new PortedIssueChain(properties.getIssues().getPorts(), this.service, this.repository);
+		this.sections = new ChangelogSections(properties, service, this.issueChain);
 	}
 
 	/**
@@ -185,22 +182,9 @@ public class ChangelogGenerator {
 	}
 
 	private Issue getPortedReferenceIssue(Issue issue) {
-		if (!StringUtils.hasText(issue.getBody())) {
-			return issue;
-		}
-		for (PortedIssue portedIssue : this.portedIssues) {
-			List<String> labelNames = issue.getLabels().stream().map(Label::getName).toList();
-			if (labelNames.contains(portedIssue.getLabel())) {
-				Pattern pattern = portedIssue.getBodyExpression();
-				Matcher matcher = pattern.matcher(issue.getBody());
-				if (matcher.matches()) {
-					String issueNumber = matcher.group(1);
-					Issue referencedIssue = this.service.getIssue(issueNumber, this.repository);
-					if (referencedIssue != null) {
-						return getPortedReferenceIssue(referencedIssue);
-					}
-				}
-			}
+		Issue next;
+		while ((next = this.issueChain.nextIssue(issue)) != null) {
+			issue = next;
 		}
 		return issue;
 	}

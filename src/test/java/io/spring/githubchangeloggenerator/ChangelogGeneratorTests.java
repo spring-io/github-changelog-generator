@@ -355,10 +355,11 @@ class ChangelogGeneratorTests {
 	void generateWhenSectionUsesMemberCommentSummaries() throws Exception {
 		List<Section> sections = new ArrayList<>();
 		Set<String> labels = Collections.singleton("status: noteworthy");
-		sections.add(new Section("Noteworthy Changes", null, IssueSort.TITLE, labels, IssueType.ANY,
+		sections.add(new Section("Noteworthy Changes", null, IssueSort.CREATED, labels, IssueType.ANY,
 				new Summary(SummaryMode.MEMBER_COMMENT, Map.of("prefix", "Noteworthy change: "))));
+		PortedIssue forwardPort = new PortedIssue("status: forward-port", "Forward port of issue #(\\d+)");
 		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.ID, sections,
-				new Issues(null, null, null, true), null, null, false);
+				new Issues(null, null, Set.of(forwardPort), true), null, null, false);
 		this.generator = new ChangelogGenerator(this.service, properties);
 		List<Issue> issues = new ArrayList<>();
 		issues.add(newIssue("Bug one", "1", "bug-1-url", Type.BUG, "status: noteworthy"));
@@ -367,6 +368,8 @@ class ChangelogGeneratorTests {
 		issues.add(newIssue("Noteworthy change in opening comment", "4",
 				"Noteworthy change: Issue body description of the change", "bug-4-url", Type.BUG,
 				AuthorAssociation.MEMBER, "status: noteworthy"));
+		issues.add(newIssue("Forward port of noteworthy change", "6", "Forward port of issue #5", "bug-6-url", Type.BUG,
+				AuthorAssociation.MEMBER, "status: noteworthy", "status: forward-port"));
 		given(this.service.getIssuesForMilestone(23, REPO)).willReturn(issues);
 		List<Comment> comments = new ArrayList<>();
 		comments.add(new Comment("Community comment", AuthorAssociation.NONE));
@@ -374,6 +377,11 @@ class ChangelogGeneratorTests {
 		comments.add(new Comment("Noteworthy change: should be ignored", AuthorAssociation.CONTRIBUTOR));
 		comments.add(new Comment("Noteworthy change: Description of the change", AuthorAssociation.MEMBER));
 		given(this.service.getCommentsForIssue(3, REPO)).willReturn(comments);
+		given(this.service.getCommentsForIssue(5, REPO)).willReturn(
+				List.of(new Comment("Noteworthy change: Description of change from issue that was ported forwards",
+						AuthorAssociation.MEMBER)));
+		given(this.service.getIssue("5", REPO))
+			.willReturn(newIssue("Noteworthy change", "5", "bug-5-url", Type.BUG, "status: noteworthy"));
 		assertChangelog("23").hasContent(from("output-with-noteworthy-changes"));
 	}
 

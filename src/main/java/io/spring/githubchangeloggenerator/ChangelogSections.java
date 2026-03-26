@@ -66,9 +66,12 @@ class ChangelogSections {
 
 	private final List<ChangelogSection> sections;
 
-	ChangelogSections(ApplicationProperties properties, GitHubService gitHub) {
+	private final IssueChain issueChain;
+
+	ChangelogSections(ApplicationProperties properties, GitHubService gitHub, IssueChain issueChain) {
 		this.gitHub = gitHub;
 		this.repository = properties.getRepository();
+		this.issueChain = issueChain;
 		this.sections = adapt(properties);
 	}
 
@@ -97,7 +100,7 @@ class ChangelogSections {
 		IssueSummarizer titleIssueSummarizer = Issue::getTitle;
 		return switch (summary.getMode()) {
 			case MEMBER_COMMENT -> new MemberCommentIssueSummarizer(summary.getConfig(), this.gitHub, this.repository,
-					titleIssueSummarizer);
+					this.issueChain, titleIssueSummarizer);
 			case TITLE -> titleIssueSummarizer;
 		};
 	}
@@ -133,26 +136,34 @@ class ChangelogSections {
 
 		private final Repository repository;
 
+		private final IssueChain issueChain;
+
 		private final IssueSummarizer fallback;
 
 		private MemberCommentIssueSummarizer(Map<String, String> config, GitHubService gitHub, Repository repository,
-				IssueSummarizer fallback) {
+				IssueChain issueChain, IssueSummarizer fallback) {
 			this.prefix = config.get("prefix");
 			this.gitHub = gitHub;
 			this.repository = repository;
+			this.issueChain = issueChain;
 			this.fallback = fallback;
 		}
 
 		@Override
 		public String summarize(Issue issue) {
-			String summary = summarize(issue.getBody(), issue.getAuthorAssociation());
-			if (summary == null) {
-				summary = summaryFromComments(issue);
-				if (summary == null) {
-					summary = this.fallback.summarize(issue);
+			Issue current = issue;
+			while (current != null) {
+				String summary = summarize(current.getBody(), current.getAuthorAssociation());
+				if (summary != null) {
+					return summary;
 				}
+				summary = summaryFromComments(current);
+				if (summary != null) {
+					return summary;
+				}
+				current = this.issueChain.nextIssue(current);
 			}
-			return summary;
+			return this.fallback.summarize(issue);
 		}
 
 		private String summarize(String body, AuthorAssociation authorAssociation) {

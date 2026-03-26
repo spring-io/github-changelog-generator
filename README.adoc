@@ -158,7 +158,8 @@ By default, an issue's entry in the changelog summarizes the issue using its tit
 Alternatively, the summary can be taken from an issue comment made by a member of the issue's owning organization.
 To be used as the summary, a comment must begin with a configured prefix.
 The prefix is not included in the summary.
-When no such comment is found on the issue, its title is used as a fallback.
+When no such comment is found on the issue, the chain of <<_following_ported_issues,ported issues>> is checked and the first matching comment in the chain is used.
+If no matching comment is found, the issue's title is used as a fallback.
 
 For example, you might define the following:
 
@@ -236,8 +237,9 @@ changelog:
 === Following Ported Issues
 
 If an issue is forward-ported or backward-ported between milestones, you might have separate issues in each milestone that reference the original issue.
-To credit a contributor in the changelog for every milestone that includes a forward or backward port of the issue that was resolved, configure the labels that are used to identify ported issues.
-The body of a ported issue should contain a comment with a reference to the original issue, which is extracted using a regular expression with exactly one capture group for the original issue number.
+To allow the changelog generator to find these linked issues, configure the labels that are used to identify ported issues.
+The body of a ported issue should contain a comment with a reference to the original issue.
+The reference is extracted using a regular expression with exactly one capture group for the original issue number.
 
 [source,yaml]
 ----
@@ -249,6 +251,11 @@ changelog:
       - label: "status: backport"
         bodyExpression: 'Back port of issue #(\d+).*'
 ----
+
+The changelog generator will use the links between ported issues to:
+
+- Credit a contributor in the changelog for every milestone that includes a forward or backward port of the issue that was resolved
+- Find member comments when looking for a <<_custom_summaries,custom issue summary>>
 
 
 
