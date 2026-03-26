@@ -20,6 +20,8 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import io.spring.githubchangeloggenerator.github.payload.Comment.AuthorAssociation;
+
 /**
  * Details of a GitHub issue.
  *
@@ -41,10 +43,13 @@ public class Issue {
 
 	private final String body;
 
+	private final AuthorAssociation authorAssociation;
+
 	public Issue(@JsonProperty("number") String number, @JsonProperty("title") String title,
 			@JsonProperty("user") User user, @JsonProperty("labels") List<Label> labels,
 			@JsonProperty("html_url") String url, @JsonProperty("pull_request") PullRequest pullRequest,
-			@JsonProperty("body") String body) {
+			@JsonProperty("body") String body,
+			@JsonProperty("author_association") AuthorAssociation authorAssociation) {
 		super();
 		this.number = number;
 		this.title = title;
@@ -53,6 +58,7 @@ public class Issue {
 		this.url = url;
 		this.pullRequest = pullRequest;
 		this.body = body;
+		this.authorAssociation = authorAssociation;
 	}
 
 	public String getTitle() {
@@ -86,6 +92,10 @@ public class Issue {
 	@Override
 	public String toString() {
 		return this.title;
+	}
+
+	public AuthorAssociation getAuthorAssociation() {
+		return this.authorAssociation;
 	}
 
 }

@@ -145,17 +145,35 @@ class ChangelogSections {
 
 		@Override
 		public String summarize(Issue issue) {
+			String summary = summarize(issue.getBody(), issue.getAuthorAssociation());
+			if (summary == null) {
+				summary = summaryFromComments(issue);
+				if (summary == null) {
+					summary = this.fallback.summarize(issue);
+				}
+			}
+			return summary;
+		}
+
+		private String summarize(String body, AuthorAssociation authorAssociation) {
+			if (AuthorAssociation.MEMBER == authorAssociation) {
+				if (body != null && body.startsWith(this.prefix)) {
+					return body.substring(this.prefix.length()).trim();
+				}
+			}
+			return null;
+		}
+
+		private String summaryFromComments(Issue issue) {
 			List<Comment> comments = this.gitHub.getCommentsForIssue(Integer.parseInt(issue.getNumber()),
 					this.repository);
 			for (Comment comment : comments) {
-				if (AuthorAssociation.MEMBER == comment.getAuthorAssociation()) {
-					String body = comment.getBody();
-					if (body != null && body.startsWith(this.prefix)) {
-						return body.substring(this.prefix.length()).trim();
-					}
+				String summary = summarize(comment.getBody(), comment.getAuthorAssociation());
+				if (summary != null) {
+					return summary;
 				}
 			}
-			return this.fallback.summarize(issue);
+			return null;
 		}
 
 	}

@@ -364,6 +364,9 @@ class ChangelogGeneratorTests {
 		issues.add(newIssue("Bug one", "1", "bug-1-url", Type.BUG, "status: noteworthy"));
 		issues.add(newIssue("Bug two", "2", "bug-2-url", Type.BUG));
 		issues.add(newIssue("Noteworthy change", "3", "bug-3-url", Type.BUG, "status: noteworthy"));
+		issues.add(newIssue("Noteworthy change in opening comment", "4",
+				"Noteworthy change: Issue body description of the change", "bug-4-url", Type.BUG,
+				AuthorAssociation.MEMBER, "status: noteworthy"));
 		given(this.service.getIssuesForMilestone(23, REPO)).willReturn(issues);
 		List<Comment> comments = new ArrayList<>();
 		comments.add(new Comment("Community comment", AuthorAssociation.NONE));
@@ -508,28 +511,37 @@ class ChangelogGeneratorTests {
 	}
 
 	private Issue newIssue(String title, String number, String url, Type type) {
-		return new Issue(number, title, null, type.getLabels(), url, null, null);
+		return new Issue(number, title, null, type.getLabels(), url, null, null, AuthorAssociation.NONE);
 	}
 
 	private Issue newIssue(String title, String number, String url, Type type, String... extraLabels) {
 		List<Label> labels = new ArrayList<>(type.getLabels());
 		Arrays.stream(extraLabels).map(Label::new).forEach(labels::add);
-		return new Issue(number, title, null, labels, url, null, null);
+		return new Issue(number, title, null, labels, url, null, null, AuthorAssociation.NONE);
+	}
+
+	private Issue newIssue(String title, String number, String body, String url, Type type,
+			AuthorAssociation authorAssociation, String... extraLabels) {
+		List<Label> labels = new ArrayList<>(type.getLabels());
+		Arrays.stream(extraLabels).map(Label::new).forEach(labels::add);
+		return new Issue(number, title, null, labels, url, null, body, authorAssociation);
 	}
 
 	private Issue newPortedIssue(String title, String number, String body, String url, Type portType) {
 		List<Label> labels = new ArrayList<>(portType.getLabels());
-		return new Issue(number, title, null, labels, url, null, body);
+		return new Issue(number, title, null, labels, url, null, body, AuthorAssociation.NONE);
 	}
 
 	private Issue newPullRequest(String title, String number, Type type, String url, User user) {
-		return new Issue(number, title, user, type.getLabels(), url, new PullRequest("https://example.com"), null);
+		return new Issue(number, title, user, type.getLabels(), url, new PullRequest("https://example.com"), null,
+				AuthorAssociation.NONE);
 	}
 
 	private Issue newPullRequest(String title, String number, Type type, String url, User user, String... extraLabels) {
 		List<Label> labels = new ArrayList<>(type.getLabels());
 		Arrays.stream(extraLabels).map(Label::new).forEach(labels::add);
-		return new Issue(number, title, user, labels, url, new PullRequest("https://example.com"), null);
+		return new Issue(number, title, user, labels, url, new PullRequest("https://example.com"), null,
+				AuthorAssociation.NONE);
 	}
 
 	private enum Type {

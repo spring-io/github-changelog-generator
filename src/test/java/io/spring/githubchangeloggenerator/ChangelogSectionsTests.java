@@ -28,6 +28,7 @@ import org.junit.jupiter.api.Test;
 import io.spring.githubchangeloggenerator.ApplicationProperties.IssueType;
 import io.spring.githubchangeloggenerator.ApplicationProperties.Summary;
 import io.spring.githubchangeloggenerator.ApplicationProperties.SummaryMode;
+import io.spring.githubchangeloggenerator.github.payload.Comment.AuthorAssociation;
 import io.spring.githubchangeloggenerator.github.payload.Issue;
 import io.spring.githubchangeloggenerator.github.payload.Label;
 import io.spring.githubchangeloggenerator.github.service.GitHubService;
@@ -174,7 +175,7 @@ class ChangelogSectionsTests {
 	private Issue createIssue(String number, String... labels) {
 		return new Issue(number, "I am #" + number, null,
 				Arrays.stream(labels).map(Label::new).collect(Collectors.toList()), "https://example.com/" + number,
-				null, null);
+				null, null, AuthorAssociation.NONE);
 	}
 
 	private Map<String, List<Issue>> getBySection(Map<ChangelogSection, List<Issue>> collatedIssues) {

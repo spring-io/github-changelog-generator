@@ -46,14 +46,36 @@ public class Comment {
 	public enum AuthorAssociation {
 
 		/**
+		 * The user who authored the comment has been invited to collaborate on the
+		 * issue's repository.
+		 */
+		COLLABORATOR,
+
+		/**
 		 * The user who authored the comment has previously committed to the issue's
 		 * repository.
 		 */
 		CONTRIBUTOR,
 
 		/**
-		 * The user who authored the comment is a member of the organization that own's
-		 * the issue's repository.
+		 * The user who authored the comment has not previously committed to GitHub.
+		 */
+		FIRST_TIMER,
+
+		/**
+		 * The user who authored the comment has not previously committed to the issue's
+		 * repository.
+		 */
+		FIRST_TIME_CONTRIBUTOR,
+
+		/**
+		 * The user who authored the comment is a placeholder for an unclaimed user.
+		 */
+		MANNEQUIN,
+
+		/**
+		 * The user who authored the comment is a member of the organization that owns the
+		 * issue's repository.
 		 */
 		MEMBER,
 
@@ -61,7 +83,12 @@ public class Comment {
 		 * The user who authored the comment has no association with the issue's
 		 * repository.
 		 */
-		NONE
+		NONE,
+
+		/**
+		 * The user who authored the comment is the owner of the issue's repository.
+		 */
+		OWNER
 
 	}
 
