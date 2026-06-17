@@ -43,6 +43,7 @@ import io.spring.githubchangeloggenerator.ApplicationProperties.IssueSort;
 import io.spring.githubchangeloggenerator.ApplicationProperties.IssueType;
 import io.spring.githubchangeloggenerator.ApplicationProperties.Issues;
 import io.spring.githubchangeloggenerator.ApplicationProperties.IssuesExclude;
+import io.spring.githubchangeloggenerator.ApplicationProperties.LabelMatch;
 import io.spring.githubchangeloggenerator.ApplicationProperties.PortedIssue;
 import io.spring.githubchangeloggenerator.ApplicationProperties.Section;
 import io.spring.githubchangeloggenerator.ApplicationProperties.Summary;
@@ -68,6 +69,7 @@ import static org.mockito.Mockito.mock;
  * @author Mahendra Bishnoi
  * @author Gary Russell
  * @author Steven Sheehy
+ * @author Venkata Naga Sai Srikanth Gollapudi
  */
 class ChangelogGeneratorTests {
 
@@ -338,7 +340,7 @@ class ChangelogGeneratorTests {
 	void generateWhenSectionSortedByTitle() throws Exception {
 		List<Section> sections = new ArrayList<>();
 		Set<String> labels = Collections.singleton("type: enhancement");
-		sections.add(new Section("Enhancements", null, IssueSort.TITLE, labels, IssueType.ANY,
+		sections.add(new Section("Enhancements", null, IssueSort.TITLE, labels, LabelMatch.ANY, IssueType.ANY,
 				new Summary(SummaryMode.TITLE, Collections.emptyMap())));
 		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.ID, sections,
 				new Issues(null, null, null, true), null, null, false);
@@ -355,7 +357,7 @@ class ChangelogGeneratorTests {
 	void generateWhenSectionUsesMemberCommentSummaries() throws Exception {
 		List<Section> sections = new ArrayList<>();
 		Set<String> labels = Collections.singleton("status: noteworthy");
-		sections.add(new Section("Noteworthy Changes", null, IssueSort.CREATED, labels, IssueType.ANY,
+		sections.add(new Section("Noteworthy Changes", null, IssueSort.CREATED, labels, LabelMatch.ANY, IssueType.ANY,
 				new Summary(SummaryMode.MEMBER_COMMENT, Map.of("prefix", "Noteworthy change: "))));
 		PortedIssue forwardPort = new PortedIssue("status: forward-port", "Forward port of issue #(\\d+)");
 		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.ID, sections,
@@ -389,7 +391,7 @@ class ChangelogGeneratorTests {
 	void generateWhenSectionUsesBodyRegexSummaries() throws Exception {
 		List<Section> sections = new ArrayList<>();
 		Set<String> labels = Collections.singleton("type: dependency-upgrade");
-		sections.add(new Section("Dependency Upgrades", null, IssueSort.TITLE, labels, IssueType.ANY,
+		sections.add(new Section("Dependency Upgrades", null, IssueSort.TITLE, labels, LabelMatch.ANY, IssueType.ANY,
 				new Summary(SummaryMode.BODY_REGEX, Map.of("expression", "(Upgrade to \\[.*\\]\\(.*\\)).*"))));
 		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.ID, sections,
 				new Issues(null, null, null, true), null, null, false);
@@ -408,7 +410,7 @@ class ChangelogGeneratorTests {
 	void generateWhenAllIssuesSortedByTitle() throws Exception {
 		List<Section> sections = new ArrayList<>();
 		Set<String> labels = Collections.singleton("type: enhancement");
-		sections.add(new Section("Enhancements", null, null, labels, IssueType.ANY,
+		sections.add(new Section("Enhancements", null, null, labels, LabelMatch.ANY, IssueType.ANY,
 				new Summary(SummaryMode.TITLE, Collections.emptyMap())));
 		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.ID, sections,
 				new Issues(IssueSort.TITLE, null, null, true), null, null, false);
@@ -474,7 +476,7 @@ class ChangelogGeneratorTests {
 	void generateWhenIssuesOnly() throws Exception {
 		List<Section> sections = new ArrayList<>();
 		Set<String> labels = Collections.singleton("type: enhancement");
-		sections.add(new Section("Enhancements", null, IssueSort.TITLE, labels, IssueType.ISSUE,
+		sections.add(new Section("Enhancements", null, IssueSort.TITLE, labels, LabelMatch.ANY, IssueType.ISSUE,
 				new Summary(SummaryMode.TITLE, Collections.emptyMap())));
 		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.ID, sections,
 				new Issues(null, null, null, true), null, null, false);
@@ -493,7 +495,7 @@ class ChangelogGeneratorTests {
 	void generateWhenPullRequestsOnly() throws Exception {
 		List<Section> sections = new ArrayList<>();
 		Set<String> labels = Collections.singleton("type: enhancement");
-		sections.add(new Section("Enhancements", null, IssueSort.TITLE, labels, IssueType.PULL_REQUEST,
+		sections.add(new Section("Enhancements", null, IssueSort.TITLE, labels, LabelMatch.ANY, IssueType.PULL_REQUEST,
 				new Summary(SummaryMode.TITLE, Collections.emptyMap())));
 		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.ID, sections,
 				new Issues(null, null, null, true), null, null, false);

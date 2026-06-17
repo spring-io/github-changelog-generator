@@ -36,6 +36,7 @@ import io.spring.githubchangeloggenerator.github.service.Repository;
  * @author Mahendra Bishnoi
  * @author Gary Russell
  * @author Steven Sheehy
+ * @author Venkata Naga Sai Srikanth Gollapudi
  */
 @ConfigurationProperties(prefix = "changelog")
 public class ApplicationProperties {
@@ -143,6 +144,11 @@ public class ApplicationProperties {
 		private final Set<String> labels;
 
 		/**
+		 * How configured labels are matched against an issue.
+		 */
+		private final LabelMatch labelMatch;
+
+		/**
 		 * Whether issues, pull requests or both should be included in this section.
 		 */
 		private final IssueType type;
@@ -150,11 +156,13 @@ public class ApplicationProperties {
 		private final Summary summary;
 
 		public Section(String title, @DefaultValue("default") String group, IssueSort sort, Set<String> labels,
-				@DefaultValue("any") IssueType type, @DefaultValue Summary summary) {
+				@DefaultValue("any") LabelMatch labelMatch, @DefaultValue("any") IssueType type,
+				@DefaultValue Summary summary) {
 			this.title = title;
 			this.group = (group != null) ? group : "default";
 			this.sort = sort;
 			this.labels = labels;
+			this.labelMatch = (labelMatch != null) ? labelMatch : LabelMatch.ANY;
 			this.type = type;
 			this.summary = summary;
 		}
@@ -173,6 +181,10 @@ public class ApplicationProperties {
 
 		public Set<String> getLabels() {
 			return this.labels;
+		}
+
+		public LabelMatch getLabelMatch() {
+			return this.labelMatch;
 		}
 
 		public IssueType getType() {
@@ -378,6 +390,23 @@ public class ApplicationProperties {
 		 * Sort by the title.
 		 */
 		TITLE
+
+	}
+
+	/**
+	 * How configured section labels are matched.
+	 */
+	public enum LabelMatch {
+
+		/**
+		 * Match when any configured label matches an issue label.
+		 */
+		ANY,
+
+		/**
+		 * Match when all configured labels match issue labels.
+		 */
+		ALL
 
 	}
 

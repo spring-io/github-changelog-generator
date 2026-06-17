@@ -93,6 +93,18 @@ changelog:
     labels: ["fix"]
 ----
 
+By default, a section will include issues matching any of the configured labels.
+If you want a section to include only issues that match all configured labels, set `label-match` to `all`:
+
+[source,yaml]
+----
+changelog:
+  sections:
+  - title: "Mobile Breaking Changes"
+    labels: ["breaking change", "library: mobile"]
+    label-match: all
+----
+
 By default, adding sections will replace the default sections.
 To add sections after the defaults, add the following configuration:
 

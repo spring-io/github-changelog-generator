@@ -21,11 +21,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
 
 import io.spring.githubchangeloggenerator.ApplicationProperties.IssueType;
+import io.spring.githubchangeloggenerator.ApplicationProperties.LabelMatch;
 import io.spring.githubchangeloggenerator.ApplicationProperties.Summary;
 import io.spring.githubchangeloggenerator.ApplicationProperties.SummaryMode;
 import io.spring.githubchangeloggenerator.github.payload.Comment.AuthorAssociation;
@@ -44,6 +46,7 @@ import static org.mockito.Mockito.mock;
  * @author Phillip Webb
  * @author Gary Russell
  * @author Steven Sheehy
+ * @author Venkata Naga Sai Srikanth Gollapudi
  */
 class ChangelogSectionsTests {
 
@@ -76,10 +79,10 @@ class ChangelogSectionsTests {
 	@Test
 	void collateWhenHasCustomSectionsUsesDefinedSections() {
 		ApplicationProperties.Section breaksPassivitySection = new ApplicationProperties.Section(":rewind: Non-passive",
-				null, null, Collections.singleton("breaks-passivity"), IssueType.ANY,
+				null, null, Collections.singleton("breaks-passivity"), LabelMatch.ANY, IssueType.ANY,
 				new Summary(SummaryMode.TITLE, Collections.emptyMap()));
 		ApplicationProperties.Section bugsSection = new ApplicationProperties.Section(":lady_beetle: Bug Fixes", null,
-				null, Collections.singleton("bug"), IssueType.ANY,
+				null, Collections.singleton("bug"), LabelMatch.ANY, IssueType.ANY,
 				new Summary(SummaryMode.TITLE, Collections.emptyMap()));
 		List<ApplicationProperties.Section> customSections = Arrays.asList(breaksPassivitySection, bugsSection);
 		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.TITLE, customSections,
@@ -95,7 +98,7 @@ class ChangelogSectionsTests {
 	@Test
 	void collateWhenHasCustomSectionsUsesDefinedSectionsAndDefault() {
 		ApplicationProperties.Section breaksPassivitySection = new ApplicationProperties.Section(":rewind: Non-passive",
-				null, null, Collections.singleton("breaks-passivity"), IssueType.ANY,
+				null, null, Collections.singleton("breaks-passivity"), LabelMatch.ANY, IssueType.ANY,
 				new Summary(SummaryMode.TITLE, Collections.emptyMap()));
 		List<ApplicationProperties.Section> customSections = List.of(breaksPassivitySection);
 		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.TITLE, customSections,
@@ -106,6 +109,33 @@ class ChangelogSectionsTests {
 		Map<ChangelogSection, List<Issue>> collated = sections.collate(Arrays.asList(bug, nonPassive));
 		Map<String, List<Issue>> bySection = getBySection(collated);
 		assertThat(bySection).containsOnlyKeys(":lady_beetle: Bug Fixes", ":rewind: Non-passive");
+	}
+
+	@Test
+	void collateWhenSectionLabelMatchIsAllOnlyIncludesIssuesWithAllLabels() {
+		ApplicationProperties.Section mobileBreakingChanges = new ApplicationProperties.Section(
+				"Mobile Breaking Changes", "mobile-breaking-changes", null,
+				Set.of("breaking change", "library: mobile"), LabelMatch.ALL, IssueType.ANY,
+				new Summary(SummaryMode.TITLE, Collections.emptyMap()));
+		ApplicationProperties.Section desktopBreakingChanges = new ApplicationProperties.Section(
+				"Desktop Breaking Changes", "desktop-breaking-changes", null,
+				Set.of("breaking change", "library: desktop"), LabelMatch.ALL, IssueType.ANY,
+				new Summary(SummaryMode.TITLE, Collections.emptyMap()));
+		List<ApplicationProperties.Section> customSections = Arrays.asList(mobileBreakingChanges,
+				desktopBreakingChanges);
+		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.TITLE, customSections,
+				null, null, null, false);
+		ChangelogSections sections = new ChangelogSections(properties, this.github, this.issueChain);
+		Issue breakingChange = createIssue("1", "breaking change");
+		Issue mobile = createIssue("2", "library: mobile");
+		Issue mobileBreakingChange = createIssue("3", "breaking change", "library: mobile");
+		Issue desktopBreakingChange = createIssue("4", "breaking change", "library: desktop");
+		Map<ChangelogSection, List<Issue>> collated = sections
+			.collate(Arrays.asList(breakingChange, mobile, mobileBreakingChange, desktopBreakingChange));
+		Map<String, List<Issue>> bySection = getBySection(collated);
+		assertThat(bySection).containsOnlyKeys("Mobile Breaking Changes", "Desktop Breaking Changes");
+		assertThat(bySection.get("Mobile Breaking Changes")).containsExactly(mobileBreakingChange);
+		assertThat(bySection.get("Desktop Breaking Changes")).containsExactly(desktopBreakingChange);
 	}
 
 	@Test
@@ -138,9 +168,10 @@ class ChangelogSectionsTests {
 		Issue highlight = createIssue("2", "highlight");
 		Issue bugAndHighlight = createIssue("3", "bug", "highlight");
 		ApplicationProperties.Section bugs = new ApplicationProperties.Section("Bugs", null, null,
-				Collections.singleton("bug"), IssueType.ANY, new Summary(SummaryMode.TITLE, Collections.emptyMap()));
+				Collections.singleton("bug"), LabelMatch.ANY, IssueType.ANY,
+				new Summary(SummaryMode.TITLE, Collections.emptyMap()));
 		ApplicationProperties.Section highlights = new ApplicationProperties.Section("Highlights", null, null,
-				Collections.singleton("highlight"), IssueType.ANY,
+				Collections.singleton("highlight"), LabelMatch.ANY, IssueType.ANY,
 				new Summary(SummaryMode.TITLE, Collections.emptyMap()));
 		List<ApplicationProperties.Section> customSections = Arrays.asList(bugs, highlights);
 		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.TITLE, customSections,
@@ -159,9 +190,10 @@ class ChangelogSectionsTests {
 		Issue highlight = createIssue("2", "highlight");
 		Issue bugAndHighlight = createIssue("3", "bug", "highlight");
 		ApplicationProperties.Section bugs = new ApplicationProperties.Section("Bugs", null, null,
-				Collections.singleton("bug"), IssueType.ANY, new Summary(SummaryMode.TITLE, Collections.emptyMap()));
+				Collections.singleton("bug"), LabelMatch.ANY, IssueType.ANY,
+				new Summary(SummaryMode.TITLE, Collections.emptyMap()));
 		ApplicationProperties.Section highlights = new ApplicationProperties.Section("Highlights", "highlights", null,
-				Collections.singleton("highlight"), IssueType.ANY,
+				Collections.singleton("highlight"), LabelMatch.ANY, IssueType.ANY,
 				new Summary(SummaryMode.TITLE, Collections.emptyMap()));
 		List<ApplicationProperties.Section> customSections = Arrays.asList(bugs, highlights);
 		ApplicationProperties properties = new ApplicationProperties(REPO, MilestoneReference.TITLE, customSections,

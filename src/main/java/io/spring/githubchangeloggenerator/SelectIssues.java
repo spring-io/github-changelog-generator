@@ -17,10 +17,12 @@
 package io.spring.githubchangeloggenerator;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
 
 import io.spring.githubchangeloggenerator.ApplicationProperties.IssueType;
+import io.spring.githubchangeloggenerator.ApplicationProperties.LabelMatch;
 import io.spring.githubchangeloggenerator.github.payload.Issue;
 import io.spring.githubchangeloggenerator.github.payload.Label;
 
@@ -29,6 +31,7 @@ import io.spring.githubchangeloggenerator.github.payload.Label;
  *
  * @author Phillip Webb
  * @author Steven Sheehy
+ * @author Venkata Naga Sai Srikanth Gollapudi
  */
 final class SelectIssues {
 
@@ -40,10 +43,23 @@ final class SelectIssues {
 	}
 
 	static Predicate<Issue> withLabelNamesContaining(Collection<String> nameContent) {
-		return (issue) -> issue.getLabels()
-			.stream()
-			.map(Label::getName)
-			.anyMatch((name) -> nameContent.stream().anyMatch(name::contains));
+		return withLabelNamesContaining(nameContent, LabelMatch.ANY);
+	}
+
+	static Predicate<Issue> withLabelNamesContaining(Collection<String> nameContent, LabelMatch labelMatch) {
+		if (nameContent == null || nameContent.isEmpty()) {
+			return (issue) -> false;
+		}
+		LabelMatch match = (labelMatch != null) ? labelMatch : LabelMatch.ANY;
+		return (issue) -> {
+			List<String> labelNames = issue.getLabels().stream().map(Label::getName).toList();
+			return switch (match) {
+				case ANY ->
+					labelNames.stream().anyMatch((labelName) -> nameContent.stream().anyMatch(labelName::contains));
+				case ALL -> nameContent.stream()
+					.allMatch((content) -> labelNames.stream().anyMatch((labelName) -> labelName.contains(content)));
+			};
+		};
 	}
 
 	static Predicate<? super Issue> withType(IssueType type) {

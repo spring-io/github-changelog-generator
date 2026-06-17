@@ -45,6 +45,7 @@ import io.spring.githubchangeloggenerator.github.service.Repository;
  * @author Phillip Webb
  * @author Gary Russell
  * @author Steven Sheehy
+ * @author Venkata Naga Sai Srikanth Gollapudi
  */
 class ChangelogSections {
 
@@ -92,7 +93,7 @@ class ChangelogSections {
 	}
 
 	private ChangelogSection adapt(ApplicationProperties.Section section) {
-		Predicate<Issue> filter = SelectIssues.withLabelNamesContaining(section.getLabels());
+		Predicate<Issue> filter = SelectIssues.withLabelNamesContaining(section.getLabels(), section.getLabelMatch());
 		filter = filter.and(SelectIssues.withType(section.getType()));
 		return new ChangelogSection(section.getTitle(), section.getGroup(), section.getSort(), filter,
 				issueSummarizer(section.getSummary()));
